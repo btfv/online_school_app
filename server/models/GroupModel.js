@@ -5,6 +5,10 @@ const homeworkPreviewSchema = require('./HomeworkPreviewSchema');
 const memberSchema = require('./MemberSchema');
 
 const groupSchema = new mongoose.Schema({
+	publicId: {
+		type: String,
+		required: true,
+	},
 	name: {
 		type: String,
 		required: true,
@@ -17,10 +21,11 @@ const groupSchema = new mongoose.Schema({
 	],
 	homeworks: [
 		{
-			type: mongoose.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 	],
+	//homeworks public ids
 });
 
 const GroupModel = mongoose.model('User', groupSchema);

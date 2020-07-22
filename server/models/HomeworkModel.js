@@ -5,6 +5,11 @@ const receivedUsersSchema = require('./ReceivedUsersSchema');
 const receivedGroupsSchema = require('./ReceivedGroupsSchema');
 
 const homeworkSchema = new mongoose.Schema({
+	publicId: {
+		type: String,
+		required: true,
+	},
+	//nanoid
 	title: {
 		type: String,
 		required: true,
@@ -22,6 +27,10 @@ const homeworkSchema = new mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		required: true,
 	},
+	creatorPublicId: {
+		type: String,
+		required: true,
+	},
 	attachments: [
 		{
 			type: mongoose.Types.ObjectId,
@@ -31,18 +40,18 @@ const homeworkSchema = new mongoose.Schema({
 	tasks: [taskSchema],
 	receivedStudents: [
 		{
-			type: mongoose.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 	],
-	//users who received that homework
+	//publicids of users who received that homework
 	receivedGroups: [
 		{
-			type: mongoose.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 	],
-	//groups who received that homework
+	//publicids of groups who received that homework
 	solutions: [solutionSchema],
 });
 

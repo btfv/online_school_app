@@ -6,10 +6,10 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
 
-const UserModel = require('../models/StudentModel');
+const StudentModel = require('../models/StudentModel');
 
 passport.use(
-	'user-local',
+	'student-local',
 	new LocalStrategy(
 		{
 			usernameField: 'username',
@@ -17,17 +17,17 @@ passport.use(
 		},
 		async (username, password, done) => {
 			try {
-				const userDocument = await UserModel.findOne({
+				const studentDocument = await StudentModel.findOne({
 					username: username,
 				})
-					.select('_id passwordHash')
+					.select('_id publicId username passwordHash')
 					.exec();
 				const passwordsMatch = await bcrypt.compare(
 					password,
-					userDocument.passwordHash
+					studentDocument.passwordHash
 				);
 				if (passwordsMatch) {
-					return done(null, userDocument);
+					return done(null, studentDocument);
 				} else {
 					return done(Error('Incorrect Username / Password'), null);
 				}
@@ -46,17 +46,17 @@ passport.use(
 		},
 		async (username, password, done) => {
 			try {
-				const userDocument = await TeacherModel.findOne({
+				const teacherDocument = await TeacherModel.findOne({
 					username: username,
 				})
-					.select('_id passwordHash')
+					.select('_id publicId username passwordHash')
 					.exec();
 				const passwordsMatch = await bcrypt.compare(
 					password,
-					userDocument.passwordHash
+					teacherDocument.passwordHash
 				);
 				if (passwordsMatch) {
-					return done(null, userDocument);
+					return done(null, teacherDocument);
 				} else {
 					return done(Error('Incorrect Username / Password'), null);
 				}

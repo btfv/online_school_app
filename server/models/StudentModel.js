@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const subjectSchema = require('./SubjectsSchema');
 
 const studentSchema = new mongoose.Schema({
+	publicId: {
+		type: String,
+		required: true,
+	},
 	username: {
 		type: String,
 		required: true,
@@ -34,10 +38,11 @@ const studentSchema = new mongoose.Schema({
 	],
 	homeworks: [
 		{
-			type: mongoose.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 	],
+	//homeworks public ids
 });
 
 const StudentModel = mongoose.model('Student', studentSchema);

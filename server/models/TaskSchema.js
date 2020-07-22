@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const taskSchema = new mongoose.Schema([
 	{
+		publicId: {
+			type: String,
+			required: true,
+		},
+		//nanoid
 		number: {
 			type: Number,
 			required: true,

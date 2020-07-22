@@ -1,9 +1,11 @@
 const express = require('express');
-const UserModel = require('../models/StudentModel');
+const StudentModel = require('../models/StudentModel');
 const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 var passport = require('passport');
+const { nanoid } = require('nanoid');
+const TeacherModel = require('../models/TeacherModel');
 
 const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
@@ -18,7 +20,7 @@ authController.checkHeader = (req, res, next) => {
 	}
 };
 
-authController.checkToken = async (req, res, next) => {
+authController.student.checkToken = async (req, res, next) => {
 	await passport.authenticate(
 		'jwt',
 		{ session: false },
@@ -33,11 +35,13 @@ authController.checkToken = async (req, res, next) => {
 					.send();
 			}
 			try {
-				const userDocument = await UserModel.findById(token._id)
-					.select('_id username passwordHash')
+				const studentDocument = await StudentModel.findOne({
+					publicId: token.publicId,
+				})
+					.select('_id publicId username passwordHash')
 					.exec();
 
-				req.user = userDocument;
+				req.user = studentDocument;
 				next();
 			} catch (error) {
 				return res
@@ -48,23 +52,53 @@ authController.checkToken = async (req, res, next) => {
 	)(req, res, next);
 };
 
-authController.login = async (req, res, next) => {
+authController.teacher.checkToken = async (req, res, next) => {
 	await passport.authenticate(
-		'user-local',
+		'jwt',
 		{ session: false },
-		(error, userDocument) => {
-			if (error || !userDocument) {
+		async (error, token) => {
+			if (error) {
+				return res.status(400).json(error).send();
+			}
+			if (!token) {
+				return res
+					.status(400)
+					.json({ status: 400, message: 'Incorrect token' })
+					.send();
+			}
+			try {
+				const teacherDocument = await TeacherModel.findOne({
+					publicId: token.publicId,
+				})
+					.select('_id publicId username passwordHash')
+					.exec();
+
+				req.user = teacherDocument;
+				next();
+			} catch (error) {
+				return res
+					.status(400)
+					.send({ status: 400, message: error.message });
+			}
+		}
+	)(req, res, next);
+};
+
+authController.student.login = async (req, res, next) => {
+	await passport.authenticate(
+		'student-local',
+		{ session: false },
+		(error, studentDocument) => {
+			if (error || !studentDocument) {
 				return res
 					.status(401)
 					.send({ status: 401, message: error.message });
 			}
-			/** This is what ends up in our JWT */
 			const payload = {
-				_id: userDocument._id,
+				publicId: studentDocument.publicId,
 				isTeacher: false,
 			};
 
-			/** assigns payload to req.user */
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
 					res.status(401).send({
@@ -73,12 +107,10 @@ authController.login = async (req, res, next) => {
 					});
 				}
 
-				/** generate a signed json web token and return it in the response */
 				const token = jwt.sign(payload, secret, {
 					expiresIn: '24h',
 				});
 
-				/** assign our jwt to the cookie */
 				res.status(200)
 					.cookie('Authorization', 'Bearer ' + token, {
 						httpOnly: true,
@@ -90,30 +122,31 @@ authController.login = async (req, res, next) => {
 	)(req, res);
 };
 
-authController.register = async (req, res, next) => {
-	const { username, password, firstname, lastname } = req.body;
+authController.student.register = async (req, res, next) => {
+	const { username, password, name, age } = req.body;
 
 	try {
-		if (!username || !password || !firstname || !lastname) {
+		if (!username || !password || !name || !age) {
 			throw Error(
 				'Req body should take the form { username, password, firstname, lastname }'
 			);
 		}
-		const existingUser = await UserModel.findOne({
+		const existingStudent = await StudentModel.findOne({
 			username: username,
 		}).exec();
-		if (existingUser) {
+		if (existingStudent) {
 			throw Error('Student with this username already exists');
 		}
-
+		const publicId = nanoid();
 		const passwordHash = await bcrypt.hash(password, passwordHashCost);
-		const userDocument = new UserModel({
-			username,
-			passwordHash,
-			firstname,
-			lastname,
+		const studentDocument = new StudentModel({
+			username: username,
+			passwordHash: passwordHash,
+			name: name,
+			publicId: publicId,
+			age: age,
 		});
-		await userDocument.save();
+		await studentDocument.save();
 
 		res.status(201).send({
 			status: 201,
@@ -128,19 +161,17 @@ authController.teacher.login = async (req, res, next) => {
 	await passport.authenticate(
 		'teacher-local',
 		{ session: false },
-		async (error, userDocument) => {
-			if (error || !userDocument) {
+		async (error, teacherDocument) => {
+			if (error || !teacherDocument) {
 				return res
 					.status(401)
 					.send({ status: 401, message: error.message });
 			}
-			/** This is what ends up in our JWT */
 			const payload = {
-				_id: userDocument._id,
+				publicId: teacherDocument.publicId,
 				isTeacher: true,
 			};
 
-			/** assigns payload to req.user */
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
 					res.status(401).send({
@@ -149,12 +180,10 @@ authController.teacher.login = async (req, res, next) => {
 					});
 				}
 
-				/** generate a signed json web token and return it in the response */
 				const token = jwt.sign(payload, secret, {
 					expiresIn: '24h',
 				});
 
-				/** assign our jwt to the cookie */
 				res.status(200)
 					.cookie('Authorization', 'Bearer ' + token, {
 						httpOnly: true,
@@ -167,29 +196,29 @@ authController.teacher.login = async (req, res, next) => {
 };
 
 authController.teacher.register = async (req, res, next) => {
-	const { username, password, firstname, lastname } = req.body;
+	const { username, password, name } = req.body;
 
 	try {
-		if (!username || !password || !firstname || !lastname) {
+		if (!username || !password || !name) {
 			throw Error(
-				'Req body should take the form { username, password, firstname, lastname }'
+				'Req body should take the form { username, password, name }'
 			);
 		}
-		const existingUser = await TeacherModel.findOne({
+		const existingTeacher = await TeacherModel.findOne({
 			username: username,
-		}).exec();
-		if (existingUser) {
+		});
+		if (existingTeacher) {
 			throw Error('Teacher with this username already exists');
 		}
-
+		const publicId = nanoid();
 		const passwordHash = await bcrypt.hash(password, passwordHashCost);
-		const userDocument = new TeacherModel({
-			username,
-			passwordHash,
-			firstname,
-			lastname,
+		const teacherDocument = new TeacherModel({
+			username: username,
+			passwordHash: passwordHash,
+			name: name,
+			publicId: publicId,
 		});
-		await userDocument.save();
+		await teacherDocument.save();
 
 		res.status(201).send({
 			status: 201,
@@ -203,9 +232,8 @@ authController.teacher.register = async (req, res, next) => {
 authController.teacher.checkPermission = async (req, res, next) => {
 	try {
 		if (!req.user.isTeacher) {
-			throw Error('You aren\'t teacher');
+			throw Error("You aren't teacher");
 		}
-		
 	} catch (error) {
 		res.status(400).send({ status: 400, message: error.message });
 	}
