@@ -23,9 +23,11 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 var app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(fileUpload({
-    createParentPath: true
-}));
+app.use(
+	fileUpload({
+		createParentPath: true,
+	})
+);
 app.use(cookieParser(secret));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

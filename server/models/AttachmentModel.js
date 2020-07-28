@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 const attachmentSchema = new mongoose.Schema({
-	type: {
-		type: Number,
+	ext: {
+		type: String,
 		required: true,
 	},
 	name: {
 		type: String,
-		required: true,
+		required: false,
+		default: null,
 	},
 	reference: {
 		type: String,

@@ -77,10 +77,10 @@ HomeworkService.getPreviewsByStudent = async function (
 	}
 };
 
-HomeworkService.getByStudent = async function (studentPublicId) {
+HomeworkService.getByStudent = async function (homeworkPublicId) {
 	try {
 		const homeworkDocument = await HomeworkModel.findOne({
-			publicId: studentPublicId,
+			publicId: homeworkPublicId,
 		}).select('-_id');
 		return homeworkDocument;
 	} catch (error) {
@@ -119,24 +119,29 @@ HomeworkService.getPreviewsByTeacher = async function (
 	}
 };
 
-HomeworkService.getByTeacher = async function (teacherPublicId) {
+HomeworkService.getByTeacher = async function (homeworkPublicId) {
 	try {
 		const homeworkDocument = await HomeworkModel.findOne({
-			publicId: teacherPublicId,
+			publicId: homeworkPublicId,
 		}).select('-_id');
 		return homeworkDocument;
 	} catch (error) {
 		throw Error(error);
 	}
 };
-
 HomeworkService.addHomework = async function (
 	title,
 	description,
 	subject,
-	creatorPublicId
+	creatorPublicId,
+	attachments
 ) {
 	try {
+		if (attachments !== []) {
+			var attachmentIds = attachments.map(async (attachment) => {
+				return await AttachmentService.uploadFile(attachment);
+			});
+		}
 		const creatorId = (
 			await TeacherModel.findOne({ publicId: creatorPublicId })
 		).select('_id')._id;
@@ -149,10 +154,12 @@ HomeworkService.addHomework = async function (
 			creatorPublicId: creatorPublicId,
 			creator: creatorId,
 			publicId: publicId,
+			attachments: attachmentIds,
 		});
 		await TeacherModel.findByIdAndUpdate(creatorId, {
 			$push: { homeworks: publicId },
 		});
+		return publicId;
 	} catch (error) {
 		throw Error(error);
 	}
@@ -205,24 +212,27 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 	*/
 	try {
 		if (attachments !== []) {
-			const attachmentIds = attachments.map(async (attachment) => {
+			var attachmentIds = attachments.map(async (attachment) => {
 				return await AttachmentService.uploadFile(attachment);
 			});
 		}
 		const publicId = nanoid();
-		await HomeworkModel.findOneAndUpdate({publicId : homeworkPublicId}, {
-			$push: {
-				tasks: {
-					publicId: publicId,
-					type: task_type,
-					text: task.text,
-					attachments: attachmentIds,
-					options: task.options,
-					stringAnswer: task.stringAnswer,
-					detailedAnswer: task.detailedAnswer,
+		await HomeworkModel.findOneAndUpdate(
+			{ publicId: homeworkPublicId },
+			{
+				$push: {
+					tasks: {
+						publicId: publicId,
+						type: task_type,
+						text: task.text,
+						attachments: attachmentIds,
+						options: task.options,
+						stringAnswer: task.stringAnswer,
+						detailedAnswer: task.detailedAnswer,
+					},
 				},
-			},
-		});
+			}
+		);
 	} catch (error) {
 		throw Error(error);
 	}
@@ -240,8 +250,8 @@ HomeworkService.removeTask = async function (homeworkPublicId, taskPublicId) {
 };
 
 HomeworkService.removeStudent = async function (
-	homeworkPublicId,
-	studentPublicId
+	studentPublicId,
+	homeworkPublicId
 ) {
 	try {
 		await StudentModel.findOneAndUpdate(
@@ -257,7 +267,7 @@ HomeworkService.removeStudent = async function (
 	}
 };
 
-HomeworkService.removeGroup = async function (homeworkPublicId, groupPublicId) {
+HomeworkService.removeGroup = async function (groupPublicId, homeworkPublicId) {
 	try {
 		await GroupModel.findOneAndUpdate(
 			{ publicId: groupPublicId },
