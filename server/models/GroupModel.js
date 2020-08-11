@@ -1,8 +1,4 @@
 const mongoose = require('mongoose');
-const subjectSchema = require('./SubjectsSchema');
-const solutionPreviewSchema = require('./SolutionPreviewSchema');
-const homeworkPreviewSchema = require('./HomeworkPreviewSchema');
-const memberSchema = require('./MemberSchema');
 
 const groupSchema = new mongoose.Schema({
 	publicId: {

@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "express-fileupload": "^1.1.7-alpha.4",
-    "express-validator": "^6.6.0"
-  }
-}

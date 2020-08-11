@@ -1,27 +1,28 @@
-const shortid = require('shortid');
-const AttachmentModel = require('../models/AttachmentModel')
+const { nanoid } = require('nanoid');
+const AttachmentModel = require('../models/AttachmentModel');
 const AttachmentService = {};
 
 AttachmentService.uploadFile = async function (file) {
-	try {
-		const filename = shortid.generate() + Date.now();
-		const extension = file.name.split('.').pop();
-		const fileDocument = await AttachmentModel.create({ext : extension, reference: filename});
-		file.mv('./uploads_files/' + filename);
-		return fileDocument._id;
-	} catch (error) {
-		throw Error(error);
-	}
+	const fileReference = nanoid() + Date.now();
+	const filename = file.name.split('.')[0];
+	const extension = file.name.split('.').pop();
+	const fileDocument = await AttachmentModel.create({
+		name: filename,
+		ext: extension,
+		reference: fileReference,
+	});
+	await file.mv('./upload_files/' + fileReference);
+	console.log(fileDocument);
+	return fileDocument._id;
 };
 
 AttachmentService.getFile = async function (id) {
 	try {
-		const fileDocument = await AttachmentModel.findById(id);
-		return fileDocument;
+		const fileDocument = await AttachmentModel.findById(id).select('-_id reference name');
+		return fileDocument.toObject();
 	} catch (error) {
 		throw Error(error);
 	}
 };
-
 
 module.exports = AttachmentService;

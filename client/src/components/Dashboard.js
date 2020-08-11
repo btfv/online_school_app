@@ -8,10 +8,13 @@ import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import HomeworksList from './HomeworksList';
+import Homework from './Homework';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
+		width: '100%',
 	},
 	menuButton: {
 		marginRight: theme.spacing(2),
@@ -21,7 +24,14 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function Dashboard() {
+export default function DashboardComponent(props) {
+	const url = props.history.location.pathname.split('/');
+	var whatToRender;
+	if (url[url.length - 2] == 'homework') {
+		whatToRender = <Homework publicId={url.pop()} />;
+	} else {
+		whatToRender = <HomeworksList />;
+	}
 	const classes = useStyles();
 	const [auth, setAuth] = React.useState(true);
 	const [anchorEl, setAnchorEl] = React.useState(null);
@@ -51,7 +61,7 @@ export default function Dashboard() {
 						<MenuIcon />
 					</IconButton>
 					<Typography variant='h6' className={classes.title}>
-						Tasks
+						Homeworks
 					</Typography>
 					{auth && (
 						<div>
@@ -83,13 +93,14 @@ export default function Dashboard() {
 									Profile
 								</MenuItem>
 								<MenuItem onClick={handleClose}>
-									My account
+									Log Out
 								</MenuItem>
 							</Menu>
 						</div>
 					)}
 				</Toolbar>
 			</AppBar>
+			{whatToRender}
 		</div>
 	);
 }

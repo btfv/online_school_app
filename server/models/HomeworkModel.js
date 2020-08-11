@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const taskSchema = require('./TaskSchema');
 const solutionSchema = require('./SolutionSchema');
-const receivedUsersSchema = require('./ReceivedUsersSchema');
-const receivedGroupsSchema = require('./ReceivedGroupsSchema');
 
 const homeworkSchema = new mongoose.Schema({
 	publicId: {
@@ -14,16 +12,20 @@ const homeworkSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	desciption: {
+	description: {
 		type: String,
 		required: false,
 		default: null,
 	},
 	subject: {
-		type: Number,
+		type: String,
 		required: true,
 	},
-	creator: {
+	creatorName: {
+		type: String,
+		required: true,
+	},
+	creatorId: {
 		type: mongoose.Types.ObjectId,
 		required: true,
 	},

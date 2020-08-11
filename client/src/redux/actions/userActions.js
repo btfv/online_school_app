@@ -1,4 +1,4 @@
-import { userConstants } from '../constants/userConstants';
+import { userConstants } from '../constants';
 import { userService } from '../services/userService';
 import { history } from '../store';
 
@@ -7,11 +7,10 @@ export const userActions = {
 	logout,
 };
 
-function login(username, password) {
+function login(value) {
 	return (dispatch) => {
-		dispatch(request({ username }));
-
-		userService.login(username, password).then(
+		dispatch(request());
+		userService.login(value).then(
 			(user) => {
 				dispatch(success(user));
 				history.push('/dashboard');
@@ -23,7 +22,7 @@ function login(username, password) {
 	};
 
 	function request(user) {
-		return { type: userConstants.LOGIN_REQUEST, user };
+		return { type: userConstants.LOGIN_REQUEST };
 	}
 	function success(user) {
 		return { type: userConstants.LOGIN_SUCCESS, user };

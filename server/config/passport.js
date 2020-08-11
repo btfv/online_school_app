@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
 
 const StudentModel = require('../models/StudentModel');
+const TeacherModel = require('../models/TeacherModel');
 
 passport.use(
 	'student-local',
@@ -20,7 +21,7 @@ passport.use(
 				const studentDocument = await StudentModel.findOne({
 					username: username,
 				})
-					.select('_id publicId username passwordHash')
+					.select('_id publicId username name passwordHash')
 					.exec();
 				const passwordsMatch = await bcrypt.compare(
 					password,
@@ -49,7 +50,7 @@ passport.use(
 				const teacherDocument = await TeacherModel.findOne({
 					username: username,
 				})
-					.select('_id publicId username passwordHash')
+					.select('_id publicId username name passwordHash')
 					.exec();
 				const passwordsMatch = await bcrypt.compare(
 					password,
@@ -61,15 +62,19 @@ passport.use(
 					return done(Error('Incorrect Username / Password'), null);
 				}
 			} catch (error) {
-				return res.status(400).json(Error(error)).send();
+				return done(Error(error.message), null);
 			}
 		}
 	)
 );
+
 passport.use(
 	new JWTStrategy(
 		{
-			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+			jwtFromRequest: ExtractJwt.fromExtractors([(req) => {
+				let jwt = req.authorizationCookie.split(' ')[1];
+				return jwt;
+			}]),
 			secretOrKey: secret,
 		},
 		async (token, done) => {

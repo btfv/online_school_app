@@ -15,7 +15,7 @@ const teacherSchema = new mongoose.Schema({
 	},
 	name: {
 		type: String,
-		required: false,
+		required: true,
 	},
 	allowed: {
 		type: Boolean,
@@ -24,7 +24,7 @@ const teacherSchema = new mongoose.Schema({
 	},
 	homeworks: [
 		{
-			type: mongoose.Types.ObjectId,
+			type: String,
 			required: true,
 		},
 	],

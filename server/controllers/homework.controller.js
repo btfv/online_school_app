@@ -3,39 +3,33 @@ const HomeworkController = {};
 
 HomeworkController.getByStudent = async function (req, res, next) {
 	/**
-	 * {studentPublicId, homeworkPublicId}
+	 * {studentPublicId, query:homeworkPublicId}
 	 */
 	try {
 		const studentPublicId = req.user.publicId;
-		const homeworkPublicId = req.body.homeworkPublicId;
+		const homeworkPublicId = req.query.homeworkPublicId;
 		const homeworkDocuments = await HomeworkService.getByStudent(
 			homeworkPublicId
 		);
-		return req.status(200).json(homeworkDocuments).send();
+		return res.status(200).json(homeworkDocuments);
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ status: 400, message: error.message });
 	}
 };
 
 HomeworkController.getByTeacher = async function (req, res, next) {
 	/**
-	 * {teacherPublicId, homeworkPublicId}
+	 * {teacherPublicId, query:homeworkPublicId}
 	 */
 	try {
 		const teacherPublicId = req.user.publicId;
-		const homeworkPublicId = req.body.homeworkPublicId;
+		const homeworkPublicId = req.query.homeworkPublicId;
 		const homeworkDocuments = await HomeworkService.getByTeacher(
 			homeworkPublicId
 		);
-		return req.status(200).json(homeworkDocuments).send();
+		return res.status(200).json(homeworkDocuments);
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ status: 400, message: error.message });
 	}
 };
 
@@ -46,10 +40,9 @@ HomeworkController.addTask = async function (req, res, next) {
 		 * {homeworkPublicId, type, text, options[], stringAnswer, detailedAnswer, taskAttachments[]}
 		 */
 		const homeworkPublicId = req.body.homeworkPublicId;
-		const taskAttachments = req.files.taskAttachments;
 		const taskType = req.body.taskType;
 		const taskText = req.body.taskText;
-		const taskOptions = JSON.parse(req.body.taskOptions);
+		const taskOptions = req.body.taskOptions;
 		const taskStringAnswer = req.body.taskStringAnswer;
 		const taskDetailedAnswer = req.body.taskDetailedAnswer;
 		const taskDocument = {
@@ -59,7 +52,10 @@ HomeworkController.addTask = async function (req, res, next) {
 			stringAnswer: taskStringAnswer,
 			detailedAnswer: taskDetailedAnswer,
 		};
-
+		var taskAttachments = null;
+		if(req.files !== undefined){
+			taskAttachments = req.files.taskAttachments;
+		}
 		HomeworkService.addTask(
 			homeworkPublicId,
 			taskDocument,
@@ -68,62 +64,9 @@ HomeworkController.addTask = async function (req, res, next) {
 
 		return res
 			.status(200)
-			.json({ status: 200, message: 'Succesfully added' })
-			.send();
+			.json({ status: 200, message: 'Succesfully added' });
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
-	}
-};
-
-HomeworkController.addHomework = async function (req, res, next) {
-	try {
-		/**
-		 * POST
-		 * {title, description, subject, attachments[]}
-		 */
-		const creatorPublicId = req.user.publicId;
-		const homeworkAttachments = req.files.homeworkAttachments;
-		const homeworkTitle = req.body.homeworkTitle;
-		const homeworkDescription = req.body.homeworkDescription;
-		const homeworkSubject = req.body.homeworkSubject;
-
-		const homeworkPublicId = HomeworkService.addHomework(
-			homeworkTitle,
-			homeworkDescription,
-			homeworkSubject,
-			creatorPublicId,
-			homeworkAttachments
-		);
-		return res
-			.status(200)
-			.json({ homeworkPublicId: homeworkPublicId })
-			.send();
-	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
-	}
-};
-
-HomeworkController.removeHomework = async function (req, res, next) {
-	try {
-		/**
-		 * POST
-		 * {homeworkPublicId}
-		 */
-		const creatorPublicId = req.user.publicId;
-		const homeworkPublicId = req.body.homeworkPublicId;
-		HomeworkService.removeHomework(homeworkPublicId);
-		return res.status(200).send();
-	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ status: 400, message: error.message });
 	}
 };
 
@@ -139,50 +82,84 @@ HomeworkController.removeTask = async function (req, res, next) {
 		HomeworkService.removeTask(homeworkPublicId, taskPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ status: 400, message: error.message });
+	}
+};
+HomeworkController.addHomework = async function (req, res, next) {
+	try {
+		/**
+		 * POST
+		 * {homeworkTitle, homeworkDescription, homeworkSubject, homeworkAttachments[]}
+		 */
+		const creatorPublicId = req.user.publicId;
+		const creatorId = req.user._id;
+		const creatorName = req.user.name;
+		const homeworkAttachments = req.files.homeworkAttachments;
+		const homeworkTitle = req.body.homeworkTitle;
+		const homeworkDescription = req.body.homeworkDescription;
+		const homeworkSubject = req.body.homeworkSubject;
+
+		const homeworkPublicId = HomeworkService.addHomework(
+			homeworkTitle,
+			homeworkDescription,
+			homeworkSubject,
+			creatorPublicId,
+			creatorId,
+			homeworkAttachments,
+			creatorName
+		);
+		return res.status(200).json({ homeworkPublicId: homeworkPublicId });
+	} catch (error) {
+		return res.status(400).json({ status: 400, message: error.message });
+	}
+};
+
+HomeworkController.removeHomework = async function (req, res, next) {
+	try {
+		/**
+		 * POST
+		 * {homeworkPublicId}
+		 */
+		const creatorPublicId = req.user.publicId;
+		const homeworkPublicId = req.body.homeworkPublicId;
+		HomeworkService.removeHomework(homeworkPublicId);
+		return res.status(200);
+	} catch (error) {
+		return res.status(400).json({ status: 400, message: error.message });
 	}
 };
 
 HomeworkController.getPreviewsByStudent = async function (req, res, next) {
 	try {
 		/**
-		 * {studentPublicId, startHomeworkNumber}
+		 * {studentPublicId, startHomeworkId}
 		 */
 		const studentPublicId = req.user.publicId;
-		const startHomeworkNumber = req.body.startHomeworkNumber;
-		const homeworkPreviews = HomeworkService.getPreviewsByStudent(
+		const startHomeworkId = req.query.startHomeworkId;
+		const homeworkPreviews = await HomeworkService.getPreviewsByStudent(
 			studentPublicId,
-			startHomeworkNumber
+			startHomeworkId
 		);
-		return res.status(200).json(homeworkPreviews).send();
+		return res.status(200).json(homeworkPreviews);
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(200).json({ message: error.message });
 	}
 };
 
 HomeworkController.getPreviewsByTeacher = async function (req, res, next) {
 	try {
 		/**
-		 * {teacherPublicId, startHomeworkNumber}
+		 * {teacherPublicId, startHomeworkId}
 		 */
 		const teacherPublicId = req.user.publicId;
-		const startHomeworkNumber = req.body.startHomeworkNumber;
+		const startHomeworkId = req.query.startHomeworkId;
 		const homeworkPreviews = HomeworkService.getPreviewsByTeacher(
 			teacherPublicId,
-			startHomeworkNumber
+			startHomeworkId
 		);
-		return res.status(200).json(homeworkPreviews).send();
+		return res.status(200).json(homeworkPreviews);
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(200).json({ message: error });
 	}
 };
 
@@ -197,46 +174,7 @@ HomeworkController.addStudent = async function (req, res, next) {
 		HomeworkService.addStudent(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
-	}
-};
-
-HomeworkController.addGroup = async function (req, res, next) {
-	try {
-		/**
-		 * {teacherPublicId, homeworkPublicId, groupPublicId}
-		 */
-		const teacherPublicId = req.user.publicId;
-		const groupPublicId = req.body.groupPublicId;
-		const homeworkPublicId = req.body.homeworkPublicId;
-		HomeworkService.addGroup(groupPublicId, homeworkPublicId);
-		return res.status(200).send();
-	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
-	}
-};
-
-HomeworkController.removeGroup = async function (req, res, next) {
-	try {
-		/**
-		 * {teacherPublicId, homeworkPublicId, groupPublicId}
-		 */
-		const teacherPublicId = req.user.publicId;
-		const groupPublicId = req.body.groupPublicId;
-		const homeworkPublicId = req.body.homeworkPublicId;
-		HomeworkService.removeGroup(groupPublicId, homeworkPublicId);
-		return res.status(200).send();
-	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ status: 400, message: error.message });
 	}
 };
 
@@ -251,10 +189,38 @@ HomeworkController.removeStudent = async function (req, res, next) {
 		HomeworkService.removeStudent(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ status: 400, message: error.message });
 	}
 };
+
+HomeworkController.addGroup = async function (req, res, next) {
+	try {
+		/**
+		 * {teacherPublicId, homeworkPublicId, groupPublicId}
+		 */
+		const teacherPublicId = req.user.publicId;
+		const groupPublicId = req.body.groupPublicId;
+		const homeworkPublicId = req.body.homeworkPublicId;
+		HomeworkService.addGroup(groupPublicId, homeworkPublicId);
+		return res.status(200).send();
+	} catch (error) {
+		return res.status(400).json({ status: 400, message: error.message });
+	}
+};
+
+HomeworkController.removeGroup = async function (req, res, next) {
+	try {
+		/**
+		 * {teacherPublicId, homeworkPublicId, groupPublicId}
+		 */
+		const teacherPublicId = req.user.publicId;
+		const groupPublicId = req.body.groupPublicId;
+		const homeworkPublicId = req.body.homeworkPublicId;
+		HomeworkService.removeGroup(groupPublicId, homeworkPublicId);
+		return res.status(200).send();
+	} catch (error) {
+		return res.status(400).json({ status: 400, message: error.message });
+	}
+};
+
 module.exports = HomeworkController;

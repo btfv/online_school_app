@@ -18,7 +18,7 @@ TeacherController.changePassword = async function (req, res, next) {
 	try {
 		const userId = req.user._id;
 		const currentPassword = req.body.currentPassword;
-		const newPassword = req.body.newPassword;	
+		const newPassword = req.body.newPassword;
 		await TeacherService.changePassword(userId, currentPassword, newPassword);
 	} catch (error) {
 		return res

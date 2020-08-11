@@ -9,17 +9,19 @@ const TeacherModel = require('../models/TeacherModel');
 
 const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
-const authController = {};
+var authController = {};
+authController.student = {};
+authController.teacher = {};
 
-authController.checkHeader = (req, res, next) => {
-	const header = req.headers.authorization;
-	if (typeof header !== 'undefined') {
+authController.checkCookie = (req, res, next) => {
+	const cookie = req.cookies.Authorization;
+	if (typeof cookie !== 'undefined') {
+		req.authorizationCookie = cookie;
 		next();
 	} else {
-		res.status(403).send();
+		res.status(403).json({ status: 403, message: 'Cannot find Authorization cookie' }).send();
 	}
 };
-
 authController.student.checkToken = async (req, res, next) => {
 	await passport.authenticate(
 		'jwt',
@@ -38,7 +40,7 @@ authController.student.checkToken = async (req, res, next) => {
 				const studentDocument = await StudentModel.findOne({
 					publicId: token.publicId,
 				})
-					.select('_id publicId username passwordHash')
+					.select('_id publicId username passwordHash name')
 					.exec();
 
 				req.user = studentDocument;
@@ -70,7 +72,7 @@ authController.teacher.checkToken = async (req, res, next) => {
 				const teacherDocument = await TeacherModel.findOne({
 					publicId: token.publicId,
 				})
-					.select('_id publicId username passwordHash')
+					.select('_id publicId username name passwordHash')
 					.exec();
 
 				req.user = teacherDocument;
@@ -90,15 +92,12 @@ authController.student.login = async (req, res, next) => {
 		{ session: false },
 		(error, studentDocument) => {
 			if (error || !studentDocument) {
-				return res
-					.status(401)
-					.send({ status: 401, message: error.message });
+				return res.status(401).send({ status: 401, message: error });
 			}
 			const payload = {
 				publicId: studentDocument.publicId,
 				isTeacher: false,
 			};
-
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
 					res.status(401).send({
@@ -111,12 +110,13 @@ authController.student.login = async (req, res, next) => {
 					expiresIn: '24h',
 				});
 
-				res.status(200)
-					.cookie('Authorization', 'Bearer ' + token, {
-						httpOnly: true,
-						secure: true,
-					})
-					.send();
+				res.cookie('Authorization', 'Bearer ' + token, {
+					//httpOnly: true,
+					//secure: true,
+					//sameSite: 'none'
+				})
+					.status(200)
+					.json({name: studentDocument.name, publicId: studentDocument.publicId});
 			});
 		}
 	)(req, res);
@@ -128,7 +128,7 @@ authController.student.register = async (req, res, next) => {
 	try {
 		if (!username || !password || !name || !age) {
 			throw Error(
-				'Req body should take the form { username, password, firstname, lastname }'
+				'Req body should take the form { username, password, name, age }'
 			);
 		}
 		const existingStudent = await StudentModel.findOne({

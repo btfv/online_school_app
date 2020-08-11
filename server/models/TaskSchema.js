@@ -11,12 +11,12 @@ const taskSchema = new mongoose.Schema([
 			required: true,
 			default: 0,
 		},
-		type: {
+		taskType: {
 			type: Number,
 			required: true,
 		},
 		//answer is 1 - option from list, 2 - string, 3 - detailed
-		taskText: {
+		text: {
 			type: String,
 			required: true,
 		},

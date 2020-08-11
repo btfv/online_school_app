@@ -29,13 +29,18 @@ app.use(
 	})
 );
 app.use(cookieParser(secret));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(session({ secret: secret, resave: true, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors());
+var allowlist = ['http://localhost:8080']
+var corsOptions = {
+	origin: allowlist,
+	credentials:  true
+  }  
+app.use(cors(corsOptions));
 
 app.use(logger('dev'));
 

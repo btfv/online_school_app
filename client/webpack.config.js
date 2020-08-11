@@ -9,6 +9,7 @@ module.exports = {
 		filename: 'js/[name].bundle.js',
 		path: path.resolve(__dirname, './dist'),
 		chunkFilename: '[id].[chunkhash].chunk.js',
+		publicPath: '/',
 	},
 	resolve: {
 		extensions: ['.ts', '.tsx', '.js'],
@@ -53,7 +54,7 @@ module.exports = {
 	},
 	externals: {
 		config: JSON.stringify({
-			apiUrl: 'http://localhost:3001',
+			apiUrl: 'http://127.0.0.1:3000',
 		}),
 	},
 };
