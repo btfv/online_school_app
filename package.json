@@ -2,7 +2,6 @@
 	"name": "online_school_app",
 	"version": "0.1.0",
 	"description": "An app to send and review homeworks.",
-	"main": "index.js",
 	"scripts": {
 		"server": "yarn workspace server start",
 		"teacher-client": "yarn workspace teacher-client build",
