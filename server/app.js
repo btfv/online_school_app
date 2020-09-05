@@ -35,7 +35,9 @@ app.use(session({ secret: secret, resave: true, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-var allowlist = ['http://student.localhost:8080', 'http://teacher.localhost:8080']
+const studentFrontendAddress = process.env.STUDENT_FRONTEND_ADDRESS;
+const teacherFrontendAddress = process.env.TEACHER_FRONTEND_ADDRESS;
+var allowlist = [studentFrontendAddress, teacherFrontendAddress]
 var corsOptions = {
 	origin: allowlist,
 	credentials:  true
