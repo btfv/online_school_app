@@ -56,7 +56,7 @@ module.exports = {
 	},
 	externals: {
 		config: JSON.stringify({
-			apiUrl: 'http://127.0.0.1:3000',
+			apiUrl: process.env.API_URL,
 		}),
 	},
 };
