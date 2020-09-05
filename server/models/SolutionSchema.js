@@ -1,11 +1,32 @@
 const mongoose = require('mongoose');
 const answerSchema = require('./AnswerSchema');
 const solutionSchema = new mongoose.Schema({
-	creatorId: {
+	isCheckedByTeacher: {
+		type: Boolean,
+		required: true,
+		default: false,
+	},
+	publicId: {
+		type: String,
+		required: true,
+	},
+	studentId: {
 		type: mongoose.Types.ObjectId,
 		required: true,
 	},
-	creatorName: {
+	studentPublicId: {
+		type: String,
+		required: true,
+	},
+	studentName: {
+		type: String,
+		required: true,
+	},
+	totalPoints: {
+		type: Number,
+		required: false,
+	},
+	comment: {
 		type: String,
 		required: true,
 	},

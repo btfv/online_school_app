@@ -42,8 +42,24 @@ const homeworkSchema = new mongoose.Schema({
 	tasks: [taskSchema],
 	receivedStudents: [
 		{
-			type: String,
-			required: true,
+			studentPublicId: {
+				type: String,
+				required: true,
+			},
+			studentName: {
+				type: String,
+				required: true,
+			},
+			hasSolution: {
+				type: Boolean,
+				required: true,
+				default: false,
+			},
+			solutionPublicId: {
+				type: String,
+				required: false,
+				default: null,
+			},
 		},
 	],
 	//publicids of users who received that homework
@@ -55,6 +71,16 @@ const homeworkSchema = new mongoose.Schema({
 	],
 	//publicids of groups who received that homework
 	solutions: [solutionSchema],
+	hasDetailedTasks: {
+		type: Boolean,
+		required: true,
+		default: false,
+	},
+	homeworkMaxGrade: {
+		type: Number,
+		required: false,
+		default: 0,
+	},
 });
 
 const HomeworkModel = mongoose.model('Homework', homeworkSchema);

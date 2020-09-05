@@ -1,32 +1,53 @@
 const StudentService = require('../services/student.service');
 const StudentController = {};
 
-StudentController.getProfile = async function (req, res, next) {
+StudentController.getStudentProfileByTeacher = async function (req, res, next) {
+	/**
+	 * GET {studentPublicId}
+	 */
 	try {
-		const userId = req.user._id;
-		var profile = await StudentService.getProfile(userId);
-		return res.status(200).json(profile).send();
+		const studentPublicId = req.query.studentPublicId;
+		let profile = await StudentService.getStudentProfileByTeacher(studentPublicId);
+		return res.status(200).json(profile);
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ error: error.toString() });
 	}
 };
 
 StudentController.changePassword = async function (req, res, next) {
 	try {
 		const userId = req.user._id;
-		const currentPassword = req.body.currentPassword;
-		const newPassword = req.body.newPassword;	
-		await StudentService.changePassword(userId, currentPassword, newPassword);
+		const oldPassword = req.body.oldPassword;
+		const newPassword = req.body.newPassword;
+		await StudentService.changePassword(
+			userId,
+			oldPassword,
+			newPassword
+		);
+		return res.status(200).send();
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ error: error.toString() });
 	}
-	return res.status(200).send();
+};
+
+StudentController.getListOfStudents = async function (req, res, next) {
+	try {
+		const sliceNumber = req.query.sliceNumber;
+		const students = await StudentService.getListOfStudents(sliceNumber);
+		return res.status(200).json(students);
+	} catch (error) {
+		return res.status(400).json({ error: error.toString() });
+	}
+};
+
+StudentController.getStudentsByName = async function (req, res, next) {
+	try {
+		const name = req.query.name;
+		const studentDocuments = await StudentService.getStudentsByName(name);
+		return res.status(200).json(studentDocuments);
+	} catch (error) {
+		return res.status(400).json({ error: error.toString() });
+	}
 };
 
 module.exports = StudentController;

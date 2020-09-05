@@ -1,7 +1,7 @@
 const TeacherService = require('../services/teacher.service');
-const TeacherController = {};
+const teacherController = {};
 
-TeacherController.getProfile = async function (req, res, next) {
+teacherController.getProfile = async function (req, res, next) {
 	try {
 		const userId = req.user._id;
 		var profile = await TeacherService.getProfile(userId);
@@ -14,19 +14,20 @@ TeacherController.getProfile = async function (req, res, next) {
 	}
 };
 
-TeacherController.changePassword = async function (req, res, next) {
+teacherController.changePassword = async function (req, res, next) {
 	try {
-		const userId = req.user._id;
-		const currentPassword = req.body.currentPassword;
+		const teacherId = req.user._id;
+		const oldPassword = req.body.oldPassword;
 		const newPassword = req.body.newPassword;
-		await TeacherService.changePassword(userId, currentPassword, newPassword);
+		await TeacherService.changePassword(
+			teacherId,
+			oldPassword,
+			newPassword
+		);
+		return res.status(200).send();
 	} catch (error) {
-		return res
-			.status(400)
-			.json({ status: 400, message: error.message })
-			.send();
+		return res.status(400).json({ error: error.toString() });
 	}
-	return res.status(200).send();
 };
 
-module.exports = TeacherController;
+module.exports = teacherController;

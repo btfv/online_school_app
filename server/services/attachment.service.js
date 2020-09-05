@@ -12,7 +12,6 @@ AttachmentService.uploadFile = async function (file) {
 		reference: fileReference,
 	});
 	await file.mv('./upload_files/' + fileReference);
-	console.log(fileDocument);
 	return fileDocument._id;
 };
 

@@ -19,7 +19,9 @@ authController.checkCookie = (req, res, next) => {
 		req.authorizationCookie = cookie;
 		next();
 	} else {
-		res.status(403).json({ status: 403, message: 'Cannot find Authorization cookie' }).send();
+		res.status(403)
+			.json({ status: 403, error: 'Cannot find Authorization cookie' })
+			.send();
 	}
 };
 authController.student.checkToken = async (req, res, next) => {
@@ -28,13 +30,12 @@ authController.student.checkToken = async (req, res, next) => {
 		{ session: false },
 		async (error, token) => {
 			if (error) {
-				return res.status(400).json(error).send();
+				return res.status(400).json(error);
 			}
 			if (!token) {
 				return res
-					.status(400)
-					.json({ status: 400, message: 'Incorrect token' })
-					.send();
+					.status(401)
+					.json({ error: 'Incorrect token' });
 			}
 			try {
 				const studentDocument = await StudentModel.findOne({
@@ -48,7 +49,7 @@ authController.student.checkToken = async (req, res, next) => {
 			} catch (error) {
 				return res
 					.status(400)
-					.send({ status: 400, message: error.message });
+					.send({ status: 400, error: error.message });
 			}
 		}
 	)(req, res, next);
@@ -60,13 +61,12 @@ authController.teacher.checkToken = async (req, res, next) => {
 		{ session: false },
 		async (error, token) => {
 			if (error) {
-				return res.status(400).json(error).send();
+				return res.status(400).json({ error: error.toString() });
 			}
 			if (!token) {
 				return res
-					.status(400)
-					.json({ status: 400, message: 'Incorrect token' })
-					.send();
+					.status(401)
+					.json({ error: 'Incorrect token' });
 			}
 			try {
 				const teacherDocument = await TeacherModel.findOne({
@@ -74,13 +74,12 @@ authController.teacher.checkToken = async (req, res, next) => {
 				})
 					.select('_id publicId username name passwordHash')
 					.exec();
-
 				req.user = teacherDocument;
 				next();
 			} catch (error) {
 				return res
 					.status(400)
-					.send({ status: 400, message: error.message });
+					.send({ status: 400, error: error.message });
 			}
 		}
 	)(req, res, next);
@@ -92,7 +91,7 @@ authController.student.login = async (req, res, next) => {
 		{ session: false },
 		(error, studentDocument) => {
 			if (error || !studentDocument) {
-				return res.status(401).send({ status: 401, message: error });
+				return res.status(401).json({ error: error.toString() });
 			}
 			const payload = {
 				publicId: studentDocument.publicId,
@@ -102,7 +101,7 @@ authController.student.login = async (req, res, next) => {
 				if (error) {
 					res.status(401).send({
 						status: 401,
-						message: error.message,
+						error: error.message,
 					});
 				}
 
@@ -116,7 +115,10 @@ authController.student.login = async (req, res, next) => {
 					//sameSite: 'none'
 				})
 					.status(200)
-					.json({name: studentDocument.name, publicId: studentDocument.publicId});
+					.json({
+						name: studentDocument.name,
+						publicId: studentDocument.publicId,
+					});
 			});
 		}
 	)(req, res);
@@ -148,12 +150,9 @@ authController.student.register = async (req, res, next) => {
 		});
 		await studentDocument.save();
 
-		res.status(201).send({
-			status: 201,
-			message: 'Successfull registered',
-		});
+		res.status(201).send();
 	} catch (error) {
-		res.status(400).send({ status: 400, message: error.message });
+		res.status(400).send({ status: 400, error: error.message });
 	}
 };
 
@@ -165,7 +164,7 @@ authController.teacher.login = async (req, res, next) => {
 			if (error || !teacherDocument) {
 				return res
 					.status(401)
-					.send({ status: 401, message: error.message });
+					.send({ status: 401, error: error.toString() });
 			}
 			const payload = {
 				publicId: teacherDocument.publicId,
@@ -174,9 +173,9 @@ authController.teacher.login = async (req, res, next) => {
 
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
-					res.status(401).send({
+					res.status(401).json({
 						status: 401,
-						message: error.message,
+						error: error.message,
 					});
 				}
 
@@ -184,12 +183,15 @@ authController.teacher.login = async (req, res, next) => {
 					expiresIn: '24h',
 				});
 
-				res.status(200)
-					.cookie('Authorization', 'Bearer ' + token, {
-						httpOnly: true,
-						secure: true,
-					})
-					.send();
+				res.cookie('Authorization', 'Bearer ' + token, {
+					//httpOnly: true,
+					//secure: true,
+				})
+					.status(200)
+					.json({
+						name: teacherDocument.name,
+						publicId: teacherDocument.publicId,
+					});
 			});
 		}
 	)(req, res, next);
@@ -220,12 +222,9 @@ authController.teacher.register = async (req, res, next) => {
 		});
 		await teacherDocument.save();
 
-		res.status(201).send({
-			status: 201,
-			message: 'Successfull registered',
-		});
+		res.status(201).send();
 	} catch (error) {
-		res.status(400).send({ status: 400, message: error.message });
+		res.status(400).send({ status: 400, error: error.message });
 	}
 };
 
@@ -235,7 +234,7 @@ authController.teacher.checkPermission = async (req, res, next) => {
 			throw Error("You aren't teacher");
 		}
 	} catch (error) {
-		res.status(400).send({ status: 400, message: error.message });
+		res.status(400).send({ status: 400, error: error.message });
 	}
 };
 

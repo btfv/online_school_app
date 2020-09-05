@@ -2,11 +2,9 @@ const express = require('express');
 const apiRouter = express.Router();
 const authController = require('../controllers/auth.controller');
 const homeworkController = require('../controllers/homework.controller');
-const {
-	body,
-	check,
-	validationResult
-} = require('express-validator');
+const studentController = require('../controllers/student.controller');
+const { body, check, validationResult } = require('express-validator');
+const teacherController = require('../controllers/teacher.controller');
 
 const validationRules = (req, res, next) => {
 	body('email')
@@ -80,18 +78,24 @@ apiRouter.get(
 	authController.student.checkToken,
 	homeworkController.getByStudent
 );
+apiRouter.post(
+	'/student/changePassword',
+	authController.checkCookie,
+	authController.student.checkToken,
+	studentController.changePassword
+);
 apiRouter.get(
 	'/homeworks/getByTeacher',
 	authController.checkCookie,
 	authController.teacher.checkToken,
 	homeworkController.getByTeacher
 );
-/*apiRouter.post(
-	'/changePassword',
+apiRouter.post(
+	'/teacher/changePassword',
 	authController.checkCookie,
-	authController.checkToken,
-	userController.changePassword
-);*/
+	authController.teacher.checkToken,
+	teacherController.changePassword
+);
 apiRouter.get(
 	'/homeworks/getPreviewsByTeacher',
 	authController.checkCookie,
@@ -152,5 +156,48 @@ apiRouter.post(
 	authController.teacher.checkToken,
 	homeworkController.removeStudent
 );
+apiRouter.post(
+	'/homeworks/addSolutionByStudent',
+	authController.checkCookie,
+	authController.student.checkToken,
+	homeworkController.addSolutionByStudent
+);
+apiRouter.get(
+	'/homeworks/getSolutionPreviewsByStudent',
+	authController.checkCookie,
+	authController.student.checkToken,
+	homeworkController.getSolutionPreviewsByStudent
+);
+apiRouter.get(
+	'/homeworks/getSolutionByStudent',
+	authController.checkCookie,
+	authController.student.checkToken,
+	homeworkController.getSolutionByStudent
+);
+apiRouter.get(
+	'/homeworks/getSolutionByTeacher',
+	authController.checkCookie,
+	authController.teacher.checkToken,
+	homeworkController.getSolutionByTeacher
+);
 
+apiRouter.get(
+	'/students/getStudentList',
+	authController.checkCookie,
+	authController.teacher.checkToken,
+	studentController.getListOfStudents
+);
+
+apiRouter.get(
+	'/students/getStudentsByName',
+	authController.checkCookie,
+	authController.teacher.checkToken,
+	studentController.getStudentsByName
+);
+apiRouter.get(
+	'/students/getStudentProfileByTeacher',
+	authController.checkCookie,
+	authController.teacher.checkToken,
+	studentController.getStudentProfileByTeacher
+);
 module.exports = apiRouter;

@@ -23,6 +23,9 @@ passport.use(
 				})
 					.select('_id publicId username name passwordHash')
 					.exec();
+				if (!studentDocument) {
+					throw Error("Can't find user with this username");
+				}
 				const passwordsMatch = await bcrypt.compare(
 					password,
 					studentDocument.passwordHash
@@ -33,7 +36,7 @@ passport.use(
 					return done(Error('Incorrect Username / Password'), null);
 				}
 			} catch (error) {
-				return res.status(400).json(Error(error)).send();
+				return done(error, null);
 			}
 		}
 	)
@@ -71,10 +74,12 @@ passport.use(
 passport.use(
 	new JWTStrategy(
 		{
-			jwtFromRequest: ExtractJwt.fromExtractors([(req) => {
-				let jwt = req.authorizationCookie.split(' ')[1];
-				return jwt;
-			}]),
+			jwtFromRequest: ExtractJwt.fromExtractors([
+				(req) => {
+					let jwt = req.authorizationCookie.split(' ')[1];
+					return jwt;
+				},
+			]),
 			secretOrKey: secret,
 		},
 		async (token, done) => {

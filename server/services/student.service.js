@@ -5,48 +5,62 @@ const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
 const StudentService = {};
 
-StudentService.getProfile = async function (userId) {
-	try {
-		var userDocument = await StudentModel.findById(userId, 'firstname lastname -_id');
-        return userDocument;
-	} catch (error) {
-		throw Error(error);
+const COUNT_OF_USERS_IN_QUERY = 5;
+
+StudentService.getStudentProfileByTeacher = async function (studentPublicId) {
+	var userDocument = await StudentModel.findOne(
+		{ publicId: studentPublicId },
+		'-_id'
+	);
+	if (!userDocument) {
+		throw Error('Student not found');
 	}
+	return userDocument;
 };
 
 StudentService.changePassword = async function (
 	userId,
-	currentPassword,
+	oldPassword,
 	newPassword
 ) {
-	try {
-		const userDocument = await StudentModel.findById(userId, 'passwordHash');
-		const passwordsMatch = await bcrypt.compare(
-			currentPassword,
-			userDocument.passwordHash
-		);
-		if (!passwordsMatch) {
-            throw Error('Incorrect password');
-        }
-		const passwordHash = await bcrypt.hash(newPassword, passwordHashCost);
-		await StudentModel.findByIdAndUpdate(
-			userId,
-			{ passwordHash: passwordHash }
-		);
-	} catch (error) {
-		throw Error(error);
+	const studentPasswordHash = await StudentModel.findById(
+		userId,
+		'-_id passwordHash'
+	)
+		.exec()
+		.then((result) => {
+			return result.passwordHash;
+		});
+	const passwordsMatch = await bcrypt.compare(
+		oldPassword,
+		studentPasswordHash
+	);
+	if (!passwordsMatch) {
+		throw Error('Incorrect password');
 	}
+	const passwordHash = await bcrypt.hash(newPassword, passwordHashCost);
+	await StudentModel.findByIdAndUpdate(userId, {
+		passwordHash: passwordHash,
+	});
 };
 
-StudentService.findStudentsByName = async function(name){
-	try{
-		const userDocuments = await StudentModel.find({name: {$regex: name, $options: 'i'}}, 'username name').limit(5);
-		return userDocuments;
+StudentService.getStudentsByName = async function (name) {
+	if (name.length < 3) {
+		throw Error('Too short name');
 	}
-	catch(error){
-		throw Error(error);
-	}
+	const userDocuments = await StudentModel.find(
+		{ name: { $regex: name, $options: 'i' } },
+		'-_id name publicId'
+	).limit(COUNT_OF_USERS_IN_QUERY);
+	return userDocuments;
 };
 
+StudentService.getListOfStudents = async function (sliceNumber) {
+	const userDocuments = await StudentModel.find(
+		{},
+		'-_id publicId name'
+	).limit(COUNT_OF_USERS_IN_QUERY);
+	return userDocuments;
+};
 
 module.exports = StudentService;

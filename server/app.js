@@ -35,7 +35,7 @@ app.use(session({ secret: secret, resave: true, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-var allowlist = ['http://localhost:8080']
+var allowlist = ['http://student.localhost:8080', 'http://teacher.localhost:8080']
 var corsOptions = {
 	origin: allowlist,
 	credentials:  true

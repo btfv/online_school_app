@@ -2,7 +2,7 @@ const HomeworkService = require('../services/homework.service');
 const HomeworkController = {};
 
 HomeworkController.getByStudent = async function (req, res, next) {
-	/**
+	/**f
 	 * {studentPublicId, query:homeworkPublicId}
 	 */
 	try {
@@ -13,7 +13,7 @@ HomeworkController.getByStudent = async function (req, res, next) {
 		);
 		return res.status(200).json(homeworkDocuments);
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -29,7 +29,7 @@ HomeworkController.getByTeacher = async function (req, res, next) {
 		);
 		return res.status(200).json(homeworkDocuments);
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -53,7 +53,7 @@ HomeworkController.addTask = async function (req, res, next) {
 			detailedAnswer: taskDetailedAnswer,
 		};
 		var taskAttachments = null;
-		if(req.files !== undefined){
+		if (req.files !== undefined) {
 			taskAttachments = req.files.taskAttachments;
 		}
 		HomeworkService.addTask(
@@ -66,7 +66,7 @@ HomeworkController.addTask = async function (req, res, next) {
 			.status(200)
 			.json({ status: 200, message: 'Succesfully added' });
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -79,10 +79,10 @@ HomeworkController.removeTask = async function (req, res, next) {
 		const creatorPublicId = req.user.publicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		const taskPublicId = req.body.taskPublicId;
-		HomeworkService.removeTask(homeworkPublicId, taskPublicId);
+		await HomeworkService.removeTask(homeworkPublicId, taskPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ error: error.toString() });
 	}
 };
 HomeworkController.addHomework = async function (req, res, next) {
@@ -94,12 +94,12 @@ HomeworkController.addHomework = async function (req, res, next) {
 		const creatorPublicId = req.user.publicId;
 		const creatorId = req.user._id;
 		const creatorName = req.user.name;
-		const homeworkAttachments = req.files.homeworkAttachments;
+		const homeworkAttachments = req.files ? Object.values(req.files) : [];
 		const homeworkTitle = req.body.homeworkTitle;
 		const homeworkDescription = req.body.homeworkDescription;
 		const homeworkSubject = req.body.homeworkSubject;
 
-		const homeworkPublicId = HomeworkService.addHomework(
+		const homeworkPublicId = await HomeworkService.addHomework(
 			homeworkTitle,
 			homeworkDescription,
 			homeworkSubject,
@@ -110,7 +110,7 @@ HomeworkController.addHomework = async function (req, res, next) {
 		);
 		return res.status(200).json({ homeworkPublicId: homeworkPublicId });
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -125,7 +125,7 @@ HomeworkController.removeHomework = async function (req, res, next) {
 		HomeworkService.removeHomework(homeworkPublicId);
 		return res.status(200);
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -142,7 +142,7 @@ HomeworkController.getPreviewsByStudent = async function (req, res, next) {
 		);
 		return res.status(200).json(homeworkPreviews);
 	} catch (error) {
-		return res.status(200).json({ message: error.message });
+		return res.status(400).json({ error: error.toString() });
 	}
 };
 
@@ -153,13 +153,13 @@ HomeworkController.getPreviewsByTeacher = async function (req, res, next) {
 		 */
 		const teacherPublicId = req.user.publicId;
 		const startHomeworkId = req.query.startHomeworkId;
-		const homeworkPreviews = HomeworkService.getPreviewsByTeacher(
+		const homeworkPreviews = await HomeworkService.getPreviewsByTeacher(
 			teacherPublicId,
 			startHomeworkId
 		);
 		return res.status(200).json(homeworkPreviews);
 	} catch (error) {
-		return res.status(200).json({ message: error });
+		return res.status(400).json({ error: error.toString() });
 	}
 };
 
@@ -171,10 +171,10 @@ HomeworkController.addStudent = async function (req, res, next) {
 		const teacherPublicId = req.user.publicId;
 		const studentPublicId = req.body.studentPublicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
-		HomeworkService.addStudent(studentPublicId, homeworkPublicId);
+		await HomeworkService.addStudent(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ error: error.toString() });
 	}
 };
 
@@ -186,10 +186,10 @@ HomeworkController.removeStudent = async function (req, res, next) {
 		const teacherPublicId = req.user.publicId;
 		const studentPublicId = req.body.studentPublicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
-		HomeworkService.removeStudent(studentPublicId, homeworkPublicId);
+		await HomeworkService.removeStudent(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -204,7 +204,7 @@ HomeworkController.addGroup = async function (req, res, next) {
 		HomeworkService.addGroup(groupPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -219,7 +219,110 @@ HomeworkController.removeGroup = async function (req, res, next) {
 		HomeworkService.removeGroup(groupPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, message: error.message });
+		return res.status(400).json({ status: 400, error: error.toString() });
+	}
+};
+
+HomeworkController.addSolutionByStudent = async function (req, res, next) {
+	try {
+		/**
+		 * {studentPublicId, studentId, studentName, homeworkPublicId, formValues}
+		 */
+		const studentPublicId = req.user.publicId;
+		const studentId = req.user._id;
+		const studentName = req.user.Name;
+		const answers = req.body.formValues;
+		const homeworkPublicId = req.body.homeworkPublicId;
+		await HomeworkService.addSolutionByStudent(
+			homeworkPublicId,
+			answers,
+			studentName,
+			studentPublicId,
+			studentId
+		);
+		return res.status(200).send();
+	} catch (error) {
+		return res.status(400).json({ status: 400, error: error.toString() });
+	}
+};
+
+HomeworkController.getSolutionPreviewsByStudent = async function (
+	req,
+	res,
+	next
+) {
+	try {
+		/**
+		 * {studentPublicId, startSolutionId}
+		 */
+		const studentPublicId = req.user.publicId;
+		const startSolutionId = req.query.startSolutionId;
+
+		const solutionPreviews = await HomeworkService.getSolutionPreviewsByStudent(
+			studentPublicId,
+			startSolutionId
+		);
+		return res.status(200).json(solutionPreviews);
+	} catch (error) {
+		return res.status(400).json({ status: 400, error: error.toString() });
+	}
+};
+
+HomeworkController.getSolutionByStudent = async function (req, res, next) {
+	try {
+		/**
+		 * {homeworkPublicId, solutionPublicId}
+		 */
+		const { homeworkPublicId, solutionPublicId } = req.query;
+		const solutionDocument = await HomeworkService.getSolutionByStudent(
+			homeworkPublicId,
+			solutionPublicId
+		);
+		return res.status(200).json(solutionDocument);
+	} catch (error) {
+		return res.status(400).json({ status: 400, error: error.toString() });
+	}
+};
+
+HomeworkController.getSolutionByTeacher = async function (req, res, next) {
+	try {
+		/**
+		 * GET
+		 * {homeworkPublicId, solutionPublicId}
+		 */
+		const { homeworkPublicId, solutionPublicId } = req.query;
+		const solutionDocument = await HomeworkService.getSolutionByTeacher(
+			homeworkPublicId,
+			solutionPublicId
+		);
+		return res.status(200).json(solutionDocument);
+	} catch (error) {
+		return res.status(400).json({ status: 400, error: error.toString() });
+	}
+};
+
+HomeworkController.reviewSolutionByTeacher = async function (req, res, next) {
+	try {
+		/**
+		 * POST
+		 * {homeworkPublicId, solutionPublicId, comment, answers[{comment, grade}]}
+		 */
+		const {
+			homeworkPublicId,
+			solutionPublicId,
+			comment,
+			answers,
+		} = req.body;
+
+		await HomeworkService.reviewSolutionByTeacher(
+			homeworkPublicId,
+			solutionPublicId,
+			comment,
+			answers
+		);
+		return res.status(200).send();
+	} catch (error) {
+		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 

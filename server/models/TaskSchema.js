@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const taskSchema = new mongoose.Schema([
+const taskSchema = new mongoose.Schema(
 	{
 		publicId: {
 			type: String,
@@ -46,6 +46,12 @@ const taskSchema = new mongoose.Schema([
 				required: true,
 			},
 		],
+		maxGrade: {
+			type: Number,
+			required: false,
+			default: null
+		}
+		//how much student receives when right solved task
 	},
-]);
+);
 module.exports = taskSchema;

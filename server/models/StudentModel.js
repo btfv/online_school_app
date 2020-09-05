@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const subjectSchema = require('./SubjectsSchema');
-
+const homeworkSchema = require('./HomeworkSchema');
 const studentSchema = new mongoose.Schema({
 	publicId: {
 		type: String,
@@ -30,19 +30,7 @@ const studentSchema = new mongoose.Schema({
 		},
 	],
 	subjects: [subjectSchema],
-	solutions: [
-		{
-			type: mongoose.Types.ObjectId,
-			required: true,
-		},
-	],
-	homeworks: [
-		{
-			type: String,
-			required: true,
-		},
-	],
-	//homeworks public ids
+	homeworks: [homeworkSchema],
 });
 
 const StudentModel = mongoose.model('Student', studentSchema);
