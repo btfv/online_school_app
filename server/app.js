@@ -14,8 +14,8 @@ dotenv.config();
 const secret = process.env.SECRET_KEY;
 
 var mongoose = require('mongoose');
-var mongoDBip = process.env.DATABASE_ADDRESS;
-mongoose.connect(mongoDBip, { useNewUrlParser: true, useUnifiedTopology: true });
+var mongoDBaddress = process.env.DATABASE_ADDRESS;
+mongoose.connect(mongoDBaddress, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
