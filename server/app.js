@@ -15,7 +15,15 @@ const secret = process.env.SECRET_KEY;
 
 var mongoose = require('mongoose');
 var mongoDBaddress = process.env.DATABASE_ADDRESS;
-mongoose.connect(mongoDBaddress, { useNewUrlParser: true, useUnifiedTopology: true });
+console.log('Connecting to the ' + mongoDBaddress);
+mongoose
+	.connect(mongoDBaddress, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
+	.then(() => {
+		console.log('Connected to the database');
+	});
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -37,11 +45,11 @@ app.use(passport.session());
 
 const studentFrontendAddress = process.env.STUDENT_FRONTEND_ADDRESS;
 const teacherFrontendAddress = process.env.TEACHER_FRONTEND_ADDRESS;
-var allowlist = [studentFrontendAddress, teacherFrontendAddress]
+var allowlist = [studentFrontendAddress, teacherFrontendAddress];
 var corsOptions = {
 	origin: allowlist,
-	credentials:  true
-  }  
+	credentials: true,
+};
 app.use(cors(corsOptions));
 
 app.use(logger('dev'));

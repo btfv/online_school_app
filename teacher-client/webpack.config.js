@@ -45,6 +45,7 @@ module.exports = {
 		}),
 		new webpack.NamedModulesPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
+		new webpack.EnvironmentPlugin(['NODE_ENV', 'API_URL'])
 	],
 	devServer: {
 		historyApiFallback: true,
@@ -53,10 +54,5 @@ module.exports = {
 		contentBase: './src',
 		host: 'teacher.localhost',
 		port: 8080,
-	},
-	externals: {
-		config: JSON.stringify({
-			apiUrl: process.env.API_URL,
-		}),
 	},
 };

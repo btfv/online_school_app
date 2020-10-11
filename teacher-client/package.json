@@ -37,7 +37,7 @@
 		"build": "webpack --mode production",
 		"start": "node server.js",
 		"dev": "webpack-dev-server",
-		"heroku-postbuild": "webpack --mode production"
+		"heroku-postbuild": "webpack --mode development"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
