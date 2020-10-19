@@ -43,12 +43,10 @@ function logout() {
 	return (dispatch) => {
 		dispatch({ type: userConstants.LOGOUT });
 		userService.logout();
-		document.location.reload(true);
 	};
 }
 
 function changePassword(value) {
-	console.log(value);
 	return (dispatch) => {
 		dispatch(request());
 		userService.changePassword(value).then(
@@ -56,7 +54,7 @@ function changePassword(value) {
 				dispatch(success());
 				dispatch({ type: userConstants.LOGOUT });
 				userService.logout();
-				document.location.reload(true);
+				window.location.reload();
 			},
 			(error) => {
 				dispatch(failure(error.toString()));

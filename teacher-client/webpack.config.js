@@ -1,8 +1,10 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const Dotenv = require('dotenv-webpack');
 const webpack = require('webpack');
 
 var path = require('path');
+const DotenvWebpackPlugin = require('dotenv-webpack');
 module.exports = {
 	entry: path.resolve(__dirname, './src/index.js'),
 	output: {
@@ -45,7 +47,11 @@ module.exports = {
 		}),
 		new webpack.NamedModulesPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
-		new webpack.EnvironmentPlugin(['NODE_ENV', 'API_URL'])
+		/*new Dotenv({
+			path: './.env',
+			safe: true,
+		}),*/
+		new webpack.EnvironmentPlugin(['NODE_ENV', 'API_URL']),
 	],
 	devServer: {
 		historyApiFallback: true,

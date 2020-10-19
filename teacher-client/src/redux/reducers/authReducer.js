@@ -1,23 +1,29 @@
 import { userConstants } from '../constants';
 import { initialState } from '../store';
-var initState = initialState;
 let user = localStorage.getItem('user');
-if (typeof user !== undefined) {
-	initState = {
-		...initState,
-		authReducer: {
-			user,
-			loggedIn: true,
-			loggingIn: false,
-		},
-	};
-}
-export default function authReducer(state = initState, action) {
+
+export default function authReducer(state = (() => {
+	if (typeof user !== undefined) {
+		return {
+			...initialState,
+			authReducer: {
+				user,
+				loggedIn: true,
+				loggingIn: false,
+			},
+		};
+	}
+})(), action) {
 	switch (action.type) {
 		case userConstants.LOGIN_REQUEST:
 			return {
 				...state,
 				loggingIn: true,
+			};
+		case userConstants.LOGOUT:
+			return {
+				...state,
+				user: null,
 			};
 		case userConstants.LOGIN_SUCCESS:
 			return {

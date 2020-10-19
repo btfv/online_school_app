@@ -1,5 +1,6 @@
 import { addHomeworkConstants } from '../constants';
 import { addHomeworkService } from '../services/addHomeworkService';
+import { history } from '../store';
 
 export const addHomeworkActions = {
 	addHomework,
@@ -18,6 +19,7 @@ function addHomework(values) {
 		addHomeworkService.addHomework(values).then(
 			() => {
 				dispatch(success());
+				history.push('/dashboard');
 			},
 			(error) => {
 				dispatch(failure(error));
