@@ -14,7 +14,7 @@ module.exports = {
 	resolve: {
 		extensions: ['.ts', '.tsx', '.js'],
 	},
-	mode: 'production',
+	mode: 'development',
 	module: {
 		rules: [
 			{
@@ -45,6 +45,12 @@ module.exports = {
 		}),
 		new webpack.NamedModulesPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
+		new webpack.HotModuleReplacementPlugin(),
+		/*new Dotenv({
+			path: './.env',
+			safe: true,
+		}),*/
+		new webpack.EnvironmentPlugin(['NODE_ENV', 'API_URL']),
 	],
 	devServer: {
 		historyApiFallback: true,

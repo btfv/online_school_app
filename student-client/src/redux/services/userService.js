@@ -30,7 +30,7 @@ function login(value) {
 
 function logout() {
 	localStorage.removeItem('user');
-	document.location.reload(true);
+	window.location.reload();
 }
 
 function changePassword(value) {

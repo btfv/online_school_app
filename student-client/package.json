@@ -32,8 +32,10 @@
 		"webpack": "^4.42.1"
 	},
 	"scripts": {
-		"build": "webpack --mode production",
-		"start": "webpack-dev-server"
+		"build": "webpack --mode development",
+		"start": "node server.js",
+		"dev": "webpack-dev-server",
+		"heroku-postbuild": "webpack --mode development"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
