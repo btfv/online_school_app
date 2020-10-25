@@ -304,30 +304,35 @@ HomeworkService.removeGroup = async function (groupPublicId, homeworkPublicId) {
 	);
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
-		{ $pull: { receivedGroups: groupPublicId } }
+		{ $pull: { receivedGroups: { groupPublicId } } }
 	);
 };
 
 HomeworkService.removeHomework = async function (homeworkPublicId) {
 	const homeworkDocument = await HomeworkModel.findOne({
 		publicId: homeworkPublicId,
-	}).select('students groups creator');
-	const students = homeworkDocument.students;
-	students.map(async (studentId) => {
-		await StudentModel.findByIdAndUpdate(studentId, {
-			$pull: { homeworks: { _id: homeworkId } },
-		});
+	}).select('receivedStudents receivedGroups creatorPublicId');
+	const students = homeworkDocument.receivedStudents;
+	students.map(async (student) => {
+		await HomeworkService.removeStudent(
+			student.studentPublicId,
+			homeworkPublicId
+		);
 	});
-	const groups = homeworkDocument.groups;
-	groups.map(async (groupId) => {
-		await GroupModel.findByIdAndUpdate(groupId, {
-			$pull: { homeworks: { _id: homeworkId } },
-		});
+	const groups = homeworkDocument.receivedGroups;
+	groups.map(async (group) => {
+		await HomeworkService.removeGroup(
+			group.groupPublicId,
+			homeworkPublicId
+		);
 	});
-	const creator = homeworkDocument.creator;
-	await TeacherModel.findByIdAndUpdate(creator, {
-		$pull: { homeworks: { _id: homeworkId } },
-	});
+	const creatorPublicId = homeworkDocument.creatorPublicId;
+	await TeacherModel.findOneAndUpdate(
+		{ publicId: creatorPublicId },
+		{
+			$pull: { homeworks: homeworkPublicId },
+		}
+	);
 	await HomeworkModel.findByIdAndRemove(homeworkDocument._id);
 };
 

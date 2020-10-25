@@ -1,12 +1,14 @@
 import { homeworkConstants } from '../constants';
 import { homeworkService } from '../services/homeworkService';
 import { reset } from 'redux-form';
+import { history } from '../store';
 
 export const homeworkActions = {
 	getHomework,
 	addTask,
 	clearError,
 	removeTask,
+	removeHomework,
 };
 
 function getHomework(homeworkPublicId) {
@@ -81,5 +83,24 @@ function removeTask(homeworkPublicId, taskPublicId) {
 	}
 	function failure(error) {
 		return { type: homeworkConstants.REMOVE_TASK_FAILURE, error };
+	}
+}
+
+function removeHomework(homeworkPublicId) {
+	return (dispatch) => {
+		homeworkService.removeHomework(homeworkPublicId).then(
+			() => {
+				dispatch(success());
+			},
+			(error) => {
+				dispatch(failure(error));
+			}
+		);
+	};
+	function success() {
+		return { type: homeworkConstants.REMOVE_HOMEWORK_SUCCESS };
+	}
+	function failure(error) {
+		return { type: homeworkConstants.REMOVE_HOMEWORK_FAILURE, error };
 	}
 }

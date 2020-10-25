@@ -47,11 +47,12 @@ module.exports = {
 		}),
 		new webpack.NamedModulesPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
-		/*new Dotenv({
+		new Dotenv({
 			path: './.env',
 			safe: true,
-		}),*/
-		new webpack.EnvironmentPlugin(['NODE_ENV', 'API_URL']),
+			systemvars: true,
+		}),
+		//new webpack.EnvironmentPlugin(['NODE_ENV', 'API_URL']),
 	],
 	devServer: {
 		historyApiFallback: true,

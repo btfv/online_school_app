@@ -24,6 +24,7 @@ import AddIcon from '@material-ui/icons/Add';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import ReceivedStudentsTable from './HomeworkComponents/ReceivedStudentsTable';
 import BackLink from './BackLink';
+import { homeworkListActions } from '../redux/actions/homeworkListActions';
 
 const useStyles = makeStyles((theme) => ({
 	icon: {
@@ -60,6 +61,11 @@ const useStyles = makeStyles((theme) => ({
 		'min-width': 200,
 		'max-width': 300,
 	},
+	removeHomeworkButton: {
+		'min-width': 240,
+		'max-width': 300,
+		margin: theme.spacing(4),
+	},
 	arrowIcon: {
 		'padding-left': 6,
 	},
@@ -92,6 +98,8 @@ let Homework = (props) => {
 		addTask,
 		addedTask,
 		history,
+		removeHomework,
+		clearHomeworkList,
 	} = props;
 	const { publicId } = props.match.params;
 	const classes = useStyles();
@@ -264,15 +272,25 @@ let Homework = (props) => {
 								>
 									Tasks
 								</Typography>
-								{homework.tasks.map((task, index) => {
-									return (
-										<Task
-											homeworkPublicId={publicId}
-											taskIndex={index}
-											task={task}
-										/>
-									);
-								})}
+								{homework.tasks.length ? (
+									homework.tasks.map((task, index) => {
+										return (
+											<Task
+												homeworkPublicId={publicId}
+												taskIndex={index}
+												task={task}
+											/>
+										);
+									})
+								) : (
+									<Typography
+										variant='body1'
+										align='center'
+										paragraph
+									>
+										No tasks
+									</Typography>
+								)}
 								<Typography
 									variant='h4'
 									align='center'
@@ -302,7 +320,21 @@ let Homework = (props) => {
 								<ReceivedStudentsTable
 									receivedStudents={homework.receivedStudents}
 									homeworkPublicId={publicId}
-								/>
+								/>{' '}
+								<Button
+									variant='outlined'
+									color='secondary'
+									align='center'
+									paragraph
+									className={classes.removeHomeworkButton}
+									onClick={() => {
+										removeHomework(publicId);
+										clearHomeworkList();
+										history.push('/dashboard');
+									}}
+								>
+									Remove Homework
+								</Button>
 							</div>
 						</Container>
 					</div>
@@ -342,6 +374,8 @@ const mapStateToProps = (state) => {
 const actionCreators = {
 	getHomework: homeworkActions.getHomework,
 	addTask: homeworkActions.addTask,
+	removeHomework: homeworkActions.removeHomework,
+	clearHomeworkList: homeworkListActions.clearList,
 };
 
 export default connect(mapStateToProps, actionCreators)(Homework);

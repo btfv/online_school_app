@@ -48,7 +48,6 @@ const mapStateToProps = (state) => {
 		loadedHomeworkPreviews,
 		loadingHomeworkPreviews,
 	} = state.homeworkListReducer;
-	//console.log(state.homeworkListReducer);
 	return {
 		homeworkPreviews,
 		loadedHomeworkPreviews,

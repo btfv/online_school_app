@@ -24,6 +24,13 @@ export default function homeworkListReducer(state = initialState, action) {
 				loadedHomeworkPreviews: true,
 				error: action.error,
 			};
+		case homeworkListConstants.CLEAR_LIST:
+			return {
+				...state,
+				loadingHomeworkPreviews: false,
+				loadedHomeworkPreviews: false,
+				homeworkPreviews: [],
+			};
 		case homeworkListConstants.CLEAR_ERROR:
 			return { ...state, error: null };
 		default:

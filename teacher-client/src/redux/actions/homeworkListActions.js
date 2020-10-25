@@ -4,6 +4,7 @@ import { homeworkListService } from '../services/homeworkListService';
 export const homeworkListActions = {
 	getListOfHomeworks,
 	clearError,
+	clearList,
 };
 
 function clearError() {
@@ -11,7 +12,11 @@ function clearError() {
 		dispatch({ type: homeworkListConstants.CLEAR_ERROR });
 	};
 }
-
+function clearList() {
+	return (dispatch) => {
+		dispatch({ type: homeworkListConstants.CLEAR_LIST });
+	};
+}
 function getListOfHomeworks(startHomeworkId) {
 	return (dispatch) => {
 		dispatch(request());

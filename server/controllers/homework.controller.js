@@ -120,10 +120,9 @@ HomeworkController.removeHomework = async function (req, res, next) {
 		 * POST
 		 * {homeworkPublicId}
 		 */
-		const creatorPublicId = req.user.publicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
-		HomeworkService.removeHomework(homeworkPublicId);
-		return res.status(200);
+		await HomeworkService.removeHomework(homeworkPublicId);
+		return res.status(200).send();
 	} catch (error) {
 		return res.status(400).json({ status: 400, error: error.toString() });
 	}

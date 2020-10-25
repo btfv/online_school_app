@@ -29,6 +29,11 @@ export default function homeworkReducer(state = initialState, action) {
 		case homeworkConstants.REMOVE_TASK_FAILURE:
 			return { ...state, error: action.error };
 
+		case homeworkConstants.REMOVE_HOMEWORK_SUCCESS:
+			return { ...state };
+		case homeworkConstants.REMOVE_HOMEWORK_FAILURE:
+			return { ...state, error: action.error };
+
 		case homeworkConstants.CLEAR_ERROR:
 			return { ...state, error: null };
 		default:

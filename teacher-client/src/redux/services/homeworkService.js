@@ -5,6 +5,7 @@ export const homeworkService = {
 	getHomework,
 	addTask,
 	removeTask,
+	removeHomework,
 };
 
 function getHomework(homeworkPublicId) {
@@ -67,5 +68,21 @@ function removeTask(homeworkPublicId, taskPublicId) {
 		body: JSON.stringify(requestBody),
 	};
 	let reqUrl = '/api/homeworks/removeTask';
+	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
+}
+
+function removeHomework(homeworkPublicId){
+	const requestBody = { homeworkPublicId };
+	const requestOptions = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Accept: 'application/json',
+		},
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify(requestBody),
+	};
+	let reqUrl = '/api/homeworks/removeHomework';
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }

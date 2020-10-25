@@ -65,8 +65,14 @@ const homeworkSchema = new mongoose.Schema({
 	//publicids of users who received that homework
 	receivedGroups: [
 		{
-			type: String,
-			required: true,
+			groupPublicId: {
+				type: String,
+				required: true,
+			},
+			groupName: {
+				type: String,
+				required: true,
+			},
 		},
 	],
 	//publicids of groups who received that homework
