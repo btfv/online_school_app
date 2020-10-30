@@ -5,6 +5,7 @@ const homeworkController = require('../controllers/homework.controller');
 const studentController = require('../controllers/student.controller');
 const { body, check, validationResult } = require('express-validator');
 const teacherController = require('../controllers/teacher.controller');
+const FilesController = require('../controllers/files.controller');
 
 const validationRules = (req, res, next) => {
 	body('email')
@@ -200,4 +201,8 @@ apiRouter.get(
 	authController.teacher.checkToken,
 	studentController.getStudentProfileByTeacher
 );
+apiRouter.get(
+	'/upload_files/:fileId',
+	FilesController.getFile
+)
 module.exports = apiRouter;
