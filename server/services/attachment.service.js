@@ -1,4 +1,6 @@
 const { nanoid } = require('nanoid');
+const fs = require('fs');
+const path = require('path');
 const AttachmentModel = require('../models/AttachmentModel');
 const AttachmentService = {};
 
@@ -15,13 +17,24 @@ AttachmentService.uploadFile = async function (file) {
 	return fileDocument._id;
 };
 
-AttachmentService.getFile = async function (id) {
-	try {
-		const fileDocument = await AttachmentModel.findById(id).select('-_id reference name');
-		return fileDocument.toObject();
-	} catch (error) {
-		throw Error(error);
-	}
+AttachmentService.getFileInfo = async function (id) {
+	const fileDocument = await AttachmentModel.findById(id).select(
+		'-_id reference name'
+	);
+	return fileDocument.toObject();
+};
+
+AttachmentService.removeFile = async function (id) {
+	const fileDocument = await AttachmentModel.findByIdAndDelete(id).select(
+		'-_id reference'
+	);
+	const filePath = path.resolve(
+		__dirname,
+		'../upload_files/' + fileDocument.reference
+	);
+	fs.unlink(filePath, (err) => {
+		if (err) throw Error(err);
+	});
 };
 
 module.exports = AttachmentService;

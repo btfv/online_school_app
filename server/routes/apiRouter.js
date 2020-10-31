@@ -202,7 +202,7 @@ apiRouter.get(
 	studentController.getStudentProfileByTeacher
 );
 apiRouter.get(
-	'/upload_files/:fileId',
+	'/upload_files/:fileReference',
 	FilesController.getFile
 )
 module.exports = apiRouter;

@@ -81,7 +81,7 @@ HomeworkService.getByStudent = async function (homeworkPublicId) {
 		.then(async (result) => {
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFile(attachment);
+					return await AttachmentService.getFileInfo(attachment);
 				})
 			);
 			return {
@@ -140,7 +140,7 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 		.then(async (result) => {
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFile(attachment);
+					return await AttachmentService.getFileInfo(attachment);
 				})
 			);
 			return {
@@ -311,7 +311,11 @@ HomeworkService.removeGroup = async function (groupPublicId, homeworkPublicId) {
 HomeworkService.removeHomework = async function (homeworkPublicId) {
 	const homeworkDocument = await HomeworkModel.findOne({
 		publicId: homeworkPublicId,
-	}).select('receivedStudents receivedGroups creatorPublicId');
+	}).select('receivedStudents receivedGroups creatorPublicId attachments');
+	const attachments = homeworkDocument.attachments;
+	attachments.map(async (attachmentId) => {
+		await AttachmentService.removeFile(attachmentId);
+	});
 	const students = homeworkDocument.receivedStudents;
 	students.map(async (student) => {
 		await HomeworkService.removeStudent(
@@ -521,7 +525,7 @@ HomeworkService.getSolutionByStudent = async function (
 			});
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFile(attachment);
+					return await AttachmentService.getFileInfo(attachment);
 				})
 			);
 			result = { ...result, ...solution };
@@ -568,7 +572,7 @@ HomeworkService.getSolutionByTeacher = async function (
 			});
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFile(attachment);
+					return await AttachmentService.getFileInfo(attachment);
 				})
 			);
 			result = { ...result, ...solution };
