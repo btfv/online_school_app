@@ -58,15 +58,11 @@ const validationRules = (req, res, next) => {
 
 //open routes
 apiRouter.post('/login', validationRules, authController.student.login);
-apiRouter.post(
-	'/registration',
-	validationRules,
-	authController.student.register
-);
+apiRouter.post('/register', validationRules, authController.student.register);
 
 apiRouter.post('/teacher/login', validationRules, authController.teacher.login);
 apiRouter.post(
-	'/teacher/registration',
+	'/teacher/register',
 	validationRules,
 	authController.teacher.register
 );
@@ -89,18 +85,21 @@ apiRouter.get(
 	'/homeworks/getByTeacher',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.getByTeacher
 );
 apiRouter.post(
 	'/teacher/changePassword',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	teacherController.changePassword
 );
 apiRouter.get(
 	'/homeworks/getPreviewsByTeacher',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.getPreviewsByTeacher
 );
 apiRouter.get(
@@ -113,48 +112,56 @@ apiRouter.post(
 	'/homeworks/addHomework',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.addHomework
 );
 apiRouter.post(
 	'/homeworks/removeHomework',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.removeHomework
 );
 apiRouter.post(
 	'/homeworks/addTask',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.addTask
 );
 apiRouter.post(
 	'/homeworks/removeTask',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.removeTask
 );
 apiRouter.post(
 	'/homeworks/addStudent',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.addStudent
 );
 apiRouter.post(
 	'/homeworks/removeGroup',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.removeGroup
 );
 apiRouter.post(
 	'/homeworks/addGroup',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.addGroup
 );
 apiRouter.post(
 	'/homeworks/removeStudent',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.removeStudent
 );
 apiRouter.post(
@@ -179,6 +186,7 @@ apiRouter.get(
 	'/homeworks/getSolutionByTeacher',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	homeworkController.getSolutionByTeacher
 );
 
@@ -186,6 +194,7 @@ apiRouter.get(
 	'/students/getStudentList',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	studentController.getListOfStudents
 );
 
@@ -193,16 +202,15 @@ apiRouter.get(
 	'/students/getStudentsByName',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	studentController.getStudentsByName
 );
 apiRouter.get(
 	'/students/getStudentProfileByTeacher',
 	authController.checkCookie,
 	authController.teacher.checkToken,
+	authController.teacher.checkPermission,
 	studentController.getStudentProfileByTeacher
 );
-apiRouter.get(
-	'/upload_files/:fileReference',
-	FilesController.getFile
-)
+apiRouter.get('/upload_files/:fileReference', FilesController.getFile);
 module.exports = apiRouter;

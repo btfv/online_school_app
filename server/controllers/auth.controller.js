@@ -33,9 +33,7 @@ authController.student.checkToken = async (req, res, next) => {
 				return res.status(400).json(error);
 			}
 			if (!token) {
-				return res
-					.status(401)
-					.json({ error: 'Incorrect token' });
+				return res.status(401).json({ error: 'Incorrect token' });
 			}
 			try {
 				const studentDocument = await StudentModel.findOne({
@@ -64,17 +62,17 @@ authController.teacher.checkToken = async (req, res, next) => {
 				return res.status(400).json({ error: error.toString() });
 			}
 			if (!token) {
-				return res
-					.status(401)
-					.json({ error: 'Incorrect token' });
+				return res.status(401).json({ error: 'Incorrect token' });
 			}
 			try {
 				const teacherDocument = await TeacherModel.findOne({
 					publicId: token.publicId,
 				})
-					.select('_id publicId username name passwordHash')
+					.select(
+						'_id publicId username firstname lastname passwordHash hasAccess'
+					)
 					.exec();
-				req.user = teacherDocument;
+				req.user = teacherDocument.toObject();
 				next();
 			} catch (error) {
 				return res
@@ -164,7 +162,7 @@ authController.teacher.login = async (req, res, next) => {
 			if (error || !teacherDocument) {
 				return res
 					.status(401)
-					.send({ status: 401, error: error.toString() });
+					.json({ status: 401, error: error.toString() });
 			}
 			const payload = {
 				publicId: teacherDocument.publicId,
@@ -175,7 +173,7 @@ authController.teacher.login = async (req, res, next) => {
 				if (error) {
 					res.status(401).json({
 						status: 401,
-						error: error.message,
+						error: error.toString(),
 					});
 				}
 
@@ -198,43 +196,46 @@ authController.teacher.login = async (req, res, next) => {
 };
 
 authController.teacher.register = async (req, res, next) => {
-	const { username, password, name } = req.body;
+	const { username, password, firstname, lastname, email } = req.body;
 
 	try {
-		if (!username || !password || !name) {
+		if (!username || !password || !firstname || !lastname || !email) {
 			throw Error(
-				'Req body should take the form { username, password, name }'
+				'Req body should take the form { username, password, firstname, lastname, email }'
 			);
 		}
 		const existingTeacher = await TeacherModel.findOne({
-			username: username,
+			$or: [{ username }, { email }],
 		});
 		if (existingTeacher) {
-			throw Error('Teacher with this username already exists');
+			throw Error('Teacher with this username or email already exists');
 		}
 		const publicId = nanoid();
 		const passwordHash = await bcrypt.hash(password, passwordHashCost);
 		const teacherDocument = new TeacherModel({
-			username: username,
-			passwordHash: passwordHash,
-			name: name,
-			publicId: publicId,
+			username,
+			passwordHash,
+			firstname,
+			lastname,
+			publicId,
+			email,
 		});
 		await teacherDocument.save();
 
 		res.status(201).send();
 	} catch (error) {
-		res.status(400).send({ status: 400, error: error.message });
+		res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
 authController.teacher.checkPermission = async (req, res, next) => {
-	try {
-		if (!req.user.isTeacher) {
-			throw Error("You aren't teacher");
-		}
-	} catch (error) {
-		res.status(400).send({ status: 400, error: error.message });
+	if (!req.user.hasAccess) {
+		res.status(400).json({
+			status: 400,
+			error: 'You have to wait for admin approval',
+		});
+	} else {
+		next();
 	}
 };
 

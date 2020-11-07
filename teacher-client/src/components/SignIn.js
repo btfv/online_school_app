@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { TextField } from 'redux-form-material-ui/src';
 import Link from '@material-ui/core/Link';
+import { Link as RouterLink } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
@@ -42,9 +43,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 let SignIn = (props) => {
-	const { handleSubmit, loggingIn } = props;
+	const { handleSubmit, loggingIn, login } = props;
 	const classes = useStyles();
-	
+
 	return (
 		<React.Fragment>
 			<Backdrop className={classes.backdrop} open={loggingIn}>
@@ -62,7 +63,7 @@ let SignIn = (props) => {
 					<form
 						className={classes.form}
 						noValidate
-						onSubmit={handleSubmit(props.login)}
+						onSubmit={handleSubmit(login)}
 					>
 						<Field
 							variant='outlined'
@@ -104,7 +105,11 @@ let SignIn = (props) => {
 								</Link>
 							</Grid>
 							<Grid item>
-								<Link href='#' variant='body2'>
+								<Link
+									variant='body2'
+									component={RouterLink}
+									to='/signup'
+								>
 									{"Don't have an account? Sign Up"}
 								</Link>
 							</Grid>
@@ -121,7 +126,6 @@ let SignIn = (props) => {
 const mapStateToProps = (state) => {
 	return {
 		loggingIn: state.authReducer.loggingIn,
-		error: state.authReducer.error,
 	};
 };
 const actionCreators = {

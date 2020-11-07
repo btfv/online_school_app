@@ -6,6 +6,7 @@ export const userActions = {
 	clearError,
 	logout,
 	changePassword,
+	register,
 };
 
 function clearError() {
@@ -70,5 +71,30 @@ function changePassword(value) {
 	}
 	function failure(error) {
 		return { type: userConstants.CHANGE_PASSWORD_FAILURE, error };
+	}
+}
+
+function register(value) {
+	return (dispatch) => {
+		dispatch(request());
+		userService.register(value).then(
+			(user) => {
+				dispatch(success());
+				history.push('/');
+			},
+			(error) => {
+				dispatch(failure(error.toString()));
+			}
+		);
+	};
+
+	function request() {
+		return { type: userConstants.REGISTER_REQUEST };
+	}
+	function success() {
+		return { type: userConstants.REGISTER_SUCCESS };
+	}
+	function failure(error) {
+		return { type: userConstants.REGISTER_FAILURE, error };
 	}
 }

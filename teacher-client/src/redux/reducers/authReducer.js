@@ -2,18 +2,21 @@ import { userConstants } from '../constants';
 import { initialState } from '../store';
 let user = localStorage.getItem('user');
 
-export default function authReducer(state = (() => {
-	if (typeof user !== undefined) {
-		return {
-			...initialState,
-			authReducer: {
-				user,
-				loggedIn: true,
-				loggingIn: false,
-			},
-		};
-	}
-})(), action) {
+export default function authReducer(
+	state = (() => {
+		if (typeof user !== undefined) {
+			return {
+				...initialState,
+				authReducer: {
+					user,
+					loggedIn: true,
+					loggingIn: false,
+				},
+			};
+		}
+	})(),
+	action
+) {
 	switch (action.type) {
 		case userConstants.LOGIN_REQUEST:
 			return {
@@ -43,6 +46,13 @@ export default function authReducer(state = (() => {
 			return { ...state, changingPassword: false, error: action.error };
 		case userConstants.CLEAR_ERROR:
 			return { ...state, error: null };
+
+		case userConstants.REGISTER_REQUEST:
+			return { ...state, registering: true };
+		case userConstants.REGISTER_SUCCESS:
+			return { ...state, registering: false };
+		case userConstants.REGISTER_FAILURE:
+			return { ...state, error: action.error };
 		default:
 			return state;
 	}

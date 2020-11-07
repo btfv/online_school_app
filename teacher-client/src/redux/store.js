@@ -12,6 +12,7 @@ export const initialState = {
 		loggingIn: false,
 		user: null,
 		changingPassword: false,
+		registering: false,
 	},
 	homeworkListReducer: {
 		homeworkPreviews: [],

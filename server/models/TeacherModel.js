@@ -9,15 +9,23 @@ const teacherSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	email: {
+		type: String,
+		required: true,
+	},
 	passwordHash: {
 		type: String,
 		required: true,
 	},
-	name: {
+	firstname: {
 		type: String,
 		required: true,
 	},
-	allowed: {
+	lastname: {
+		type: String,
+		required: true,
+	},
+	hasAccess: {
 		type: Boolean,
 		required: true,
 		default: false,

@@ -5,6 +5,7 @@ export const userService = {
 	login,
 	logout,
 	changePassword,
+	register,
 };
 
 function login(value) {
@@ -43,6 +44,23 @@ function changePassword(value) {
 	};
 	const reqUrl = config.API_URL + '/api/teacher/changePassword';
 	return fetch(reqUrl, requestOptions).then(handleResponse);
+}
+
+function register(value) {
+	const { firstname, lastname, username, email, password } = value;
+	const requestOptions = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Accept: 'application/json',
+		},
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({ firstname, lastname, username, email, password }),
+	};
+	return fetch(config.API_URL + '/api/teacher/register', requestOptions).then(
+		handleResponse
+	);
 }
 
 function logout() {

@@ -16,6 +16,7 @@ import { homeworkActions } from './redux/actions/homeworkActions';
 import { studentListActions } from './redux/actions/studentListActions';
 import { addHomeworkActions } from './redux/actions/addHomeworkActions';
 import { studentProfileActions } from './redux/actions/studentProfileActions';
+import SignUp from './components/SignUp';
 let App = (props) => {
 	const {
 		enqueueSnackbar,
@@ -97,6 +98,7 @@ let App = (props) => {
 			<Router history={history}>
 				<Switch>
 					<CommonRoute path='/signin' component={SignIn} />
+					<CommonRoute path='/signup' component={SignUp} />
 					<PrivateRoute path='/dashboard' component={Dashboard} />
 					<Redirect from='*' to='/signin' />
 				</Switch>
