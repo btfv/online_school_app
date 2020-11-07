@@ -1,5 +1,6 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const Dotenv = require('dotenv-webpack');
 const webpack = require('webpack');
 
 var path = require('path');
@@ -44,7 +45,6 @@ module.exports = {
 			filename: 'style.css',
 		}),
 		new webpack.NamedModulesPlugin(),
-		new webpack.HotModuleReplacementPlugin(),
 		new webpack.HotModuleReplacementPlugin(),
 		new Dotenv({
 			path: './.env',
