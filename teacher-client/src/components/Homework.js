@@ -329,8 +329,6 @@ let Homework = (props) => {
 									className={classes.removeHomeworkButton}
 									onClick={() => {
 										removeHomework(publicId);
-										clearHomeworkList();
-										history.push('/dashboard');
 									}}
 								>
 									Remove Homework

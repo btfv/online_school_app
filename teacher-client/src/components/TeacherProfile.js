@@ -5,7 +5,6 @@ import {
 	Typography,
 	Container,
 	Button,
-	TextField,
 } from '@material-ui/core';
 import BackLink from './BackLink';
 import { reduxForm, Field } from 'redux-form';
@@ -71,7 +70,7 @@ let TeacherProfile = (props) => {
 								color='textPrimary'
 								gutterBottom
 							>
-								{teacher.name}
+								{teacher.firstname+' '+teacher.lastname}
 							</Typography>
 						</div>
 

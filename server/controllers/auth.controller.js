@@ -166,7 +166,6 @@ authController.teacher.login = async (req, res, next) => {
 			}
 			const payload = {
 				publicId: teacherDocument.publicId,
-				isTeacher: true,
 			};
 
 			req.login(payload, { session: false }, (error) => {
@@ -180,14 +179,14 @@ authController.teacher.login = async (req, res, next) => {
 				const token = jwt.sign(payload, secret, {
 					expiresIn: '24h',
 				});
-
 				res.cookie('Authorization', 'Bearer ' + token, {
 					//httpOnly: true,
 					//secure: true,
 				})
 					.status(200)
 					.json({
-						name: teacherDocument.name,
+						firstname: teacherDocument.firstname,
+						lastname: teacherDocument.lastname,
 						publicId: teacherDocument.publicId,
 					});
 			});
@@ -236,6 +235,14 @@ authController.teacher.checkPermission = async (req, res, next) => {
 		});
 	} else {
 		next();
+	}
+};
+
+authController.logout = async (req, res, next) => {
+	try {
+		res.clearCookie('Authorization').status(200).send();
+	} catch (error) {
+		res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 

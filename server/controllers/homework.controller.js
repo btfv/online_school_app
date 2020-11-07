@@ -93,7 +93,7 @@ HomeworkController.addHomework = async function (req, res, next) {
 		 */
 		const creatorPublicId = req.user.publicId;
 		const creatorId = req.user._id;
-		const creatorName = req.user.name;
+		const creatorName = req.user.firstname + req.user.lastname;
 		const homeworkAttachments = req.files ? Object.values(req.files) : [];
 		const homeworkTitle = req.body.homeworkTitle;
 		const homeworkDescription = req.body.homeworkDescription;

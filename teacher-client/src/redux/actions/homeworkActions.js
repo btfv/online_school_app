@@ -1,4 +1,4 @@
-import { homeworkConstants } from '../constants';
+import { homeworkConstants, homeworkListConstants } from '../constants';
 import { homeworkService } from '../services/homeworkService';
 import { reset } from 'redux-form';
 import { history } from '../store';
@@ -91,6 +91,8 @@ function removeHomework(homeworkPublicId) {
 		homeworkService.removeHomework(homeworkPublicId).then(
 			() => {
 				dispatch(success());
+				dispatch({ type: homeworkListConstants.CLEAR_LIST });
+				history.push('/dashboard');
 			},
 			(error) => {
 				dispatch(failure(error));

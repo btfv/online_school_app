@@ -51,9 +51,9 @@ passport.use(
 		async (username, password, done) => {
 			try {
 				const teacherDocument = await TeacherModel.findOne({
-					username: username,
+					username,
 				})
-					.select('_id publicId username name passwordHash')
+					.select('_id publicId username firstname lastname passwordHash')
 					.exec();
 				const passwordsMatch = await bcrypt.compare(
 					password,

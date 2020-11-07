@@ -67,6 +67,8 @@ apiRouter.post(
 	authController.teacher.register
 );
 
+apiRouter.get('/logout', authController.logout);
+
 //protected routes
 
 apiRouter.get(
