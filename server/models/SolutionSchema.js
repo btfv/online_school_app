@@ -28,7 +28,7 @@ const solutionSchema = new mongoose.Schema({
 	},
 	comment: {
 		type: String,
-		required: true,
+		required: false,
 	},
 	answers: [answerSchema],
 });

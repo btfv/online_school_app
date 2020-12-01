@@ -94,7 +94,6 @@ let ReceivedStudentsTable = (props) => {
 			</div>
 		</form>
 	);
-	console.log(receivedStudentsOnClient);
 	return (
 		<TableContainer component={Paper} className={classes.root}>
 			<Table className={classes.table} aria-label='simple table'>

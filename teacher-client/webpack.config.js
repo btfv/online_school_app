@@ -60,6 +60,6 @@ module.exports = {
 		open: false,
 		contentBase: './src',
 		host: 'teacher.localhost',
-		port: 8080,
+		port: 8081,
 	},
 };

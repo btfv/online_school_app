@@ -82,9 +82,9 @@ const homeworkSchema = new mongoose.Schema({
 		required: true,
 		default: false,
 	},
-	homeworkMaxGrade: {
+	homeworkMaxPoints: {
 		type: Number,
-		required: false,
+		required: true,
 		default: 0,
 	},
 });

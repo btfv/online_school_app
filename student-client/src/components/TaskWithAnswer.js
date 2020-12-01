@@ -67,7 +67,7 @@ const WrongAnswerCheckbox = withStyles({
 let TaskWithAnswer = (props) => {
 	const classes = useStyles();
 	const { task, taskIndex, answer } = props;
-
+	console.log(task);
 	var optionsForm = (options, answers) => {
 		return options.map((option, index) => {
 			return (
@@ -149,7 +149,7 @@ let TaskWithAnswer = (props) => {
 			</FormGroup>
 			<div className={classes.grade}>
 				<Typography variant='body1'>
-					You get <b>{answer.grade + '/' + task.maxGrade}</b> points
+					You get <b>{answer.grade + '/' + task.maxPoints}</b> points
 				</Typography>
 			</div>
 		</div>

@@ -121,6 +121,9 @@ let Task = (props) => {
 			<FormGroup className={classes.formControl}>
 				{content(task)}
 			</FormGroup>
+			<Typography variant='body1'>
+				Student receives <b>{task.maxPoints} </b> points for this task
+			</Typography>
 		</div>
 	);
 };

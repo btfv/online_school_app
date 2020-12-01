@@ -65,6 +65,9 @@ let Solution = (props) => {
 	const { homeworkPublicId, solutionPublicId } = props.match.params;
 	const classes = useStyles();
 	var content = ' ';
+
+	var homeworkMaxPoints = 0;
+
 	if (
 		Object.keys(solution).length == 0 &&
 		!gettingSolution &&
@@ -136,6 +139,7 @@ let Solution = (props) => {
 									Tasks
 								</Typography>
 								{solution.tasks.map((task, index) => {
+									homeworkMaxPoints += task.maxPoints;
 									return (
 										<TaskWithAnswer
 											taskIndex={index}
@@ -147,8 +151,7 @@ let Solution = (props) => {
 							</div>
 							<Typography variant='h6' align='center' paragraph>
 								Totally student gets {solution.totalPoints}/
-								{solution.homeworkMaxGrade} points for this
-								homework
+								{homeworkMaxPoints} points for this homework
 							</Typography>
 						</Container>
 					</div>

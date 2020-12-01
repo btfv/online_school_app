@@ -18,10 +18,15 @@ AttachmentService.uploadFile = async function (file) {
 };
 
 AttachmentService.getFileInfo = async function (id) {
-	const fileDocument = await AttachmentModel.findById(id).select(
-		'-_id reference name'
-	);
-	return fileDocument.toObject();
+	const fileDocument = await AttachmentModel.findById(id)
+		.select('-_id reference name')
+		.then((result) => {
+			if (!result) {
+				throw Error('Cant find this document');
+			}
+			return result.toObject();
+		});
+	return fileDocument;
 };
 
 AttachmentService.removeFile = async function (id) {

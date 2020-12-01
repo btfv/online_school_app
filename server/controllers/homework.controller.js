@@ -39,24 +39,28 @@ HomeworkController.addTask = async function (req, res, next) {
 		 * POST
 		 * {homeworkPublicId, type, text, options[], stringAnswer, detailedAnswer, taskAttachments[]}
 		 */
-		const homeworkPublicId = req.body.homeworkPublicId;
-		const taskType = req.body.taskType;
-		const taskText = req.body.taskText;
-		const taskOptions = req.body.taskOptions;
-		const taskStringAnswer = req.body.taskStringAnswer;
-		const taskDetailedAnswer = req.body.taskDetailedAnswer;
+		const {
+			homeworkPublicId,
+			taskType,
+			taskText,
+			taskOptions,
+			taskStringAnswer,
+			taskDetailedAnswer,
+			taskPoints,
+		} = req.body;
 		const taskDocument = {
 			type: taskType,
 			text: taskText,
 			options: taskOptions,
 			stringAnswer: taskStringAnswer,
 			detailedAnswer: taskDetailedAnswer,
+			points: taskPoints
 		};
-		var taskAttachments = null;
+		var taskAttachments = [];
 		if (req.files !== undefined) {
 			taskAttachments = req.files.taskAttachments;
 		}
-		HomeworkService.addTask(
+		await HomeworkService.addTask(
 			homeworkPublicId,
 			taskDocument,
 			taskAttachments
@@ -108,7 +112,7 @@ HomeworkController.addHomework = async function (req, res, next) {
 			homeworkAttachments,
 			creatorName
 		);
-		return res.status(200).json({ homeworkPublicId: homeworkPublicId });
+		return res.status(200).json({ homeworkPublicId });
 	} catch (error) {
 		return res.status(400).json({ status: 400, error: error.toString() });
 	}
@@ -229,7 +233,7 @@ HomeworkController.addSolutionByStudent = async function (req, res, next) {
 		 */
 		const studentPublicId = req.user.publicId;
 		const studentId = req.user._id;
-		const studentName = req.user.Name;
+		const studentName = req.user.name;
 		const answers = req.body.formValues;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		await HomeworkService.addSolutionByStudent(

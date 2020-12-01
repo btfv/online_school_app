@@ -40,14 +40,22 @@ authController.student.checkToken = async (req, res, next) => {
 					publicId: token.publicId,
 				})
 					.select('_id publicId username passwordHash name')
-					.exec();
+					.exec()
+					.then((result) => {
+						if (!result) {
+							throw Error(
+								"Can't find student with this publicId"
+							);
+						}
+						return result.toObject();
+					});
 
 				req.user = studentDocument;
 				next();
 			} catch (error) {
 				return res
-					.status(400)
-					.send({ status: 400, error: error.message });
+					.status(401)
+					.send({ status: 401, error: error.toString() });
 			}
 		}
 	)(req, res, next);
@@ -71,13 +79,21 @@ authController.teacher.checkToken = async (req, res, next) => {
 					.select(
 						'_id publicId username firstname lastname passwordHash hasAccess'
 					)
-					.exec();
-				req.user = teacherDocument.toObject();
+					.exec()
+					.then((result) => {
+						if (!result) {
+							throw Error(
+								"Can't find teacher with this publicId"
+							);
+						}
+						return result.toObject();
+					});
+				req.user = teacherDocument;
 				next();
 			} catch (error) {
 				return res
-					.status(400)
-					.send({ status: 400, error: error.message });
+					.status(401)
+					.json({ status: 401, error: error.toString() });
 			}
 		}
 	)(req, res, next);

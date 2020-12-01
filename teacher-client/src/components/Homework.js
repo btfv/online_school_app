@@ -164,23 +164,11 @@ let Homework = (props) => {
 		);
 		let renderStringAnswer = () => (
 			<Field
-				name='stringAnswer'
+				name='taskStringAnswer'
 				id='outlined-basic'
-				label='String Task Text'
+				label='Answer'
 				variant='outlined'
 				className={classes.textField}
-				component={TextField}
-			/>
-		);
-		let renderDetailedAnswer = () => (
-			<Field
-				fullWidth
-				name='detailedAnswer'
-				id='outlined-basic'
-				label='Detailed Task Text'
-				variant='outlined'
-				className={classes.multilineTextField}
-				multiline
 				component={TextField}
 			/>
 		);
@@ -191,6 +179,15 @@ let Homework = (props) => {
 					id='outlined-basic'
 					label='Task Text'
 					variant='outlined'
+					className={classes.textField}
+					component={TextField}
+				/>
+				<Field
+					name='taskPoints'
+					id='outlined-basic'
+					label='Points For Task'
+					variant='outlined'
+					type='number'
 					className={classes.textField}
 					component={TextField}
 				/>
@@ -219,8 +216,6 @@ let Homework = (props) => {
 							);
 						case 'stringAnswer':
 							return renderStringAnswer();
-						case 'detailedAnswer':
-							return renderDetailedAnswer();
 						default:
 							return '';
 					}

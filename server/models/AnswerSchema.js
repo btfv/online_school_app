@@ -26,12 +26,12 @@ const answerSchema = new mongoose.Schema({
 	comment: {
 		type: String,
 		required: false,
-		default: null,
+		default: '',
 	},
 	grade: {
 		type: Number,
 		required: false,
-		default: null,
+		default: 0,
 	},
 	/*
 	if option task, then if answer full right, then 100% of maxGrade, if partially right, then 50% of maxGrade, else 0%

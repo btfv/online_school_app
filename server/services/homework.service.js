@@ -138,6 +138,9 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 	})
 		.select('-_id')
 		.then(async (result) => {
+			if (!result) {
+				throw Error("Homework doesn't exist");
+			}
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await AttachmentService.getFileInfo(attachment);
@@ -167,14 +170,14 @@ HomeworkService.addHomework = async function (
 	}
 	const homeworkPublicId = nanoid();
 	await HomeworkModel.create({
-		title: title,
-		subject: subject,
-		description: description,
-		creatorPublicId: creatorPublicId,
-		creatorId: creatorId,
+		title,
+		subject,
+		description,
+		creatorPublicId,
+		creatorId,
 		publicId: homeworkPublicId,
 		attachments: attachmentIds,
-		creatorName: creatorName,
+		creatorName,
 	});
 	await TeacherModel.findByIdAndUpdate(creatorId, {
 		$push: { homeworks: homeworkPublicId },
@@ -195,7 +198,6 @@ HomeworkService.addStudent = async function (
 		.select('title')
 		.exec();
 
-	console.log(homeworkDocument);
 	if (homeworkDocument.receivedStudents.length) {
 		throw Error('This student already has this homework');
 	}
@@ -239,8 +241,26 @@ HomeworkService.addGroup = async function (groupPublicId, homeworkPublicId) {
 
 HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 	/*
-		task:{_id, type, text, attachments, options, stringAnswer, detailedAnswer, maxGrade}
+		task:{_id, type, text, attachments, options, stringAnswer, detailedAnswer, maxPoints}
 	*/
+
+	if (isNaN(task.points) || parseInt(task.points) < 0) {
+		throw Error("Points for task can't be negative");
+	}
+	if (task.type === 2 && (!task.stringAnswer || 0 === task.stringAnswer.length)) {
+		throw Error("String answer can't be empty");
+	}
+
+	await HomeworkModel.findOne(
+		{ publicId: homeworkPublicId },
+		'solutions'
+	).then((result) => {
+		if (result.solutions.length) {
+			throw Error(
+				"You can't add task to the homework someone has received"
+			);
+		}
+	});
 	if (attachments !== 'undefined' && attachments) {
 		var attachmentIds = attachments.map(async (attachment) => {
 			return await AttachmentService.uploadFile(attachment);
@@ -249,13 +269,13 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 	}
 	const publicId = nanoid();
 	let isTaskDetailed = task.type == 3 ? true : false;
-	const setHasDetailedHomeworks = isTaskDetailed
+	const setHasDetailedTasks = isTaskDetailed
 		? { $set: { hasDetailedTasks: isTaskDetailed } }
 		: {};
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
 		{
-			...setHasDetailedHomeworks,
+			...setHasDetailedTasks,
 			$push: {
 				tasks: {
 					publicId: publicId,
@@ -265,16 +285,28 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 					options: task.options,
 					stringAnswer: task.stringAnswer,
 					detailedAnswer: task.detailedAnswer,
+					maxPoints: parseInt(task.points),
 				},
 			},
 			$inc: {
-				homeworkMaxGrade: task.maxGrade || 0,
+				homeworkMaxPoints: parseInt(task.points),
 			},
 		}
 	);
 };
 
 HomeworkService.removeTask = async function (homeworkPublicId, taskPublicId) {
+	await HomeworkModel.findOne(
+		{ publicId: homeworkPublicId },
+		'solutions'
+	).then((result) => {
+		if (result.solutions.length) {
+			throw Error(
+				"You can't remove task from the homework someone has received"
+			);
+		}
+	});
+
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
 		{ $pull: { tasks: { publicId: taskPublicId } } }
@@ -355,61 +387,77 @@ HomeworkService.addSolutionByStudent = async function (
 	studentId
 ) {
 	const checkStringAnswer = (answer, rightAnswer, points) => {
+		console.log(
+			answer.toLowerCase().replace(/ /g, '') +
+				' *** ' +
+				rightAnswer.toLowerCase().replace(/ /g, '')
+		);
 		if (
-			answer.toLowerCase().replace(/ +/g, ' ').trim() ==
-			rightAnswer.toLowerCase().replace(/ +/g, ' ').trim()
+			answer.toLowerCase().replace(/ /g, '') ===
+			rightAnswer.toLowerCase().replace(/ /g, '')
 		) {
 			return points;
-		} else {
-			return 0;
 		}
+		return 0;
 	};
-	const checkOptionsAnswer = (options, rightAnswer, points) => {
+	const checkOptionsAnswer = (answers, rightAnswers, points) => {
 		let mistakes = 0;
-		options.map((option, index) => {
-			if (option !== rightAnswer[index].isCorrect) {
+		answers.map((option, index) => {
+			option = option || false;
+			if (option !== rightAnswers[index].isCorrect) {
 				mistakes++;
 			}
 		});
-		let coefficient = mistakes / options.length;
-		return Math.floor(coefficient * points);
+		if (mistakes) {
+			return 0;
+		}
+		return points;
 	};
-	const solutionPublicId = nanoid();
 	/**
 	 * answers: {publicId, studentId, studentPublicId, answers: [{detailedAnswer, optionAnswer, stringAnswer, attachments}]}
 	 */
+	const solutionPublicId = nanoid();
 	var solutionDocument = {
 		publicId: solutionPublicId,
-		studentId: studentId,
-		studentName: studentName,
-		studentPublicId: studentPublicId,
+		studentId,
+		studentName,
+		studentPublicId,
 	};
+
 	await HomeworkModel.findOne({ publicId: homeworkPublicId })
 		.select('-_id tasks hasDetailedTasks')
 		.then(async (result) => {
 			let { tasks, hasDetailedTasks } = result;
-			solutionDocument.answers = new Array(tasks.length);
+
+			if (!tasks.length) {
+				throw Error(
+					'You cant add solution to the homework without tasks'
+				);
+			}
+
 			var taskGradeSumm = 0;
+
+			solutionDocument.answers = [];
 			tasks.map((task, index) => {
-				console.log(task);
-				let answerGradeCoefficent = 0;
+				let pointsForTask = 0;
 				switch (task.taskType) {
 					case 1:
-						answerGradeCoefficent = checkOptionsAnswer(
+						pointsForTask = checkOptionsAnswer(
 							answersForm[index],
-							task.options
+							task.options,
+							task.maxPoints
 						);
 						break;
 					case 2:
-						answerGradeCoefficent = checkStringAnswer(
+						pointsForTask = checkStringAnswer(
 							answersForm[index],
-							task.stringAnswer
+							task.stringAnswer,
+							task.maxPoints
 						);
 						break;
 				}
-				let grade = Math.floor(answerGradeCoefficent * task.maxGrade);
-				taskGradeSumm += grade;
-				solutionDocument.answers[index] = {
+				taskGradeSumm += pointsForTask;
+				solutionDocument.answers.push({
 					detailedAnswer:
 						task.taskType == 3 ? answersForm[index] : null,
 					stringAnswer:
@@ -417,10 +465,10 @@ HomeworkService.addSolutionByStudent = async function (
 					optionAnswers:
 						task.taskType == 1 ? answersForm[index] : null,
 					//attachments: answers[index].attachments,
-					grade: grade,
-				};
+					grade: pointsForTask,
+				});
 			});
-			solutionDocument.taskGradeSumm = taskGradeSumm;
+			solutionDocument.totalPoints = taskGradeSumm || 0;
 			await HomeworkModel.findOneAndUpdate(
 				{
 					publicId: homeworkPublicId,
@@ -437,23 +485,20 @@ HomeworkService.addSolutionByStudent = async function (
 						'receivedStudents.$.solutionPublicId': solutionPublicId,
 					},
 				}
-			).catch((error) => {
-				throw Error(error);
-			});
+			);
 			await StudentModel.findOneAndUpdate(
 				{
 					_id: studentId,
-					'homework.homeworkPublicId': homeworkPublicId,
+					'homeworks.homeworkPublicId': homeworkPublicId,
 				},
 				{
 					$set: {
-						'homework.$.solutionPublicId': solutionPublicId,
-						'homework.$.hasSolution': true,
+						'homeworks.$.solutionPublicId': solutionPublicId,
+						'homeworks.$.hasSolution': true,
 					},
 				}
 			);
 		});
-
 	return true;
 };
 
@@ -501,12 +546,15 @@ HomeworkService.getSolutionByStudent = async function (
 		{ solutions: { $elemMatch: { publicId: solutionPublicId } } }
 	)
 		.select(
-			'-_id tasks homeworkMaxGrade attachments creatorName creatorPublicId subject description title'
+			'-_id tasks homeworkmaxPoints attachments creatorName creatorPublicId subject description title'
 		)
 		.exec()
 		.then(async (result) => {
 			result = result.toObject();
 			let solution = result.solutions[0];
+			if (!result || !solution) {
+				throw Error("Can't find homework / solution");
+			}
 			delete solution._id;
 			delete result.solutions;
 			solution.answers = solution.answers.map((answer) => {
@@ -548,7 +596,7 @@ HomeworkService.getSolutionByTeacher = async function (
 		{ solutions: { $elemMatch: { publicId: solutionPublicId } } }
 	)
 		.select(
-			'-_id tasks homeworkMaxGrade attachments creatorName creatorPublicId subject description title'
+			'-_id tasks homeworkmaxPoints attachments creatorName creatorPublicId subject description title'
 		)
 		.exec()
 		.then(async (result) => {

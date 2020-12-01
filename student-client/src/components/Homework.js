@@ -48,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
 	tasks: {},
 	backLink: { display: 'flex', position: 'absolute', 'margin-left': 30 },
 	sendHomework: {
+		marginTop: theme.spacing(4),
 		'min-width': 200,
 		'max-width': 300,
 	},
@@ -122,6 +123,14 @@ let Homework = (props) => {
 							>
 								{homework.description}
 							</Typography>
+							<Typography
+								variant='body1'
+								align='center'
+								color='textSecondary'
+								paragraph
+							>
+								Created by {homework.creatorName}
+							</Typography>
 							<div className={classes.heroButtons}>
 								{attachments}
 							</div>
@@ -133,7 +142,8 @@ let Homework = (props) => {
 								>
 									Tasks
 								</Typography>
-								{(!homework.tasks || homework.tasks.length == 0) ? (
+								{!homework.tasks ||
+								homework.tasks.length == 0 ? (
 									<Typography
 										variant='body1'
 										color='error'
@@ -149,14 +159,16 @@ let Homework = (props) => {
 									noValidate
 									onSubmit={handleSubmit(sendSolution)}
 								>
-									{homework.tasks.map((task, index) => {
-										return (
-											<Task
-												taskIndex={index}
-												task={task}
-											/>
-										);
-									})}
+									<div>
+										{homework.tasks.map((task, index) => {
+											return (
+												<Task
+													taskIndex={index}
+													task={task}
+												/>
+											);
+										})}
+									</div>
 									<Button
 										type='submit'
 										fullWidth

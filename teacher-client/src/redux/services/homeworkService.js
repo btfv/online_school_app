@@ -19,12 +19,11 @@ function getHomework(homeworkPublicId) {
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }
 function addTask(values) {
-	var requestBody = {};
-	requestBody.homeworkPublicId = values.homeworkPublicId;
-	requestBody.taskText = values.taskText;
+	var requestBody = values;
 	switch (values.taskType) {
 		case 'options':
 			requestBody.taskType = 1;
+			delete requestBody.taskStringAnswer;
 			requestBody.taskOptions = values.optionList.map((option) => {
 				return {
 					isCorrect: option.optionIsCorrect,
@@ -34,13 +33,13 @@ function addTask(values) {
 			break;
 		case 'stringAnswer':
 			requestBody.taskType = 2;
-			requestBody.taskStringAnswer = values.stringAnswer;
 			break;
 		case 'detailedAnswer':
 			requestBody.taskType = 3;
-			requestBody.taskDetailedAnswer = values.detailedAnswer;
+			delete requestBody.taskStringAnswer;
 			break;
 	}
+	delete requestBody.optionList;
 	const requestOptions = {
 		method: 'POST',
 		headers: {
@@ -71,7 +70,7 @@ function removeTask(homeworkPublicId, taskPublicId) {
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }
 
-function removeHomework(homeworkPublicId){
+function removeHomework(homeworkPublicId) {
 	const requestBody = { homeworkPublicId };
 	const requestOptions = {
 		method: 'POST',
