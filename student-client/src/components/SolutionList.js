@@ -12,6 +12,13 @@ const useStyles = makeStyles({
 		display: 'flex',
 		'justify-content': 'center',
 	},
+	centerCircle: {
+		position: 'fixed',
+		'align-items': 'center',
+		display: 'flex',
+		padding: 0,
+		height: '90%',
+	},
 });
 
 let SolutionList = (props) => {
@@ -40,7 +47,13 @@ let SolutionList = (props) => {
 	}
 	return (
 		<div className={classes.root}>
-			{loadingSolutionPreviews ? <CircularProgress /> : ''}
+			{loadingSolutionPreviews ? (
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			) : (
+				''
+			)}
 			{homeworks}
 		</div>
 	);

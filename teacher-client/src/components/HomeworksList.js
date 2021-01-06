@@ -9,21 +9,30 @@ const useStyles = makeStyles({
 	root: {
 		'flex-wrap': 'wrap',
 		width: '100%',
-		'max-width': '1000px',
-		'margin-left': 'auto',
-		'margin-right': 'auto',
 		display: 'flex',
 		'justify-content': 'center',
+	},
+	centerCircle: {
+		position: 'fixed',
+		'align-items': 'center',
+		display: 'flex',
+		padding: 0,
+		height: '90%',
 	},
 });
 
 let HomeworksList = (props) => {
 	const classes = useStyles();
-	if (props.homeworkPreviews.length == 0) {
-		if (!props.loadingHomeworkPreviews && !props.loadedHomeworkPreviews)
+	const {
+		homeworkPreviews,
+		loadingHomeworkPreviews,
+		loadedHomeworkPreviews,
+	} = props;
+	if (homeworkPreviews.length == 0) {
+		if (!loadingHomeworkPreviews && !loadedHomeworkPreviews)
 			props.getListOfHomeworks(0);
 	} else {
-		var homeworks = props.homeworkPreviews.map((preview) => {
+		var homeworks = homeworkPreviews.map((preview) => {
 			return (
 				<CustomCard
 					title={preview.title}
@@ -36,7 +45,13 @@ let HomeworksList = (props) => {
 	}
 	return (
 		<div className={classes.root}>
-			{props.loadingHomeworkPreviews ? <CircularProgress /> : ''}
+			{loadingHomeworkPreviews ? (
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			) : (
+				''
+			)}
 			{homeworks}
 		</div>
 	);

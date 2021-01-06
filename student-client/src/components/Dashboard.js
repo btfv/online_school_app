@@ -219,7 +219,10 @@ export default function DashboardComponent(props) {
 						path='/dashboard/homework/:homeworkPublicId/solution/:solutionPublicId'
 						component={Solution}
 					/>
-					<Route path='/dashboard/profile' component={StudentProfile} />
+					<Route
+						path='/dashboard/profile'
+						component={StudentProfile}
+					/>
 					<Redirect from='*' to='/dashboard/homeworks' />
 				</Switch>
 			</Router>

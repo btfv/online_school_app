@@ -12,6 +12,13 @@ const useStyles = makeStyles({
 		display: 'flex',
 		'justify-content': 'center',
 	},
+	centerCircle: {
+		position: 'fixed',
+		'align-items': 'center',
+		display: 'flex',
+		padding: 0,
+		height: '90%',
+	},
 });
 
 let HomeworksList = (props) => {
@@ -21,7 +28,6 @@ let HomeworksList = (props) => {
 		loadingHomeworkPreviews,
 		loadedHomeworkPreviews,
 	} = props;
-	console.log(homeworkPreviews);
 	if (props.homeworkPreviews.length == 0) {
 		if (!loadingHomeworkPreviews && !loadedHomeworkPreviews)
 			props.getListOfHomeworks(0);
@@ -39,7 +45,13 @@ let HomeworksList = (props) => {
 	}
 	return (
 		<div className={classes.root}>
-			{loadingHomeworkPreviews ? <CircularProgress /> : ''}
+			{loadingHomeworkPreviews ? (
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			) : (
+				''
+			)}
 			{homeworks}
 		</div>
 	);
@@ -51,7 +63,6 @@ const mapStateToProps = (state) => {
 		loadedHomeworkPreviews,
 		loadingHomeworkPreviews,
 	} = state.homeworkListReducer;
-	//console.log(state.homeworkListReducer);
 	return {
 		homeworkPreviews,
 		loadedHomeworkPreviews,

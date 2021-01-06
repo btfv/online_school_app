@@ -7,7 +7,9 @@ const AttachmentService = require('./attachment.service');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
+/* how much homeworks can server send per one request */
 const SOLUTIONS_PER_REQUEST = 6;
+/* how much solutions can server send per one request */
 
 HomeworkService.checkTeacherPermission = async function (
 	teacherPublicId,
