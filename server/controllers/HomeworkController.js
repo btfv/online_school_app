@@ -1,4 +1,4 @@
-const HomeworkService = require('../services/homework.service');
+const HomeworkService = require('../services/HomeworkService');
 const HomeworkController = {};
 
 HomeworkController.getByStudent = async function (req, res, next) {

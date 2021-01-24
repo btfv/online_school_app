@@ -1,4 +1,4 @@
-const StudentService = require('../services/student.service');
+const StudentService = require('../services/StudentService');
 const StudentController = {};
 
 StudentController.getStudentProfileByTeacher = async function (req, res, next) {

@@ -1,6 +1,6 @@
 const FilesController = {};
 const path = require('path');
-const FilesService = require('../services/files.service');
+const FilesService = require('../services/FilesService');
 FilesController.getFile = async function (req, res, next) {
 	/**
 	 * GET

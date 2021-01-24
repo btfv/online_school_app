@@ -1,11 +1,11 @@
 const express = require('express');
-const apiRouter = express.Router();
-const authController = require('../controllers/auth.controller');
-const homeworkController = require('../controllers/homework.controller');
-const studentController = require('../controllers/student.controller');
+const ApiRouter = express.Router();
+const AuthController = require('../controllers/AuthController');
+const HomeworkController = require('../controllers/HomeworkController');
+const StudentController = require('../controllers/StudentController');
 const { body, check, validationResult } = require('express-validator');
-const teacherController = require('../controllers/teacher.controller');
-const FilesController = require('../controllers/files.controller');
+const TeacherController = require('../controllers/TeacherController');
+const FilesController = require('../controllers/FilesController');
 
 const validationRules = (req, res, next) => {
 	body('email')
@@ -57,162 +57,162 @@ const validationRules = (req, res, next) => {
 };
 
 //open routes
-apiRouter.post('/login', validationRules, authController.student.login);
-apiRouter.post('/register', validationRules, authController.student.register);
+ApiRouter.post('/login', validationRules, AuthController.student.login);
+ApiRouter.post('/register', validationRules, AuthController.student.register);
 
-apiRouter.post('/teacher/login', validationRules, authController.teacher.login);
-apiRouter.post(
+ApiRouter.post('/teacher/login', validationRules, AuthController.teacher.login);
+ApiRouter.post(
 	'/teacher/register',
 	validationRules,
-	authController.teacher.register
+	AuthController.teacher.register
 );
 
-apiRouter.get('/logout', authController.logout);
+ApiRouter.get('/logout', AuthController.logout);
 
 //protected routes
 
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getByStudent',
-	authController.checkCookie,
-	authController.student.checkToken,
-	homeworkController.getByStudent
+	AuthController.checkCookie,
+	AuthController.student.checkToken,
+	HomeworkController.getByStudent
 );
-apiRouter.post(
+ApiRouter.post(
 	'/student/changePassword',
-	authController.checkCookie,
-	authController.student.checkToken,
-	studentController.changePassword
+	AuthController.checkCookie,
+	AuthController.student.checkToken,
+	StudentController.changePassword
 );
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getByTeacher',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.getByTeacher
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.getByTeacher
 );
-apiRouter.post(
+ApiRouter.post(
 	'/teacher/changePassword',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	teacherController.changePassword
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	TeacherController.changePassword
 );
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getPreviewsByTeacher',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.getPreviewsByTeacher
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.getPreviewsByTeacher
 );
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getPreviewsByStudent',
-	authController.checkCookie,
-	authController.student.checkToken,
-	homeworkController.getPreviewsByStudent
+	AuthController.checkCookie,
+	AuthController.student.checkToken,
+	HomeworkController.getPreviewsByStudent
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/addHomework',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.addHomework
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.addHomework
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/removeHomework',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.removeHomework
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.removeHomework
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/addTask',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.addTask
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.addTask
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/removeTask',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.removeTask
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.removeTask
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/addStudent',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.addStudent
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.addStudent
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/removeGroup',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.removeGroup
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.removeGroup
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/addGroup',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.addGroup
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.addGroup
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/removeStudent',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.removeStudent
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.removeStudent
 );
-apiRouter.post(
+ApiRouter.post(
 	'/homeworks/addSolutionByStudent',
-	authController.checkCookie,
-	authController.student.checkToken,
-	homeworkController.addSolutionByStudent
+	AuthController.checkCookie,
+	AuthController.student.checkToken,
+	HomeworkController.addSolutionByStudent
 );
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getSolutionPreviewsByStudent',
-	authController.checkCookie,
-	authController.student.checkToken,
-	homeworkController.getSolutionPreviewsByStudent
+	AuthController.checkCookie,
+	AuthController.student.checkToken,
+	HomeworkController.getSolutionPreviewsByStudent
 );
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getSolutionByStudent',
-	authController.checkCookie,
-	authController.student.checkToken,
-	homeworkController.getSolutionByStudent
+	AuthController.checkCookie,
+	AuthController.student.checkToken,
+	HomeworkController.getSolutionByStudent
 );
-apiRouter.get(
+ApiRouter.get(
 	'/homeworks/getSolutionByTeacher',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	homeworkController.getSolutionByTeacher
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	HomeworkController.getSolutionByTeacher
 );
 
-apiRouter.get(
+ApiRouter.get(
 	'/students/getStudentList',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	studentController.getListOfStudents
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	StudentController.getListOfStudents
 );
 
-apiRouter.get(
+ApiRouter.get(
 	'/students/getStudentsByName',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	studentController.getStudentsByName
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	StudentController.getStudentsByName
 );
-apiRouter.get(
+ApiRouter.get(
 	'/students/getStudentProfileByTeacher',
-	authController.checkCookie,
-	authController.teacher.checkToken,
-	authController.teacher.checkPermission,
-	studentController.getStudentProfileByTeacher
+	AuthController.checkCookie,
+	AuthController.teacher.checkToken,
+	AuthController.teacher.checkPermission,
+	StudentController.getStudentProfileByTeacher
 );
-apiRouter.get('/upload_files/:fileReference', FilesController.getFile);
-module.exports = apiRouter;
+ApiRouter.get('/upload_files/:fileReference', FilesController.getFile);
+module.exports = ApiRouter;

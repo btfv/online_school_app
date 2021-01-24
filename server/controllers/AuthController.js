@@ -1,4 +1,3 @@
-const express = require('express');
 const StudentModel = require('../models/StudentModel');
 const bcrypt = require('bcrypt');
 const secret = process.env.SECRET_KEY;
@@ -9,11 +8,11 @@ const TeacherModel = require('../models/TeacherModel');
 
 const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
-var authController = {};
-authController.student = {};
-authController.teacher = {};
+var AuthController = {};
+AuthController.student = {};
+AuthController.teacher = {};
 
-authController.checkCookie = (req, res, next) => {
+AuthController.checkCookie = (req, res, next) => {
 	const cookie = req.cookies.Authorization;
 	if (typeof cookie !== 'undefined') {
 		req.authorizationCookie = cookie;
@@ -24,7 +23,7 @@ authController.checkCookie = (req, res, next) => {
 			.send();
 	}
 };
-authController.student.checkToken = async (req, res, next) => {
+AuthController.student.checkToken = async (req, res, next) => {
 	await passport.authenticate(
 		'jwt',
 		{ session: false },
@@ -61,7 +60,7 @@ authController.student.checkToken = async (req, res, next) => {
 	)(req, res, next);
 };
 
-authController.teacher.checkToken = async (req, res, next) => {
+AuthController.teacher.checkToken = async (req, res, next) => {
 	await passport.authenticate(
 		'jwt',
 		{ session: false },
@@ -99,7 +98,7 @@ authController.teacher.checkToken = async (req, res, next) => {
 	)(req, res, next);
 };
 
-authController.student.login = async (req, res, next) => {
+AuthController.student.login = async (req, res, next) => {
 	await passport.authenticate(
 		'student-local',
 		{ session: false },
@@ -138,7 +137,7 @@ authController.student.login = async (req, res, next) => {
 	)(req, res);
 };
 
-authController.student.register = async (req, res, next) => {
+AuthController.student.register = async (req, res, next) => {
 	const { username, password, name, age } = req.body;
 
 	try {
@@ -170,7 +169,7 @@ authController.student.register = async (req, res, next) => {
 	}
 };
 
-authController.teacher.login = async (req, res, next) => {
+AuthController.teacher.login = async (req, res, next) => {
 	await passport.authenticate(
 		'teacher-local',
 		{ session: false },
@@ -210,7 +209,7 @@ authController.teacher.login = async (req, res, next) => {
 	)(req, res, next);
 };
 
-authController.teacher.register = async (req, res, next) => {
+AuthController.teacher.register = async (req, res, next) => {
 	const { username, password, firstname, lastname, email } = req.body;
 
 	try {
@@ -243,7 +242,7 @@ authController.teacher.register = async (req, res, next) => {
 	}
 };
 
-authController.teacher.checkPermission = async (req, res, next) => {
+AuthController.teacher.checkPermission = async (req, res, next) => {
 	if (!req.user.hasAccess) {
 		res.status(400).json({
 			status: 400,
@@ -254,7 +253,7 @@ authController.teacher.checkPermission = async (req, res, next) => {
 	}
 };
 
-authController.logout = async (req, res, next) => {
+AuthController.logout = async (req, res, next) => {
 	try {
 		res.clearCookie('Authorization').status(200).send();
 	} catch (error) {
@@ -262,4 +261,4 @@ authController.logout = async (req, res, next) => {
 	}
 };
 
-module.exports = authController;
+module.exports = AuthController;

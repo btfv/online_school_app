@@ -8,12 +8,13 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+var mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
+var ApiRouter = require('./routes/ApiRouter');
 
 const secret = process.env.SECRET_KEY;
 
-var mongoose = require('mongoose');
 var mongoDBaddress = process.env.DATABASE_ADDRESS;
 console.log('Connecting to the ' + mongoDBaddress);
 mongoose
@@ -52,21 +53,20 @@ var corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use(logger('dev'));
+app.use(logger(process.env.NODE_ENV === 'development' ? 'dev' : 'tiny'));
 
 require('./config/passport');
-var apiRouter = require('./routes/apiRouter');
-app.use('/api', apiRouter);
+app.use('/api', ApiRouter);
 
-// catch 404 and forward to error handler
 app.use(function (req, res, next) {
 	next(createError(404));
 });
+
 // error handler
 app.use(function (err, req, res, next) {
 	// set locals, only providing error in development
 	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+	res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
 
 	// render the error page
 	res.status(err.status || 500).send(err.message);

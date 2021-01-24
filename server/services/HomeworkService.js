@@ -3,7 +3,7 @@ const HomeworkModel = require('../models/HomeworkModel');
 const StudentModel = require('../models/StudentModel');
 const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
-const AttachmentService = require('./attachment.service');
+const AttachmentService = require('./AttachementService');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
