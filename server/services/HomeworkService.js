@@ -3,7 +3,7 @@ const HomeworkModel = require('../models/HomeworkModel');
 const StudentModel = require('../models/StudentModel');
 const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
-const AttachmentService = require('./AttachementService');
+const FilesService = require('./FilesService');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
@@ -83,7 +83,7 @@ HomeworkService.getByStudent = async function (homeworkPublicId) {
 		.then(async (result) => {
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFileInfo(attachment);
+					return await FilesService.getFileInfo(attachment);
 				})
 			);
 			return {
@@ -145,7 +145,7 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 			}
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFileInfo(attachment);
+					return await FilesService.getFileInfo(attachment);
 				})
 			);
 			return {
@@ -166,7 +166,7 @@ HomeworkService.addHomework = async function (
 ) {
 	if (attachments && attachments.length > 0) {
 		var attachmentIds = attachments.map(async (attachment) => {
-			return await AttachmentService.uploadFile(attachment);
+			return await FilesService.uploadFile(attachment);
 		});
 		attachmentIds = await Promise.all(attachmentIds);
 	}
@@ -265,7 +265,7 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 	});
 	if (attachments !== 'undefined' && attachments) {
 		var attachmentIds = attachments.map(async (attachment) => {
-			return await AttachmentService.uploadFile(attachment);
+			return await FilesService.uploadFile(attachment);
 		});
 		attachmentIds = await Promise.all(attachmentIds);
 	}
@@ -348,7 +348,7 @@ HomeworkService.removeHomework = async function (homeworkPublicId) {
 	}).select('receivedStudents receivedGroups creatorPublicId attachments');
 	const attachments = homeworkDocument.attachments;
 	attachments.map(async (attachmentId) => {
-		await AttachmentService.removeFile(attachmentId);
+		await FilesService.removeFile(attachmentId);
 	});
 	const students = homeworkDocument.receivedStudents;
 	students.map(async (student) => {
@@ -575,7 +575,7 @@ HomeworkService.getSolutionByStudent = async function (
 			});
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFileInfo(attachment);
+					return await FilesService.getFileInfo(attachment);
 				})
 			);
 			result = { ...result, ...solution };
@@ -622,7 +622,7 @@ HomeworkService.getSolutionByTeacher = async function (
 			});
 			let attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
-					return await AttachmentService.getFileInfo(attachment);
+					return await FilesService.getFileInfo(attachment);
 				})
 			);
 			result = { ...result, ...solution };

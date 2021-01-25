@@ -5,7 +5,7 @@ const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
 const StudentService = {};
 
-const COUNT_OF_USERS_IN_QUERY = 5;
+const COUNT_OF_USERS_IN_QUERY = process.env.COUNT_OF_USERS_IN_QUERY;
 
 StudentService.getStudentProfileByTeacher = async function (studentPublicId) {
 	var userDocument = await StudentModel.findOne(
