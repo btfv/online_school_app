@@ -1,0 +1,21 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512f1159a2f
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1611844371938
+created: 1611648314334
+url: "{{ base_url }}/auth/studentRegistration"
+name: /auth/studentRegistration
+description: ""
+method: POST
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1611648314334
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

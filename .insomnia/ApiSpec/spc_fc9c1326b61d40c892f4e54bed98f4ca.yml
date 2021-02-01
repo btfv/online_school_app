@@ -1,0 +1,745 @@
+_id: spc_fc9c1326b61d40c892f4e54bed98f4ca
+type: ApiSpec
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612194004853
+created: 1609875195599
+fileName: Online School App API undefined
+contents: >-
+  openapi: 3.0.3
+
+  info:
+    title: 'Online School App API'
+    description: 'My first app'
+    contact:
+      name: 'Bulat Faizrakhmanov'
+      email: 'fayzrakhman7@gmail.com'
+      version: 1.0
+  components:
+    schemas:
+      attachmentSchema:
+        type: object
+        required:
+          - reference
+          - name
+        properties:
+          reference:
+            type: string
+          name:
+            type: string
+      taskWithoutAnswerSchema:
+        type: object
+        required:
+          - taskType
+          - condition
+          - maxPoints
+          - publicId
+        properties:
+          publicId:
+            $ref: "#/components/schemas/publicIdSchema"
+          taskType:
+            type: integer
+            enum: [1, 2, 3]
+            description: "type of answer is 1 - option from list, 2 - string, 3 - detailed"
+          condition:
+            type: string
+            example: "Which planet is second farthest from Solar?"
+            description: "problem condition"
+          maxPoints:
+            type: integer
+            description: "how much points student receives if right solved task"
+            minimum: 0
+          options:
+            description: "array of option's labels"
+            type: array
+            items:
+              type: string
+            example: ["First", "Second", "third", "last one label"]
+      taskWithAnswerAndIdSchema:
+        type: object
+        required:
+          - taskType
+          - condition
+          - maxPoints
+          - answer
+          - publicId
+        properties:
+          publicId:
+            $ref: "#/components/schemas/publicIdSchema"
+          taskType:
+            type: integer
+            enum: [1, 2, 3]
+            description: "type of answer is 1 - option from list, 2 - string, 3 - detailed"
+          condition:
+            type: string
+            example: "Which planet is second farthest from Solar?"
+            description: "problem condition"
+          maxPoints:
+            type: integer
+            description: "how much points student receives if right solved task"
+            minimum: 0
+          options:
+            description: "array of option's labels"
+            type: array
+            items:
+              type: string
+            example: ["First", "Second", "third", "last one label"]
+          answer:
+              oneOf:
+                - type: array
+                  description: "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong"
+                  items:
+                    type: boolean
+                  example: [true, false, true, false]
+                - type: string
+                  description: "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is"
+                  example: "Venera"
+      homeworkForStudent:
+        type: object
+        required:
+          - title
+          - creatorPublicId
+          - creatorName
+        properties:
+          title:
+            type: string
+          subject:
+            type: string
+          creatorPublicId:
+            $ref: "#/components/schemas/publicIdSchema"
+          creatorName:
+            type: string
+          description:
+            type: string
+          attachments:
+            type: array
+            items:
+              $ref: "#/components/schemas/attachmentSchema"
+          tasks:
+            type: array
+            items:
+              $ref: "#/components/schemas/taskWithoutAnswerSchema"
+      homeworkForTeacher:
+        type: object
+        required:
+          - title
+          - creatorPublicId
+          - creatorName
+        properties:
+          title:
+            type: string
+          subject:
+            type: string
+          creatorPublicId:
+            $ref: "#/components/schemas/publicIdSchema"
+          creatorName:
+            type: string
+          description:
+            type: string
+          attachments:
+            type: array
+            items:
+              $ref: "#/components/schemas/attachmentSchema"
+          tasks:
+            type: array
+            items:
+              $ref: "#/components/schemas/taskWithAnswerAndIdSchema"      
+      solutionSchema:
+        description: "in fact, solution is homework with student answers and result of answers checking added"
+        type: object
+        required:
+          - homework
+          - answers
+        properties:
+          homework:
+            $ref: "#/components/schemas/homeworkForTeacher"
+          solution:
+            description: "here is additional info with student answers, teachers comments, results and etc."
+            type: array
+            items:
+              type: object
+              required:
+                - result
+                - studentAnswer
+              properties:
+                comment:
+                  type: string
+                  description: "comment from teacher to student because of this task. usually used in detailed answer tasks"
+                result:
+                  type: number
+                  minimum: 0
+                  description: "how much points gets student for answer"
+                studentAnswer:
+                  example: [false, false, true, false]
+                  oneOf:
+                    - type: array
+                      description: "choosed options. Array connects with array 'options' in TaskWithAnswerSchema"
+                      items:
+                        type: boolean
+                      example: [false, false, true, false]
+                    - type: string
+                      description: "text answer"
+                      example: "Solar System"
+      publicIdSchema:
+        type: string
+        format: publicId
+        example: 'example-ZwseLUGUsHdYQ'
+      userRegistrationData:
+          type: object
+          required:
+          - login
+          - password
+          - email
+          - firstname
+          - lastname
+          properties:
+            login:
+              type: string
+              format: login
+              minLength: 4
+              maxLength: 12
+            password:
+              type: string
+              format: password
+              minLength: 8
+              maxLength: 16
+            email:
+              type: string
+              format: email
+              minLength: 8
+              maxLength: 16
+            firstname:
+              type: string
+              minLength: 1
+              maxLength: 12
+            lastname:
+              type: string
+              minLength: 4
+              maxLength: 16
+      userLoginData:
+          type: object
+          required:
+          - login
+          - password
+          properties:
+            login:
+              type: string
+              format: login
+            password:
+              type: string
+              format: password
+      
+    requestBodies:
+      loginRequest:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/userLoginData'
+                examples:
+                  user:
+                    value:
+                      login: 'Example'
+                      password: 'amdmw124_'
+      registrationRequest:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/userRegistrationData'
+                examples:
+                  user:
+                    value:
+                      login: 'Example'
+                      password: 'amdmw124_'
+                      email: 'vasya@gmail.com'
+                      firstname: 'Vasiliy'
+                      lastname: 'Petrov'
+    responses:
+        loginResponse:
+            '200':
+              description: "Succesfully logged in"
+              headers: 
+                Set-Cookie:
+                  schema: 
+                    type: string
+                    example: Authorization=abcde12345; Path=/; HttpOnly
+        unauthorized:
+          description: "Unauthorized. Access token is missing or invalid"
+        getListSuccess:
+          content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                    - title
+                    - description
+                    - publicId
+                    properties:
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      publicId:
+                        type: string
+                      subject:
+                        type: string
+                      hasSolution:
+                        type: boolean
+        registrationResponse:
+              description: "Succesfully registered"
+              headers: 
+                Set-Cookie:
+                  schema: 
+                    type: string
+                    example: Authorization=abcde12345; Path=/; HttpOnly
+        errorResponse:
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  -errorMessage
+                properties:
+                  errorMessage:
+                    type: string
+              examples:
+                error:
+                  value:
+                    errorMessage: 'Wrong offset parameter'
+        getHomeworkSuccess:
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/homeworkForTeacher"
+                  - $ref: "#/components/schemas/homeworkForStudent"
+        getSolutionSuccess:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/solutionSchema"
+    parameters:
+      offsetParam:
+        in: query
+        name: offset
+        description: offset in list
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      homeworkPublicIdParam:
+        in: path
+        name: homeworkPublicId
+        description: identificator of homework
+        required: true
+        schema:
+          $ref: '#/components/schemas/publicIdSchema'
+      solutionPublicIdParam:
+        in: path
+        name: solutionPublicId
+        description: identificator of solution
+        required: true
+        schema:
+          $ref: '#/components/schemas/publicIdSchema'
+    securitySchemes:
+      bearerAuth:
+        type: https
+        scheme: bearer
+        bearerFormat: JWT
+  paths:
+    /auth/studentLogin:
+        post:
+          description: 'Auth request for student login'
+          requestBody:
+            $ref: '#/components/requestBodies/loginRequest'
+          responses:
+            $ref: '#/components/responses/loginResponse'
+    /auth/teacherLogin:
+        post:
+          description: 'Auth request for teacher login'
+          requestBody:
+            $ref: '#/components/requestBodies/loginRequest'
+          responses:
+            $ref: '#/components/responses/loginResponse'
+    /auth/studentRegistration:
+        post:
+          description: 'Registration request for student'
+          requestBody:
+            $ref: '#/components/requestBodies/registrationRequest'
+          responses:
+            $ref: '#/components/responses/registrationResponse'
+    /auth/teacherRegistration:
+        post:
+          description: 'Registration request for teacher'
+          requestBody:
+            $ref: '#/components/requestBodies/registrationRequest'
+          responses:
+            '200':
+              $ref: '#/components/responses/registrationResponse'
+    /api/getListOfHomeworks:
+        get:
+          security:
+          - bearerAuth: []
+          description: 'Get list of homeworks'
+          parameters:
+            - $ref: '#/components/parameters/offsetParam'
+          responses:
+            '200':
+              $ref: '#/components/responses/getListSuccess'
+            '400':
+              $ref: '#/components/responses/errorResponse'
+            '401':
+              $ref: '#/components/responses/unauthorized'
+    /api/getHomework/{homeworkPublicId}:
+        get:
+          security:
+          - bearerAuth: []
+          description: 'Get homework. If teacher - then returns homework with answers, else without answers'
+          parameters:
+            - $ref: '#/components/parameters/homeworkPublicIdParam'
+          responses:
+            '200':
+              $ref: '#/components/responses/getHomeworkSuccess'
+            '400':
+              $ref: '#/components/responses/errorResponse'
+            '401':
+              $ref: '#/components/responses/unauthorized'
+    /api/getSolution/{homeworkPublicId}.{solutionPublicId}:
+        get:
+          security:
+          - bearerAuth: []
+          description: 'Get solution'
+          parameters:
+            - $ref: '#/components/parameters/homeworkPublicIdParam'
+            - $ref: '#/components/parameters/solutionPublicIdParam'
+          responses:
+            '200':
+              $ref: '#/components/responses/getSolutionSuccess'
+            '400':
+              $ref: '#/components/responses/errorResponse'
+            '401':
+              $ref: '#/components/responses/unauthorized'
+    /api/createHomework/:
+        post:
+          security:
+          - bearerAuth: []
+          description: 'Create new homework'
+          requestBody:
+            description: "Creates new homework. Can be used without tasks provided. Remember: If you add tasks, you have to add them with answers."
+            content:
+              multipart/form-data:
+                schema:
+                  type: object
+                  required:
+                    - taskType
+                    - condition
+                    - maxPoints
+                    - answer
+                  properties:
+                    taskType:
+                      type: integer
+                      enum: [1, 2, 3]
+                      description: "type of answer is 1 - option from list, 2 - string, 3 - detailed"
+                    condition:
+                      type: string
+                      example: "Which planet is second farthest from Solar?"
+                      description: "problem condition"
+                    maxPoints:
+                      type: integer
+                      description: "how much points student receives if right solved task"
+                      minimum: 0
+                    options:
+                      description: "array of option's labels"
+                      type: array
+                      items:
+                        type: string
+                      example: ["First", "Second", "third", "last one label"]
+                    answer:
+                        oneOf:
+                          - type: array
+                            description: "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong"
+                            items:
+                              type: boolean
+                            example: [true, false, true, false]
+                          - type: string
+                            description: "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is"
+                            example: "Venera"
+          responses:
+            '200':
+              description: "Homework succesfully created"
+            '400':
+              $ref: '#/components/responses/errorResponse'
+            '401':
+              $ref: '#/components/responses/unauthorized'
+    /api/addTask/:
+      post:
+        security:
+          - bearerAuth: []
+        description: 'Create and add task to an existing homework'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - taskType
+                  - condition
+                  - maxPoints
+                  - answer
+                properties:
+                  taskType:
+                    type: integer
+                    enum: [1, 2, 3]
+                    description: "type of answer is 1 - option from list, 2 - string, 3 - detailed"
+                  condition:
+                    type: string
+                    example: "Which planet is second farthest from Solar?"
+                    description: "problem condition"
+                  maxPoints:
+                    type: integer
+                    description: "how much points student receives if right solved task"
+                    minimum: 0
+                  options:
+                    description: "array of option's labels"
+                    type: array
+                    items:
+                      type: string
+                    example: ["First", "Second", "third", "last one label"]
+                  answer:
+                      example: 
+                        - [true, false, true, false]
+                        - "Venera"
+                      oneOf:
+                        - type: array
+                          description: "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong"
+                          items:
+                            type: boolean
+                          example: [true, false, true, false]
+                        - type: string
+                          description: "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is"
+                          example: "Venera"
+        responses:
+          '200':
+            description: "Task succesfully created and added"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
+    /api/sendHomework/:
+      post:
+        security:
+          - bearerAuth: []
+        description: 'Send homework to the student'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  studentPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  homeworkPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  deadline:
+                    type: string
+                    format: date-time
+        responses:
+          '200':
+            description: "Homework succesfully sended"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
+    /api/getStudentList/:
+      get:
+        description: "Get student's publicIds by their name"
+        parameters:
+          - in: query
+            name: name
+            schema:
+              type: string
+              minLength: 2
+              maxLength: 20
+            required: true
+            description: "student's username"
+        responses:
+          '200':
+            description: "Query is correct"
+            content:
+              application/json:
+                schema:
+                  type: array
+                  minItems: 0
+                  maxItems: 20
+                  items:
+                    type: object
+                    required:
+                      - username
+                      - publicId
+                    properties:
+                      username:
+                        type: string
+                        example: "mivanova"
+                      publicId:
+                        $ref: '#/components/schemas/publicIdSchema'
+          '400':
+            $ref: '#/components/responses/errorResponse'
+    /api/sendAnswers/:
+      post:
+        security:
+            - bearerAuth: []
+        description: 'Send answers to the teacher'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  homeworkPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  tasksInfo:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        taskPublicId:
+                          $ref: '#/components/schemas/publicIdSchema'
+                        answer:
+                          example: [[false, false, true, false], "Solar System"]
+                          oneOf:
+                            - type: array
+                              description: "choosed options. Array connects with array 'options' in TaskWithAnswerSchema"
+                              items:
+                                type: boolean
+                              example: [false, false, true, false]
+                            - type: string
+                              description: "text answer"
+                              example: "Solar System"
+        responses:
+          '200':
+            description: "Answers succesfully sended"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
+    /api/removeTask/:
+      post:
+        security:
+            - bearerAuth: []
+        description: 'Remove task from the homework'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  homeworkPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  taskPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+      responses:
+        '200':
+          description: "Successfully removed"
+        '400':
+          $ref: '#/components/responses/errorResponse'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+    /api/removeHomework/:
+      post:
+        security:
+            - bearerAuth: []
+        description: 'Remove homework'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  homeworkPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+      responses:
+        '200':
+          description: "Successfully removed"
+        '400':
+          $ref: '#/components/responses/errorResponse'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+    /api/checkSolution/:
+      post:
+        security:
+            - bearerAuth: []
+        description: 'Check answers of the student'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  homeworkPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  solutionPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  checkTasksInfo:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - taskPublicId
+                        - result
+                      properties:
+                        taskPublicId:
+                          $ref: '#/components/schemas/publicIdSchema'
+                        comment:
+                          type: string
+                          description: "comment from teacher to student because of this task. usually used in detailed answer tasks"
+                        result:
+                          type: number
+                          minimum: 0
+                          description: "how much points gets student for answer"
+      responses:
+        '200':
+          description: "Successfully checked and sended to the student"
+        '400':
+          $ref: '#/components/responses/errorResponse'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+    /api/getUserInfo/{userPublicId}:
+      get:
+        security:
+            - bearerAuth: []
+        description: 'Get user info such as email, firstname, lastname, age, profile pic'
+        parameters:
+          - in: path
+            name: userPublicId
+            description: identificator of user
+            required: true
+            schema:
+              $ref: '#/components/schemas/publicIdSchema'
+        responses:
+          '200':
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required:
+                    - firstname
+                    - lastname
+                  properties:
+                    firstname:
+                      type: string
+                      example: "Ivan"
+                    lastname:
+                      type: string
+                      example: "Ivanov"
+                    email:
+                      type: string
+                      format: email
+                    profilePicUrl:
+                      type: string
+                      format: uri
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
+contentType: yaml
