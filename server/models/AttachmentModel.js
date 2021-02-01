@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const attachmentSchema = new mongoose.Schema({
+	/* extension */
 	ext: {
 		type: String,
 		required: true,

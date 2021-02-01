@@ -12,90 +12,52 @@ var AuthController = {};
 AuthController.student = {};
 AuthController.teacher = {};
 
-AuthController.checkCookie = (req, res, next) => {
+const checkCookie = (cookie) => {
+	return typeof cookie !== 'undefined';
+};
+AuthController.isStudent = async (req, res, next) => {
 	const cookie = req.cookies.Authorization;
-	if (typeof cookie !== 'undefined') {
-		req.authorizationCookie = cookie;
-		next();
-	} else {
-		res.status(403)
-			.json({ status: 403, error: 'Cannot find Authorization cookie' })
-			.send();
+	if (!checkCookie(cookie)) {
+		return res.status(401).send();
 	}
-};
-AuthController.student.checkToken = async (req, res, next) => {
 	await passport.authenticate(
 		'jwt',
 		{ session: false },
-		async (error, token) => {
+		async (error, user) => {
+			if (!user) {
+				return res.status(401).send();
+			}
 			if (error) {
-				return res.status(400).json(error);
+				return res.status(400);
 			}
-			if (!token) {
-				return res.status(401).json({ error: 'Incorrect token' });
-			}
-			try {
-				const studentDocument = await StudentModel.findOne({
-					publicId: token.publicId,
-				})
-					.select('_id publicId username passwordHash name')
-					.exec()
-					.then((result) => {
-						if (!result) {
-							throw Error(
-								"Can't find student with this publicId"
-							);
-						}
-						return result.toObject();
-					});
-
-				req.user = studentDocument;
-				next();
-			} catch (error) {
-				return res
-					.status(401)
-					.send({ status: 401, error: error.toString() });
-			}
+			req.user = user;
+			next();
 		}
 	)(req, res, next);
 };
-
-AuthController.teacher.checkToken = async (req, res, next) => {
-	await passport.authenticate(
-		'jwt',
-		{ session: false },
-		async (error, token) => {
-			if (error) {
-				return res.status(400).json({ error: error.toString() });
-			}
-			if (!token) {
-				return res.status(401).json({ error: 'Incorrect token' });
-			}
-			try {
-				const teacherDocument = await TeacherModel.findOne({
-					publicId: token.publicId,
-				})
-					.select(
-						'_id publicId username firstname lastname passwordHash hasAccess'
-					)
-					.exec()
-					.then((result) => {
-						if (!result) {
-							throw Error(
-								"Can't find teacher with this publicId"
-							);
-						}
-						return result.toObject();
-					});
-				req.user = teacherDocument;
-				next();
-			} catch (error) {
-				return res
-					.status(401)
-					.json({ status: 401, error: error.toString() });
-			}
+AuthController.isTeacher = async (req, res, next) => {
+	const cookie = req.cookies.Authorization;
+	if (!checkCookie(cookie)) {
+		return res.status(401).send();
+	}
+	await passport.authenticate('jwt', { session: false }, (error, user) => {
+		if (!user) {
+			return res.status(401).send();
 		}
-	)(req, res, next);
+		if (error) {
+			return res.status(400);
+		}
+		if (!user.isTeacher) {
+			return res.status(400).json({ error: "You aren't teacher" });
+		}
+		if (!user.hasAccess) {
+			return res
+				.status(400)
+				.json({ error: 'You have to wait for admin approval' });
+		}
+		req.user = user;
+		next();
+	})(req, res, next);
 };
 
 AuthController.student.login = async (req, res, next) => {
@@ -104,7 +66,7 @@ AuthController.student.login = async (req, res, next) => {
 		{ session: false },
 		(error, studentDocument) => {
 			if (error || !studentDocument) {
-				return res.status(401).json({ error: error.toString() });
+				return res.status(401);
 			}
 			const payload = {
 				publicId: studentDocument.publicId,
@@ -113,13 +75,12 @@ AuthController.student.login = async (req, res, next) => {
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
 					res.status(401).send({
-						status: 401,
-						error: error.message,
+						error,
 					});
 				}
 
 				const token = jwt.sign(payload, secret, {
-					expiresIn: '24h',
+					expiresIn: '48h',
 				});
 
 				res.cookie('Authorization', 'Bearer ' + token, {
@@ -165,7 +126,7 @@ AuthController.student.register = async (req, res, next) => {
 
 		res.status(201).send();
 	} catch (error) {
-		res.status(400).send({ status: 400, error: error.message });
+		res.status(400).send({ error });
 	}
 };
 
@@ -173,26 +134,23 @@ AuthController.teacher.login = async (req, res, next) => {
 	await passport.authenticate(
 		'teacher-local',
 		{ session: false },
-		async (error, teacherDocument) => {
+		(error, teacherDocument) => {
 			if (error || !teacherDocument) {
-				return res
-					.status(401)
-					.json({ status: 401, error: error.toString() });
+				return res.status(401);
 			}
 			const payload = {
 				publicId: teacherDocument.publicId,
+				isTeacher: true,
+				hasAccess: teacherDocument.hasAccess,
 			};
 
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
-					res.status(401).json({
-						status: 401,
-						error: error.toString(),
-					});
+					res.status(401).send();
 				}
 
 				const token = jwt.sign(payload, secret, {
-					expiresIn: '24h',
+					expiresIn: '48h',
 				});
 				res.cookie('Authorization', 'Bearer ' + token, {
 					//httpOnly: true,
@@ -238,26 +196,14 @@ AuthController.teacher.register = async (req, res, next) => {
 
 		res.status(201).send();
 	} catch (error) {
-		res.status(400).json({ status: 400, error: error.toString() });
+		res.status(400);
 	}
 };
-
-AuthController.teacher.checkPermission = async (req, res, next) => {
-	if (!req.user.hasAccess) {
-		res.status(400).json({
-			status: 400,
-			error: 'You have to wait for admin approval',
-		});
-	} else {
-		next();
-	}
-};
-
 AuthController.logout = async (req, res, next) => {
 	try {
 		res.clearCookie('Authorization').status(200).send();
 	} catch (error) {
-		res.status(400).json({ status: 400, error: error.toString() });
+		res.status(400);
 	}
 };
 

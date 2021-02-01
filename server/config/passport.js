@@ -53,7 +53,7 @@ passport.use(
 				const teacherDocument = await TeacherModel.findOne({
 					username,
 				})
-					.select('_id publicId username firstname lastname passwordHash')
+					.select('_id publicId username firstname lastname passwordHash hasAccess')
 					.exec();
 				const passwordsMatch = await bcrypt.compare(
 					password,
@@ -76,7 +76,7 @@ passport.use(
 		{
 			jwtFromRequest: ExtractJwt.fromExtractors([
 				(req) => {
-					let jwt = req.authorizationCookie.split(' ')[1];
+					let jwt = req.cookies.Authorization.split(' ')[1];
 					return jwt;
 				},
 			]),
@@ -91,17 +91,3 @@ passport.use(
 		}
 	)
 );
-
-passport.serializeUser((user, done) => {
-	done(null, user._id);
-});
-
-passport.deserializeUser((_id, done) => {
-	User.findById(_id, (err, user) => {
-		if (err) {
-			done(null, false, { error: err });
-		} else {
-			done(null, user);
-		}
-	});
-});

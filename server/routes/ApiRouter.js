@@ -73,145 +73,109 @@ ApiRouter.get('/logout', AuthController.logout);
 
 ApiRouter.get(
 	'/homeworks/getByStudent',
-	AuthController.checkCookie,
-	AuthController.student.checkToken,
+	AuthController.isStudent,
 	HomeworkController.getByStudent
 );
 ApiRouter.post(
 	'/student/changePassword',
-	AuthController.checkCookie,
-	AuthController.student.checkToken,
+	AuthController.isStudent,
 	StudentController.changePassword
 );
 ApiRouter.get(
 	'/homeworks/getByTeacher',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.getByTeacher
 );
 ApiRouter.post(
 	'/teacher/changePassword',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	TeacherController.changePassword
 );
 ApiRouter.get(
 	'/homeworks/getPreviewsByTeacher',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.getPreviewsByTeacher
 );
 ApiRouter.get(
 	'/homeworks/getPreviewsByStudent',
-	AuthController.checkCookie,
-	AuthController.student.checkToken,
+	AuthController.isStudent,
 	HomeworkController.getPreviewsByStudent
 );
 ApiRouter.post(
 	'/homeworks/addHomework',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.addHomework
 );
 ApiRouter.post(
 	'/homeworks/removeHomework',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.removeHomework
 );
 ApiRouter.post(
 	'/homeworks/addTask',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.addTask
 );
 ApiRouter.post(
 	'/homeworks/removeTask',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.removeTask
 );
 ApiRouter.post(
 	'/homeworks/addStudent',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.addStudent
 );
 ApiRouter.post(
 	'/homeworks/removeGroup',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.removeGroup
 );
 ApiRouter.post(
 	'/homeworks/addGroup',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.addGroup
 );
 ApiRouter.post(
 	'/homeworks/removeStudent',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.removeStudent
 );
 ApiRouter.post(
 	'/homeworks/addSolutionByStudent',
-	AuthController.checkCookie,
-	AuthController.student.checkToken,
+	AuthController.isStudent,
 	HomeworkController.addSolutionByStudent
 );
 ApiRouter.get(
 	'/homeworks/getSolutionPreviewsByStudent',
-	AuthController.checkCookie,
-	AuthController.student.checkToken,
+	AuthController.isStudent,
 	HomeworkController.getSolutionPreviewsByStudent
 );
 ApiRouter.get(
 	'/homeworks/getSolutionByStudent',
-	AuthController.checkCookie,
-	AuthController.student.checkToken,
+	AuthController.isStudent,
 	HomeworkController.getSolutionByStudent
 );
 ApiRouter.get(
 	'/homeworks/getSolutionByTeacher',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	HomeworkController.getSolutionByTeacher
 );
 
 ApiRouter.get(
 	'/students/getStudentList',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	StudentController.getListOfStudents
 );
 
 ApiRouter.get(
 	'/students/getStudentsByName',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	StudentController.getStudentsByName
 );
 ApiRouter.get(
 	'/students/getStudentProfileByTeacher',
-	AuthController.checkCookie,
-	AuthController.teacher.checkToken,
-	AuthController.teacher.checkPermission,
+	AuthController.isTeacher,
 	StudentController.getStudentProfileByTeacher
 );
 ApiRouter.get('/upload_files/:fileReference', FilesController.getFile);
