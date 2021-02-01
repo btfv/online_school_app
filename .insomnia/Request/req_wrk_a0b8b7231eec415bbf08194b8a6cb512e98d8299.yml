@@ -1,10 +1,10 @@
 _id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512e98d8299
 type: Request
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1611844390009
+modified: 1612195840244
 created: 1611844371911
 url: "{{ base_url }}/api/getListOfHomeworks"
-name: /api/getListOfHomeworks
+name: Returns a list of homeworks
 description: ""
 method: GET
 body: {}
@@ -12,6 +12,8 @@ parameters: []
 headers: []
 authentication:
   type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
 metaSortKey: -1611844371912
 isPrivate: false
 settingStoreCookies: true

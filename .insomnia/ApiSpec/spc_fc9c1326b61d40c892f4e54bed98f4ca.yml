@@ -1,7 +1,7 @@
 _id: spc_fc9c1326b61d40c892f4e54bed98f4ca
 type: ApiSpec
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612194004853
+modified: 1612195824859
 created: 1609875195599
 fileName: Online School App API undefined
 contents: >-
@@ -9,11 +9,14 @@ contents: >-
 
   info:
     title: 'Online School App API'
-    description: 'My first app'
+    description: 'My first API'
     contact:
       name: 'Bulat Faizrakhmanov'
       email: 'fayzrakhman7@gmail.com'
-      version: 1.0
+    version: 1.0
+  servers:
+    - url: https://btfv-app-backend.herokuapp.com/
+      description: Main (production) server
   components:
     schemas:
       attachmentSchema:
@@ -344,34 +347,34 @@ contents: >-
           $ref: '#/components/schemas/publicIdSchema'
     securitySchemes:
       bearerAuth:
-        type: https
+        type: http
         scheme: bearer
         bearerFormat: JWT
   paths:
     /auth/studentLogin:
         post:
-          description: 'Auth request for student login'
+          summary: 'Auth request for student login'
           requestBody:
             $ref: '#/components/requestBodies/loginRequest'
           responses:
             $ref: '#/components/responses/loginResponse'
     /auth/teacherLogin:
         post:
-          description: 'Auth request for teacher login'
+          summary: 'Auth request for teacher login'
           requestBody:
             $ref: '#/components/requestBodies/loginRequest'
           responses:
             $ref: '#/components/responses/loginResponse'
     /auth/studentRegistration:
         post:
-          description: 'Registration request for student'
+          summary: 'Registration request for student'
           requestBody:
             $ref: '#/components/requestBodies/registrationRequest'
           responses:
             $ref: '#/components/responses/registrationResponse'
     /auth/teacherRegistration:
         post:
-          description: 'Registration request for teacher'
+          summary: 'Registration request for teacher'
           requestBody:
             $ref: '#/components/requestBodies/registrationRequest'
           responses:
@@ -381,7 +384,7 @@ contents: >-
         get:
           security:
           - bearerAuth: []
-          description: 'Get list of homeworks'
+          summary: 'Returns a list of homeworks'
           parameters:
             - $ref: '#/components/parameters/offsetParam'
           responses:
@@ -395,7 +398,8 @@ contents: >-
         get:
           security:
           - bearerAuth: []
-          description: 'Get homework. If teacher - then returns homework with answers, else without answers'
+          summary: "Returns a homework"
+          description: 'If teacher - then returns homework with answers, else without answers'
           parameters:
             - $ref: '#/components/parameters/homeworkPublicIdParam'
           responses:
@@ -409,7 +413,7 @@ contents: >-
         get:
           security:
           - bearerAuth: []
-          description: 'Get solution'
+          summary: "Returns a solution"
           parameters:
             - $ref: '#/components/parameters/homeworkPublicIdParam'
             - $ref: '#/components/parameters/solutionPublicIdParam'
@@ -424,7 +428,7 @@ contents: >-
         post:
           security:
           - bearerAuth: []
-          description: 'Create new homework'
+          summary: 'Creates new homework'
           requestBody:
             description: "Creates new homework. Can be used without tasks provided. Remember: If you add tasks, you have to add them with answers."
             content:
@@ -476,7 +480,7 @@ contents: >-
       post:
         security:
           - bearerAuth: []
-        description: 'Create and add task to an existing homework'
+        summary: 'Creates and adds task to an existing homework'
         requestBody:
           content:
             application/json:
@@ -530,7 +534,7 @@ contents: >-
       post:
         security:
           - bearerAuth: []
-        description: 'Send homework to the student'
+        summary: 'Sends homework to the student'
         requestBody:
           content:
             application/json:
@@ -553,7 +557,7 @@ contents: >-
             $ref: '#/components/responses/unauthorized'
     /api/getStudentList/:
       get:
-        description: "Get student's publicIds by their name"
+        summary: "Gets student's publicIds by their name"
         parameters:
           - in: query
             name: name
@@ -589,7 +593,7 @@ contents: >-
       post:
         security:
             - bearerAuth: []
-        description: 'Send answers to the teacher'
+        summary: 'Sends answers to the teacher'
         requestBody:
           content:
             application/json:
@@ -627,7 +631,7 @@ contents: >-
       post:
         security:
             - bearerAuth: []
-        description: 'Remove task from the homework'
+        summary: 'Removes task from the homework'
         requestBody:
           content:
             application/json:
@@ -649,7 +653,7 @@ contents: >-
       post:
         security:
             - bearerAuth: []
-        description: 'Remove homework'
+        summary: 'Removes homework'
         requestBody:
           content:
             application/json:
@@ -669,7 +673,8 @@ contents: >-
       post:
         security:
             - bearerAuth: []
-        description: 'Check answers of the student'
+        summary: "Checks stundent's answers"
+        description: 'Sends comments and results of review to the student'
         requestBody:
           content:
             application/json:
@@ -708,6 +713,7 @@ contents: >-
       get:
         security:
             - bearerAuth: []
+        summary: "Get's user info"
         description: 'Get user info such as email, firstname, lastname, age, profile pic'
         parameters:
           - in: path
