@@ -1,0 +1,31 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512a8d3f25e
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824641
+created: 1612195813680
+url: "{{ base_url }}/api/removeHomework/"
+name: Removes homework
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+      "homeworkPublicId": null
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813680
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

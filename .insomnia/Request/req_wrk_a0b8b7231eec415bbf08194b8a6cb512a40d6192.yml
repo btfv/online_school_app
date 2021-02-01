@@ -1,0 +1,39 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512a40d6192
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824614
+created: 1612195813672
+url: "{{ base_url }}/api/checkSolution/"
+name: Checks stundent's answers
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+      "homeworkPublicId": null,
+      "solutionPublicId": null,
+      "checkTasksInfo": [
+        {
+          "taskPublicId": null,
+          "comment": "string",
+          "result": 0
+        }
+      ]
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813672
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,0 +1,21 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb5125e700c06
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824624
+created: 1612195813676
+url: "{{ base_url }}/api/removeHomework/"
+name: /api/removeHomework/
+description: ""
+method: RESPONSES
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1612195813676
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

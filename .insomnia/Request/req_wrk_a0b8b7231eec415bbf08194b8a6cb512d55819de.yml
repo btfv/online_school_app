@@ -1,0 +1,24 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512d55819de
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824701
+created: 1612195813717
+url: "{{ base_url }}/api/getSolution/{{ homeworkPublicId }}.{{ solutionPublicId }}"
+name: Returns a solution
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813717
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,0 +1,33 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb51262c15a54
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824672
+created: 1612195813699
+url: "{{ base_url }}/api/sendHomework/"
+name: Sends homework to the student
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+      "studentPublicId": null,
+      "homeworkPublicId": null,
+      "deadline": "2021-02-01T16:10:24.576Z"
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813699
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

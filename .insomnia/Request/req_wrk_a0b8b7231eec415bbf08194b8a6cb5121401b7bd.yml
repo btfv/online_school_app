@@ -1,0 +1,45 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb5121401b7bd
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824657
+created: 1612195813692
+url: "{{ base_url }}/api/sendAnswers/"
+name: Sends answers to the teacher
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+      "homeworkPublicId": null,
+      "tasksInfo": [
+        {
+          "taskPublicId": null,
+          "answer": [
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            "Solar System"
+          ]
+        }
+      ]
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813692
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

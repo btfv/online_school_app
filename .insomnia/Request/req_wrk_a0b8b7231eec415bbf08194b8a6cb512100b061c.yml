@@ -1,0 +1,48 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512100b061c
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824690
+created: 1612195813705
+url: "{{ base_url }}/api/addTask/"
+name: Creates and adds task to an existing homework
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+      "taskType": 0,
+      "condition": "Which planet is second farthest from Solar?",
+      "maxPoints": 0,
+      "options": [
+        "First",
+        "Second",
+        "third",
+        "last one label"
+      ],
+      "answer": [
+        [
+          true,
+          false,
+          true,
+          false
+        ],
+        "Venera"
+      ]
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813705
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

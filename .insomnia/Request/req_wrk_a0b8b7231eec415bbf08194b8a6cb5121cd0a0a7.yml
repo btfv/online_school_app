@@ -1,0 +1,32 @@
+_id: req_wrk_a0b8b7231eec415bbf08194b8a6cb5121cd0a0a7
+type: Request
+parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
+modified: 1612195824650
+created: 1612195813688
+url: "{{ base_url }}/api/removeTask/"
+name: Removes task from the homework
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+      "homeworkPublicId": null,
+      "taskPublicId": null
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication:
+  type: bearer
+  token: "{{bearerToken}}"
+  prefix: ""
+metaSortKey: -1612195813688
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
