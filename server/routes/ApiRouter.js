@@ -57,12 +57,12 @@ const validationRules = (req, res, next) => {
 };
 
 //open routes
-ApiRouter.post('/login', validationRules, AuthController.student.login);
-ApiRouter.post('/register', validationRules, AuthController.student.register);
+ApiRouter.post('/studentLogin', validationRules, AuthController.student.login);
+ApiRouter.post('/studentRegistration', validationRules, AuthController.student.register);
 
-ApiRouter.post('/teacher/login', validationRules, AuthController.teacher.login);
+ApiRouter.post('/teacherLogin', validationRules, AuthController.teacher.login);
 ApiRouter.post(
-	'/teacher/register',
+	'/teacherRegistration',
 	validationRules,
 	AuthController.teacher.register
 );
@@ -70,6 +70,12 @@ ApiRouter.post(
 ApiRouter.get('/logout', AuthController.logout);
 
 //protected routes
+
+ApiRouter.get(
+	'/getListOfHomeworks',
+	AuthController.isStudent,
+	HomeworkController.getListOfHomeworks,
+)
 
 ApiRouter.get(
 	'/homeworks/getByStudent',
@@ -90,16 +96,6 @@ ApiRouter.post(
 	'/teacher/changePassword',
 	AuthController.isTeacher,
 	TeacherController.changePassword
-);
-ApiRouter.get(
-	'/homeworks/getPreviewsByTeacher',
-	AuthController.isTeacher,
-	HomeworkController.getPreviewsByTeacher
-);
-ApiRouter.get(
-	'/homeworks/getPreviewsByStudent',
-	AuthController.isStudent,
-	HomeworkController.getPreviewsByStudent
 );
 ApiRouter.post(
 	'/homeworks/addHomework',
@@ -145,11 +141,6 @@ ApiRouter.post(
 	'/homeworks/addSolutionByStudent',
 	AuthController.isStudent,
 	HomeworkController.addSolutionByStudent
-);
-ApiRouter.get(
-	'/homeworks/getSolutionPreviewsByStudent',
-	AuthController.isStudent,
-	HomeworkController.getSolutionPreviewsByStudent
 );
 ApiRouter.get(
 	'/homeworks/getSolutionByStudent',

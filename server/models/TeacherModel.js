@@ -32,7 +32,7 @@ const teacherSchema = new mongoose.Schema({
 	},
 	homeworks: [
 		{
-			type: String,
+			type: mongoose.Types.ObjectId,
 			required: true,
 		},
 	],

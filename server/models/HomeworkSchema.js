@@ -8,6 +8,10 @@ const homeworkSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	homeworkId: {
+		type: mongoose.Types.ObjectId,
+		required: true,
+	},
 	solutionPublicId: {
 		type: String,
 		required: false,

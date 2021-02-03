@@ -43,33 +43,45 @@ HomeworkService.checkStudentPermission = async function (
 
 HomeworkService.getPreviewsByStudent = async function (
 	studentPublicId,
-	startHomeworkId
+	offset
 ) {
-	const homeworks = await StudentModel.findOne({
-		publicId: studentPublicId,
-	}).then((result) => {
-		let homeworks = [];
-		result.homeworks.map((homework) => {
-			delete homework._id;
-			if (!homework.hasSolution) {
-				homeworks.push(homework.toObject());
-			}
+	const homeworkPreviews = await StudentModel.findOne(
+		{ publicId: studentPublicId },
+		{
+			homeworks: {
+				$slice: [
+					offset,
+					offset + HOMEWORKS_PER_REQUEST,
+				],
+			},
+		}
+	)
+		.select('-_id homeworks')
+		.then(async (result) => {
+			return Promise.all(
+				result.homeworks.map(async (preview) => {
+					const homeworkInfo = await HomeworkModel.findById(
+						preview.homeworkId,
+						'-_id title description creatorId subject publicId'
+					);
+					const creatorInfo = await TeacherModel.findById(
+						homeworkInfo.creatorId,
+						'-_id firstname lastname publicId'
+					);
+					return {
+						title: homeworkInfo.title,
+						description: homeworkInfo.description,
+						subject: homeworkInfo.subject,
+						homeworkPublicId: homeworkInfo.publicId,
+						solutionPublicId: preview.solutionPublicId,
+						hasSolution: preview.hasSolution,
+						creatorName:
+							creatorInfo.firstname + creatorInfo.lastname,
+						creatorPublicId: creatorInfo.publicId,
+					};
+				})
+			);
 		});
-		return homeworks;
-	});
-	if (homeworks.length == 0) {
-		throw Error("You don't have homeworks");
-	}
-	const homeworkPreviews = await Promise.all(
-		homeworks.map(async (homework) => {
-			let homeworkPreview = await HomeworkModel.findOne({
-				publicId: homework.homeworkPublicId,
-			})
-				.select('-_id subject description')
-				.then((result) => result.toObject());
-			return { ...homework, ...homeworkPreview };
-		})
-	);
 	return homeworkPreviews;
 };
 
@@ -96,42 +108,44 @@ HomeworkService.getByStudent = async function (homeworkPublicId) {
 
 HomeworkService.getPreviewsByTeacher = async function (
 	teacherPublicId,
-	startHomeworkId
+	offset
 ) {
-	const homeworkPublicIds = await TeacherModel.findOne(
+	const homeworkPreviews = await TeacherModel.findOne(
 		{ publicId: teacherPublicId },
 		{
 			homeworks: {
 				$slice: [
-					startHomeworkId,
-					startHomeworkId + HOMEWORKS_PER_REQUEST,
+					offset,
+					offset + HOMEWORKS_PER_REQUEST,
 				],
 			},
 		}
 	)
 		.select('-_id homeworks')
-		.then((result) => {
-			return result.homeworks;
+		.then(async (result) => {
+			return Promise.all(
+				result.homeworks.map(async (homeworkId) => {
+					const homeworkInfo = await HomeworkModel.findById(
+						homeworkId,
+						'-_id title description creatorId subject publicId'
+					);
+					const creatorInfo = await TeacherModel.findById(
+						homeworkInfo.creatorId,
+						'-_id firstname lastname publicId'
+					);
+					return {
+						title: homeworkInfo.title,
+						description: homeworkInfo.description,
+						subject: homeworkInfo.subject,
+						homeworkPublicId: homeworkInfo.publicId,
+						creatorName:
+							creatorInfo.firstname + creatorInfo.lastname,
+						creatorPublicId: creatorInfo.publicId,
+					};
+				})
+			);
 		});
-	if (
-		typeof homeworkPublicIds == 'undefined' ||
-		homeworkPublicIds.length == 0
-	) {
-		throw Error("You don't have homeworks");
-	}
-	const homeworkPreviewDocuments = await Promise.all(
-		homeworkPublicIds.map(async (homeworkPublicId) => {
-			let homeworkPreviewDocument = await HomeworkModel.findOne({
-				publicId: homeworkPublicId,
-			})
-				.select('-_id title description publicId')
-				.then((result) => {
-					return result;
-				});
-			return homeworkPreviewDocument;
-		})
-	);
-	return homeworkPreviewDocuments;
+	return homeworkPreviews;
 };
 
 HomeworkService.getByTeacher = async function (homeworkPublicId) {
@@ -249,7 +263,10 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 	if (isNaN(task.points) || parseInt(task.points) < 0) {
 		throw Error("Points for task can't be negative");
 	}
-	if (task.type === 2 && (!task.stringAnswer || 0 === task.stringAnswer.length)) {
+	if (
+		task.type === 2 &&
+		(!task.stringAnswer || 0 === task.stringAnswer.length)
+	) {
 		throw Error("String answer can't be empty");
 	}
 

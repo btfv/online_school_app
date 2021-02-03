@@ -1,8 +1,25 @@
 const HomeworkService = require('../services/HomeworkService');
 const HomeworkController = {};
 
+HomeworkController.getListOfHomeworks = async (req, res, next) => {
+	try {
+		const userPublicId = req.user.publicId;
+		const offset = req.query.offset;
+		let previews;
+		if (req.user.isTeacher) {
+			previews = HomeworkService.getPreviewsByTeacher(userPublicId, offset)
+		}
+		else {
+			previews = HomeworkService.getPreviewsByStudent(userPublicId, offset)
+		}
+		return res.status(200).json(previews);
+	} catch (error) {
+		return res.status(400).json({ error });
+	}
+};
+
 HomeworkController.getByStudent = async function (req, res, next) {
-	/**f
+	/**
 	 * {studentPublicId, query:homeworkPublicId}
 	 */
 	try {
@@ -54,7 +71,7 @@ HomeworkController.addTask = async function (req, res, next) {
 			options: taskOptions,
 			stringAnswer: taskStringAnswer,
 			detailedAnswer: taskDetailedAnswer,
-			points: taskPoints
+			points: taskPoints,
 		};
 		var taskAttachments = [];
 		if (req.files !== undefined) {
@@ -129,40 +146,6 @@ HomeworkController.removeHomework = async function (req, res, next) {
 		return res.status(200).send();
 	} catch (error) {
 		return res.status(400).json({ status: 400, error: error.toString() });
-	}
-};
-
-HomeworkController.getPreviewsByStudent = async function (req, res, next) {
-	try {
-		/**
-		 * {studentPublicId, startHomeworkId}
-		 */
-		const studentPublicId = req.user.publicId;
-		const startHomeworkId = req.query.startHomeworkId;
-		const homeworkPreviews = await HomeworkService.getPreviewsByStudent(
-			studentPublicId,
-			startHomeworkId
-		);
-		return res.status(200).json(homeworkPreviews);
-	} catch (error) {
-		return res.status(400).json({ error: error.toString() });
-	}
-};
-
-HomeworkController.getPreviewsByTeacher = async function (req, res, next) {
-	try {
-		/**
-		 * {teacherPublicId, startHomeworkId}
-		 */
-		const teacherPublicId = req.user.publicId;
-		const startHomeworkId = req.query.startHomeworkId;
-		const homeworkPreviews = await HomeworkService.getPreviewsByTeacher(
-			teacherPublicId,
-			startHomeworkId
-		);
-		return res.status(200).json(homeworkPreviews);
-	} catch (error) {
-		return res.status(400).json({ error: error.toString() });
 	}
 };
 
@@ -244,28 +227,6 @@ HomeworkController.addSolutionByStudent = async function (req, res, next) {
 			studentId
 		);
 		return res.status(200).send();
-	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
-	}
-};
-
-HomeworkController.getSolutionPreviewsByStudent = async function (
-	req,
-	res,
-	next
-) {
-	try {
-		/**
-		 * {studentPublicId, startSolutionId}
-		 */
-		const studentPublicId = req.user.publicId;
-		const startSolutionId = req.query.startSolutionId;
-
-		const solutionPreviews = await HomeworkService.getSolutionPreviewsByStudent(
-			studentPublicId,
-			startSolutionId
-		);
-		return res.status(200).json(solutionPreviews);
 	} catch (error) {
 		return res.status(400).json({ status: 400, error: error.toString() });
 	}
