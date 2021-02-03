@@ -22,6 +22,14 @@ const studentSchema = new mongoose.Schema({
 		type: String,
 		required: false,
 	},
+	firstname: {
+		type: String,
+		required: true,
+	},
+	lastname: {
+		type: String,
+		required: true,
+	},
 	//firstname + surname
 	groups: [
 		{

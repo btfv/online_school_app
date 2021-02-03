@@ -21,7 +21,7 @@ passport.use(
 				const studentDocument = await StudentModel.findOne({
 					username: username,
 				})
-					.select('_id publicId username name passwordHash')
+					.select('_id publicId username name firstname lastname passwordHash')
 					.exec();
 				if (!studentDocument) {
 					throw Error("Can't find user with this username");
@@ -65,7 +65,7 @@ passport.use(
 					return done(Error('Incorrect Username / Password'), null);
 				}
 			} catch (error) {
-				return done(Error(error.message), null);
+				return done(error, null);
 			}
 		}
 	)

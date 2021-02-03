@@ -28,7 +28,7 @@ AuthController.isStudent = async (req, res, next) => {
 				return res.status(401).send();
 			}
 			if (error) {
-				return res.status(400);
+				return res.status(400).json({ error });
 			}
 			req.user = user;
 			next();
@@ -45,7 +45,7 @@ AuthController.isTeacher = async (req, res, next) => {
 			return res.status(401).send();
 		}
 		if (error) {
-			return res.status(400);
+			return res.status(400).json({ error });
 		}
 		if (!user.isTeacher) {
 			return res.status(400).json({ error: "You aren't teacher" });
@@ -66,7 +66,7 @@ AuthController.student.login = async (req, res, next) => {
 		{ session: false },
 		(error, studentDocument) => {
 			if (error || !studentDocument) {
-				return res.status(401);
+				return res.status(400).json({ error });
 			}
 			const payload = {
 				publicId: studentDocument.publicId,
@@ -74,9 +74,7 @@ AuthController.student.login = async (req, res, next) => {
 			};
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
-					res.status(401).send({
-						error,
-					});
+					res.status(400).json({ error });
 				}
 
 				const token = jwt.sign(payload, secret, {
@@ -86,7 +84,6 @@ AuthController.student.login = async (req, res, next) => {
 				res.cookie('Authorization', 'Bearer ' + token, {
 					//httpOnly: true,
 					//secure: true,
-					//sameSite: 'none'
 				})
 					.status(200)
 					.json({
@@ -99,34 +96,53 @@ AuthController.student.login = async (req, res, next) => {
 };
 
 AuthController.student.register = async (req, res, next) => {
-	const { username, password, name, age } = req.body;
-
 	try {
-		if (!username || !password || !name || !age) {
+		const {
+			username,
+			password,
+			email,
+			firstname,
+			lastname,
+			age,
+		} = req.body;
+		if (
+			!username ||
+			!password ||
+			!firstname ||
+			!lastname ||
+			!email ||
+			!age
+		) {
 			throw Error(
-				'Req body should take the form { username, password, name, age }'
+				'Req body should take the form { username, password, email, firstname, lastname, age }'
 			);
 		}
-		const existingStudent = await StudentModel.findOne({
-			username: username,
-		}).exec();
-		if (existingStudent) {
-			throw Error('Student with this username already exists');
-		}
+		await StudentModel.findOne({
+			$or: [{ username }, { email }],
+		})
+			.exec()
+			.then((existingStudent) => {
+				if (existingStudent) {
+					throw Error('Student with this username already exists');
+				}
+			});
+
 		const publicId = nanoid();
 		const passwordHash = await bcrypt.hash(password, passwordHashCost);
 		const studentDocument = new StudentModel({
-			username: username,
-			passwordHash: passwordHash,
-			name: name,
-			publicId: publicId,
-			age: age,
+			username,
+			passwordHash,
+			name: firstname + lastname,
+			firstname,
+			lastname,
+			publicId,
+			age,
 		});
 		await studentDocument.save();
 
-		res.status(201).send();
+		res.status(200).send();
 	} catch (error) {
-		res.status(400).send({ error });
+		res.status(400).json({ error });
 	}
 };
 
@@ -136,7 +152,7 @@ AuthController.teacher.login = async (req, res, next) => {
 		{ session: false },
 		(error, teacherDocument) => {
 			if (error || !teacherDocument) {
-				return res.status(401);
+				return res.status(400).json({ error });
 			}
 			const payload = {
 				publicId: teacherDocument.publicId,
@@ -146,7 +162,7 @@ AuthController.teacher.login = async (req, res, next) => {
 
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
-					res.status(401).send();
+					return res.status(400).json({ error });
 				}
 
 				const token = jwt.sign(payload, secret, {
@@ -168,20 +184,39 @@ AuthController.teacher.login = async (req, res, next) => {
 };
 
 AuthController.teacher.register = async (req, res, next) => {
-	const { username, password, firstname, lastname, email } = req.body;
-
 	try {
-		if (!username || !password || !firstname || !lastname || !email) {
+		const {
+			username,
+			password,
+			email,
+			firstname,
+			lastname,
+			age,
+		} = req.body;
+		if (
+			!username ||
+			!password ||
+			!firstname ||
+			!lastname ||
+			!email ||
+			!age
+		) {
 			throw Error(
-				'Req body should take the form { username, password, firstname, lastname, email }'
+				'Req body should take the form { username, password, email, firstname, lastname, age }'
 			);
 		}
-		const existingTeacher = await TeacherModel.findOne({
+		await TeacherModel.findOne({
 			$or: [{ username }, { email }],
-		});
-		if (existingTeacher) {
-			throw Error('Teacher with this username or email already exists');
-		}
+		})
+			.exec()
+			.then((existingTeacher) => {
+				if (existingTeacher) {
+					throw Error(
+						'Teacher with this username or email already exists'
+					);
+				}
+			});
+
 		const publicId = nanoid();
 		const passwordHash = await bcrypt.hash(password, passwordHashCost);
 		const teacherDocument = new TeacherModel({
@@ -194,9 +229,9 @@ AuthController.teacher.register = async (req, res, next) => {
 		});
 		await teacherDocument.save();
 
-		res.status(201).send();
+		res.status(200).send();
 	} catch (error) {
-		res.status(400);
+		res.status(400).json({ error });
 	}
 };
 AuthController.logout = async (req, res, next) => {
