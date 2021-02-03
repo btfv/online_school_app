@@ -24,14 +24,18 @@ AuthController.isStudent = async (req, res, next) => {
 		'jwt',
 		{ session: false },
 		async (error, user) => {
-			if (!user) {
-				return res.status(401).send();
+			try {
+				if (!user) {
+					return res.status(401).send();
+				}
+				if (error) {
+					throw error;
+				}
+				req.user = user;
+				next();
+			} catch (error) {
+				res.status(400).json({ error });
 			}
-			if (error) {
-				return res.status(400).json({ error });
-			}
-			req.user = user;
-			next();
 		}
 	)(req, res, next);
 };
@@ -41,22 +45,24 @@ AuthController.isTeacher = async (req, res, next) => {
 		return res.status(401).send();
 	}
 	await passport.authenticate('jwt', { session: false }, (error, user) => {
-		if (!user) {
-			return res.status(401).send();
+		try {
+			if (!user) {
+				return res.status(401).send();
+			}
+			if (error) {
+				throw error;
+			}
+			if (!user.isTeacher) {
+				throw Error("You aren't teacher");
+			}
+			if (!user.hasAccess) {
+				throw Error('You have to wait for admin approval');
+			}
+			req.user = user;
+			next();
+		} catch (error) {
+			res.status(400).json({ error });
 		}
-		if (error) {
-			return res.status(400).json({ error });
-		}
-		if (!user.isTeacher) {
-			return res.status(400).json({ error: "You aren't teacher" });
-		}
-		if (!user.hasAccess) {
-			return res
-				.status(400)
-				.json({ error: 'You have to wait for admin approval' });
-		}
-		req.user = user;
-		next();
 	})(req, res, next);
 };
 
