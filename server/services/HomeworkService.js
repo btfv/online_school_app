@@ -168,36 +168,36 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 		});
 	return homeworkDocument;
 };
-HomeworkService.addHomework = async function (
+HomeworkService.createHomework = async function (
 	title,
 	description,
 	subject,
 	creatorPublicId,
 	creatorId,
-	attachments,
-	creatorName
+	attachments
 ) {
 	if (attachments && attachments.length > 0) {
-		var attachmentIds = attachments.map(async (attachment) => {
-			return await FilesService.uploadFile(attachment);
-		});
-		attachmentIds = await Promise.all(attachmentIds);
+		var attachmentIds = Promise.all(
+			attachments.map(async (attachment) => {
+				return await FilesService.uploadFile(attachment);
+			})
+		);
 	}
-	const homeworkPublicId = nanoid();
+	const publicId = nanoid();
 	await HomeworkModel.create({
 		title,
 		subject,
 		description,
 		creatorPublicId,
 		creatorId,
-		publicId: homeworkPublicId,
+		publicId,
 		attachments: attachmentIds,
-		creatorName,
+	}).then(async (result) => {
+		await TeacherModel.findByIdAndUpdate(creatorId, {
+			$push: { homeworks: result._id },
+		});
 	});
-	await TeacherModel.findByIdAndUpdate(creatorId, {
-		$push: { homeworks: homeworkPublicId },
-	});
-	return homeworkPublicId;
+	return publicId;
 };
 
 HomeworkService.addStudent = async function (

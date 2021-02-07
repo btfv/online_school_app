@@ -94,9 +94,9 @@ ApiRouter.post(
 );
 
 ApiRouter.post(
-	'/homeworks/addHomework',
+	'/homeworks/createHomework',
 	AuthController.isTeacher,
-	HomeworkController.addHomework
+	HomeworkController.createHomework
 );
 ApiRouter.post(
 	'/homeworks/removeHomework',

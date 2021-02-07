@@ -126,7 +126,7 @@ HomeworkController.removeTask = async function (req, res, next) {
 		return res.status(400).json({ error: error.toString() });
 	}
 };
-HomeworkController.addHomework = async function (req, res, next) {
+HomeworkController.createHomework = async function (req, res, next) {
 	try {
 		/**
 		 * POST
@@ -134,24 +134,22 @@ HomeworkController.addHomework = async function (req, res, next) {
 		 */
 		const creatorPublicId = req.user.publicId;
 		const creatorId = req.user._id;
-		const creatorName = req.user.firstname + req.user.lastname;
 		const homeworkAttachments = req.files ? Object.values(req.files) : [];
-		const homeworkTitle = req.body.homeworkTitle;
-		const homeworkDescription = req.body.homeworkDescription;
-		const homeworkSubject = req.body.homeworkSubject;
+		const homeworkTitle = req.body.title;
+		const homeworkDescription = req.body.description;
+		const homeworkSubject = req.body.subject;
 
-		const homeworkPublicId = await HomeworkService.addHomework(
+		const homeworkPublicId = await HomeworkService.createHomework(
 			homeworkTitle,
 			homeworkDescription,
 			homeworkSubject,
 			creatorPublicId,
 			creatorId,
 			homeworkAttachments,
-			creatorName
 		);
 		return res.status(200).json({ homeworkPublicId });
 	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
+		return res.status(400).json({ error });
 	}
 };
 

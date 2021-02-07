@@ -23,7 +23,8 @@ const homeworkSchema = new mongoose.Schema({
 	},
 	creatorName: {
 		type: String,
-		required: true,
+		required: false,
+		default: '',
 	},
 	creatorId: {
 		type: mongoose.Types.ObjectId,
