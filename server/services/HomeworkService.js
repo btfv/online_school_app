@@ -200,7 +200,7 @@ HomeworkService.createHomework = async function (
 	return publicId;
 };
 
-HomeworkService.addStudent = async function (
+HomeworkService.sendHomework = async function (
 	studentPublicId,
 	homeworkPublicId
 ) {
@@ -229,7 +229,7 @@ HomeworkService.addStudent = async function (
 	)
 		.select('-_id name')
 		.then((result) => {
-			return result.name;
+			return result.firstname + ' ' + result.lastname;
 		});
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
@@ -237,6 +237,7 @@ HomeworkService.addStudent = async function (
 			$push: { receivedStudents: { studentPublicId, studentName } },
 		}
 	);
+	return true;
 };
 
 HomeworkService.addGroup = async function (groupPublicId, homeworkPublicId) {

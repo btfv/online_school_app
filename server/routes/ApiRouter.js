@@ -116,9 +116,9 @@ ApiRouter.post(
 	HomeworkController.removeTask
 );
 ApiRouter.post(
-	'/homeworks/addStudent',
+	'/homeworks/sendHomework',
 	AuthController.isTeacher,
-	HomeworkController.addStudent
+	HomeworkController.sendHomework
 );
 ApiRouter.post(
 	'/homeworks/removeGroup',

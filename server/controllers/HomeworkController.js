@@ -167,18 +167,17 @@ HomeworkController.removeHomework = async function (req, res, next) {
 	}
 };
 
-HomeworkController.addStudent = async function (req, res, next) {
+HomeworkController.sendHomework = async function (req, res, next) {
 	try {
 		/**
 		 * {teacherPublicId, homeworkPublicId, studentPublicId}
 		 */
-		const teacherPublicId = req.user.publicId;
 		const studentPublicId = req.body.studentPublicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
-		await HomeworkService.addStudent(studentPublicId, homeworkPublicId);
+		await HomeworkService.sendHomework(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error: error.toString() });
+		return res.status(400).json({ error });
 	}
 };
 
