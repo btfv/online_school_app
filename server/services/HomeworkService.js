@@ -381,13 +381,15 @@ HomeworkService.removeHomework = async function (homeworkPublicId) {
 		);
 	});
 	const creatorPublicId = homeworkDocument.creatorPublicId;
+	const homeworkId = homeworkDocument._id;
 	await TeacherModel.findOneAndUpdate(
 		{ publicId: creatorPublicId },
 		{
-			$pull: { homeworks: homeworkPublicId },
+			$pull: { homeworks: homeworkId },
 		}
 	);
-	await HomeworkModel.findByIdAndRemove(homeworkDocument._id);
+	await HomeworkModel.findByIdAndRemove(homeworkId);
+	return true;
 };
 
 HomeworkService.editHomework = async function (userId, homeworkId, tasks) {

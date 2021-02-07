@@ -98,11 +98,13 @@ ApiRouter.post(
 	AuthController.isTeacher,
 	HomeworkController.createHomework
 );
+
 ApiRouter.post(
 	'/homeworks/removeHomework',
 	AuthController.isTeacher,
 	HomeworkController.removeHomework
 );
+
 ApiRouter.post(
 	'/homeworks/addTask',
 	AuthController.isTeacher,

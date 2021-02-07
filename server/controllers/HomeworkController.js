@@ -163,7 +163,7 @@ HomeworkController.removeHomework = async function (req, res, next) {
 		await HomeworkService.removeHomework(homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
+		return res.status(400).json({ error });
 	}
 };
 
