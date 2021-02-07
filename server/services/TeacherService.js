@@ -7,6 +7,13 @@ const TeacherService = {};
 
 const COUNT_OF_USERS_IN_QUERY = 5;
 
+TeacherService.getTeacherInfo = async (teacherId) => {
+	return await TeacherModel.findById(
+		homeworkInfo.creatorId,
+		'-_id firstname lastname publicId'
+	).exec();
+};
+
 TeacherService.changePassword = async function (
 	teacherId,
 	oldPassword,

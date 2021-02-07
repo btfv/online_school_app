@@ -7,12 +7,32 @@ HomeworkController.getListOfHomeworks = async (req, res, next) => {
 		const offset = req.query.offset;
 		let previews;
 		if (req.user.isTeacher) {
-			previews = HomeworkService.getPreviewsByTeacher(userPublicId, offset)
-		}
-		else {
-			previews = HomeworkService.getPreviewsByStudent(userPublicId, offset)
+			previews = HomeworkService.getPreviewsByTeacher(
+				userPublicId,
+				offset
+			);
+		} else {
+			previews = HomeworkService.getPreviewsByStudent(
+				userPublicId,
+				offset
+			);
 		}
 		return res.status(200).json(previews);
+	} catch (error) {
+		return res.status(400).json({ error });
+	}
+};
+
+HomeworkController.getHomework = async (req, res, next) => {
+	try {
+		const homeworkPublicId = req.params.homeworkPublicId;
+		let homework;
+		if (req.user.isTeacher) {
+			homework = HomeworkService.getByTeacher(homeworkPublicId);
+		} else {
+			homework = HomeworkService.getByStudent(homeworkPublicId);
+		}
+		return res.status(200).json(homework);
 	} catch (error) {
 		return res.status(400).json({ error });
 	}

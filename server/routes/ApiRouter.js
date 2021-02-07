@@ -6,6 +6,7 @@ const StudentController = require('../controllers/StudentController');
 const { body, check, validationResult } = require('express-validator');
 const TeacherController = require('../controllers/TeacherController');
 const FilesController = require('../controllers/FilesController');
+const UserController = require('../controllers/UserController');
 
 const validationRules = (req, res, next) => {
 	body('email')
@@ -58,7 +59,11 @@ const validationRules = (req, res, next) => {
 
 //open routes
 ApiRouter.post('/studentLogin', validationRules, AuthController.student.login);
-ApiRouter.post('/studentRegistration', validationRules, AuthController.student.register);
+ApiRouter.post(
+	'/studentRegistration',
+	validationRules,
+	AuthController.student.register
+);
 
 ApiRouter.post('/teacherLogin', validationRules, AuthController.teacher.login);
 ApiRouter.post(
@@ -74,29 +79,20 @@ ApiRouter.get('/logout', AuthController.logout);
 ApiRouter.get(
 	'/getListOfHomeworks',
 	AuthController.isStudent,
-	HomeworkController.getListOfHomeworks,
-)
+	HomeworkController.getListOfHomeworks
+);
+ApiRouter.get(
+	'/getHomework/:homeworkPublicId',
+	AuthController.isStudent,
+	HomeworkController.getHomework
+);
 
-ApiRouter.get(
-	'/homeworks/getByStudent',
-	AuthController.isStudent,
-	HomeworkController.getByStudent
-);
 ApiRouter.post(
-	'/student/changePassword',
+	'/user/changePassword',
 	AuthController.isStudent,
-	StudentController.changePassword
+	UserController.changePassword
 );
-ApiRouter.get(
-	'/homeworks/getByTeacher',
-	AuthController.isTeacher,
-	HomeworkController.getByTeacher
-);
-ApiRouter.post(
-	'/teacher/changePassword',
-	AuthController.isTeacher,
-	TeacherController.changePassword
-);
+
 ApiRouter.post(
 	'/homeworks/addHomework',
 	AuthController.isTeacher,

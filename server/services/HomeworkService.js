@@ -4,6 +4,7 @@ const StudentModel = require('../models/StudentModel');
 const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
 const FilesService = require('./FilesService');
+const TeacherService = require('./TeacherService');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
@@ -49,10 +50,7 @@ HomeworkService.getPreviewsByStudent = async function (
 		{ publicId: studentPublicId },
 		{
 			homeworks: {
-				$slice: [
-					offset,
-					offset + HOMEWORKS_PER_REQUEST,
-				],
+				$slice: [offset, offset + HOMEWORKS_PER_REQUEST],
 			},
 		}
 	)
@@ -64,9 +62,8 @@ HomeworkService.getPreviewsByStudent = async function (
 						preview.homeworkId,
 						'-_id title description creatorId subject publicId'
 					);
-					const creatorInfo = await TeacherModel.findById(
-						homeworkInfo.creatorId,
-						'-_id firstname lastname publicId'
+					const creatorInfo = TeacherService.getTeacherInfo(
+						creatorId
 					);
 					return {
 						title: homeworkInfo.title,
@@ -114,10 +111,7 @@ HomeworkService.getPreviewsByTeacher = async function (
 		{ publicId: teacherPublicId },
 		{
 			homeworks: {
-				$slice: [
-					offset,
-					offset + HOMEWORKS_PER_REQUEST,
-				],
+				$slice: [offset, offset + HOMEWORKS_PER_REQUEST],
 			},
 		}
 	)
@@ -129,9 +123,8 @@ HomeworkService.getPreviewsByTeacher = async function (
 						homeworkId,
 						'-_id title description creatorId subject publicId'
 					);
-					const creatorInfo = await TeacherModel.findById(
-						homeworkInfo.creatorId,
-						'-_id firstname lastname publicId'
+					const creatorInfo = TeacherService.getTeacherInfo(
+						creatorId
 					);
 					return {
 						title: homeworkInfo.title,
@@ -157,14 +150,20 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 			if (!result) {
 				throw Error("Homework doesn't exist");
 			}
-			let attachments = await Promise.all(
+			const attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await FilesService.getFileInfo(attachment);
 				})
 			);
+			const creatorInfo = TeacherService.getTeacherInfo(creatorId);
 			return {
-				...result.toObject(),
+				title: result.title,
+				subject: result.subject,
+				creatorPublicId: creatorInfo.publicId,
+				creatorName: creatorInfo.firstname + creatorInfo.lastname,
+				description: result.description,
 				attachments,
+				tasks: result.tasks,
 			};
 		});
 	return homeworkDocument;
