@@ -136,9 +136,9 @@ ApiRouter.post(
 	HomeworkController.removeStudent
 );
 ApiRouter.post(
-	'/homeworks/addSolutionByStudent',
+	'/api/sendAnswers',
 	AuthController.isStudent,
-	HomeworkController.addSolutionByStudent
+	HomeworkController.sendAnswers
 );
 ApiRouter.get(
 	'/homeworks/getSolutionByStudent',
@@ -152,7 +152,7 @@ ApiRouter.get(
 );
 
 ApiRouter.get(
-	'/students/getStudentList',
+	'/api/getStudentList',
 	AuthController.isTeacher,
 	StudentController.getListOfStudents
 );

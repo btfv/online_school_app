@@ -5,6 +5,7 @@ const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
 const FilesService = require('./FilesService');
 const TeacherService = require('./TeacherService');
+const { diffieHellman } = require('crypto');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
@@ -338,13 +339,20 @@ HomeworkService.removeStudent = async function (
 	studentPublicId,
 	homeworkPublicId
 ) {
+	await StudentModel.findOne({ publicId: studentPublicId }).then(
+		(document) => {
+			if (document.hasSolution) {
+				throw Error('This user already has solution');
+			}
+		}
+	);
 	await StudentModel.findOneAndUpdate(
 		{ publicId: studentPublicId },
 		{ $pull: { homeworks: { homeworkPublicId } } }
 	);
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
-		{ $pull: { receivedStudents: studentPublicId } }
+		{ $pull: { receivedStudents: { studentPublicId } } }
 	);
 };
 
@@ -402,17 +410,10 @@ HomeworkService.editHomework = async function (userId, homeworkId, tasks) {
 
 HomeworkService.addSolutionByStudent = async function (
 	homeworkPublicId,
-	answersForm,
-	studentName,
-	studentPublicId,
+	studentAnswers,
 	studentId
 ) {
 	const checkStringAnswer = (answer, rightAnswer, points) => {
-		console.log(
-			answer.toLowerCase().replace(/ /g, '') +
-				' *** ' +
-				rightAnswer.toLowerCase().replace(/ /g, '')
-		);
 		if (
 			answer.toLowerCase().replace(/ /g, '') ===
 			rightAnswer.toLowerCase().replace(/ /g, '')
@@ -441,61 +442,60 @@ HomeworkService.addSolutionByStudent = async function (
 	var solutionDocument = {
 		publicId: solutionPublicId,
 		studentId,
-		studentName,
-		studentPublicId,
 	};
 
 	await HomeworkModel.findOne({ publicId: homeworkPublicId })
-		.select('-_id tasks hasDetailedTasks')
+		.select('-_id tasks')
 		.then(async (result) => {
-			let { tasks, hasDetailedTasks } = result;
+			const { tasks } = result;
 
 			if (!tasks.length) {
 				throw Error(
 					'You cant add solution to the homework without tasks'
 				);
 			}
-
-			var taskGradeSumm = 0;
+			if (tasks.length != studentAnswers.length) {
+				throw Error('Count of answers does not match count of tasks');
+			}
+			var totalPoints = 0;
 
 			solutionDocument.answers = [];
 			tasks.map((task, index) => {
-				let pointsForTask = 0;
+				let pointsForAnswer = 0;
 				switch (task.taskType) {
 					case 1:
-						pointsForTask = checkOptionsAnswer(
-							answersForm[index],
+						pointsForAnswer = checkOptionsAnswer(
+							studentAnswers[index],
 							task.options,
 							task.maxPoints
 						);
 						break;
 					case 2:
-						pointsForTask = checkStringAnswer(
-							answersForm[index],
+						pointsForAnswer = checkStringAnswer(
+							studentAnswers[index],
 							task.stringAnswer,
 							task.maxPoints
 						);
 						break;
 				}
-				taskGradeSumm += pointsForTask;
+				totalPoints += pointsForAnswer;
 				solutionDocument.answers.push({
 					detailedAnswer:
-						task.taskType == 3 ? answersForm[index] : null,
+						task.taskType == 3 ? studentAnswers[index] : null,
 					stringAnswer:
-						task.taskType == 2 ? answersForm[index] : null,
+						task.taskType == 2 ? studentAnswers[index] : null,
 					optionAnswers:
-						task.taskType == 1 ? answersForm[index] : null,
-					//attachments: answers[index].attachments,
+						task.taskType == 1 ? studentAnswers[index] : null,
 					grade: pointsForTask,
 				});
 			});
-			solutionDocument.totalPoints = taskGradeSumm || 0;
+			solutionDocument.totalPoints = totalPoints;
 			await HomeworkModel.findOneAndUpdate(
 				{
-					publicId: homeworkPublicId,
+					_id: result._id,
 					receivedStudents: {
 						$elemMatch: {
-							studentPublicId: studentPublicId,
+							studentId,
 						},
 					},
 				},
@@ -504,18 +504,6 @@ HomeworkService.addSolutionByStudent = async function (
 					$set: {
 						'receivedStudents.$.hasSolution': true,
 						'receivedStudents.$.solutionPublicId': solutionPublicId,
-					},
-				}
-			);
-			await StudentModel.findOneAndUpdate(
-				{
-					_id: studentId,
-					'homeworks.homeworkPublicId': homeworkPublicId,
-				},
-				{
-					$set: {
-						'homeworks.$.solutionPublicId': solutionPublicId,
-						'homeworks.$.hasSolution': true,
 					},
 				}
 			);

@@ -5,11 +5,11 @@ const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
 const TeacherService = {};
 
-const COUNT_OF_USERS_IN_QUERY = 5;
+const COUNT_OF_USERS_IN_QUERY = process.env.COUNT_OF_USERS_IN_QUERY;
 
 TeacherService.getTeacherInfo = async (teacherId) => {
 	return await TeacherModel.findById(
-		homeworkInfo.creatorId,
+		teacherId,
 		'-_id firstname lastname publicId'
 	).exec();
 };

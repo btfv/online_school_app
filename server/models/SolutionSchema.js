@@ -14,17 +14,10 @@ const solutionSchema = new mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		required: true,
 	},
-	studentPublicId: {
-		type: String,
-		required: true,
-	},
-	studentName: {
-		type: String,
-		required: true,
-	},
 	totalPoints: {
 		type: Number,
-		required: false,
+		required: true,
+		default: 0,
 	},
 	comment: {
 		type: String,

@@ -117,13 +117,12 @@ HomeworkController.removeTask = async function (req, res, next) {
 		 * POST
 		 * {homeworkPublicId, taskPublicId}
 		 */
-		const creatorPublicId = req.user.publicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		const taskPublicId = req.body.taskPublicId;
 		await HomeworkService.removeTask(homeworkPublicId, taskPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error: error.toString() });
+		return res.status(400).json({ error });
 	}
 };
 HomeworkController.createHomework = async function (req, res, next) {
@@ -145,7 +144,7 @@ HomeworkController.createHomework = async function (req, res, next) {
 			homeworkSubject,
 			creatorPublicId,
 			creatorId,
-			homeworkAttachments,
+			homeworkAttachments
 		);
 		return res.status(200).json({ homeworkPublicId });
 	} catch (error) {
@@ -186,13 +185,12 @@ HomeworkController.removeStudent = async function (req, res, next) {
 		/**
 		 * {teacherPublicId, homeworkPublicId, studentPublicId}
 		 */
-		const teacherPublicId = req.user.publicId;
 		const studentPublicId = req.body.studentPublicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		await HomeworkService.removeStudent(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
+		return res.status(400).json({ error });
 	}
 };
 
@@ -226,26 +224,22 @@ HomeworkController.removeGroup = async function (req, res, next) {
 	}
 };
 
-HomeworkController.addSolutionByStudent = async function (req, res, next) {
+HomeworkController.sendAnswers = async function (req, res, next) {
 	try {
 		/**
 		 * {studentPublicId, studentId, studentName, homeworkPublicId, formValues}
 		 */
-		const studentPublicId = req.user.publicId;
 		const studentId = req.user._id;
-		const studentName = req.user.name;
-		const answers = req.body.formValues;
+		const answers = req.body.answers;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		await HomeworkService.addSolutionByStudent(
 			homeworkPublicId,
 			answers,
-			studentName,
-			studentPublicId,
 			studentId
 		);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
+		return res.status(400).json({ error });
 	}
 };
 

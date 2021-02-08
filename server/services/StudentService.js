@@ -7,6 +7,13 @@ const StudentService = {};
 
 const COUNT_OF_USERS_IN_QUERY = process.env.COUNT_OF_USERS_IN_QUERY;
 
+StudentService.getStudentInfo = async (studentId) => {
+	return await StudentService.findById(
+		studentId,
+		'-_id firstname lastname publicId'
+	).exec();
+};
+
 StudentService.getStudentProfileByTeacher = async function (studentPublicId) {
 	var userDocument = await StudentModel.findOne(
 		{ publicId: studentPublicId },

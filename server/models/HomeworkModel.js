@@ -47,8 +47,8 @@ const homeworkSchema = new mongoose.Schema({
 				type: String,
 				required: true,
 			},
-			studentName: {
-				type: String,
+			studentId: {
+				type: mongoose.Types.ObjectId,
 				required: true,
 			},
 			hasSolution: {
