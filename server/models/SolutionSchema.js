@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const answerSchema = require('./AnswerSchema');
 const solutionSchema = new mongoose.Schema({
-	isCheckedByTeacher: {
+	isChecked: {
 		type: Boolean,
 		required: true,
 		default: false,

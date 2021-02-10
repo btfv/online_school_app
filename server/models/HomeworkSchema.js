@@ -17,7 +17,7 @@ const homeworkSchema = new mongoose.Schema({
 		required: false,
 		default: null,
 	},
-	hasSolution: {
+	isChecked: {
 		type: Boolean,
 		required: true,
 		default: false,

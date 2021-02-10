@@ -11,7 +11,14 @@ TeacherService.getTeacherInfo = async (teacherId) => {
 	return await TeacherModel.findById(
 		teacherId,
 		'-_id firstname lastname publicId'
-	).exec();
+	)
+		.exec()
+		.then((result) => {
+			return {
+				...result,
+				name: result.firstname + ' ' + result.lastname,
+			};
+		});
 };
 
 TeacherService.changePassword = async function (

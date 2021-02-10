@@ -5,7 +5,6 @@ const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
 const FilesService = require('./FilesService');
 const TeacherService = require('./TeacherService');
-const { diffieHellman } = require('crypto');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
@@ -401,11 +400,52 @@ HomeworkService.removeHomework = async function (homeworkPublicId) {
 	return true;
 };
 
-HomeworkService.editHomework = async function (userId, homeworkId, tasks) {
-	/*
-		rewrite only tasks with changes
-		task:{_id, newType, newText, newAttachments, newOptions, newStringAnswer, newDetailedAnswer}
-	*/
+HomeworkService.checkSolution = async function (
+	solutionPublicId,
+	homeworkPublicId,
+	comments
+) {
+	await HomeworkModel.findOneAndUpdate(
+		{ publicId: homeworkPublicId, 'solutions.publicId': solutionPublicId },
+		{
+			$set: {
+				'solutions.$.isChecked': true,
+			},
+		}
+	)
+		.select({ solutions: { $elemMatch: { publicId: solutionPublicId } } })
+		.then(async (result) => {
+			const studentId = result.solutions[0].studentId;
+			await StudentModel.findOneAndUpdate(
+				{
+					_id: studentId,
+					'homeworks.homeworkPublicId': homeworkPublicId,
+				},
+				{
+					$set: {
+						'homeworks.$.isChecked': true,
+						'homeworks.$.solutionPublicId': solutionPublicId,
+					},
+				}
+			);
+			comments.map(async (comment) => {
+				await HomeworkModel.findOneAndUpdate(
+					{
+						publicId: homeworkPublicId,
+						'solutions.publicId': solutionPublicId,
+						'solutions.answers.publicId': comment.answerPublicId,
+					},
+					{
+						$set: {
+							'solutions.$.$.comment': comment.comment,
+							'solutions.$.$.points': comment.points,
+						},
+					}
+				);
+			});
+		});
+
+	return true;
 };
 
 HomeworkService.addSolutionByStudent = async function (
@@ -486,7 +526,7 @@ HomeworkService.addSolutionByStudent = async function (
 						task.taskType == 2 ? studentAnswers[index] : null,
 					optionAnswers:
 						task.taskType == 1 ? studentAnswers[index] : null,
-					grade: pointsForTask,
+					points: pointsForTask,
 				});
 			});
 			solutionDocument.totalPoints = totalPoints;
@@ -511,39 +551,6 @@ HomeworkService.addSolutionByStudent = async function (
 	return true;
 };
 
-HomeworkService.getSolutionPreviewsByStudent = async function (
-	studentPublicId,
-	startSolutionId
-) {
-	var solutions = await StudentModel.findOne({
-		publicId: studentPublicId,
-	}).then((result) => {
-		let solutions = [];
-		result.homeworks.map((homework) => {
-			delete homework._id;
-			if (homework.hasSolution) {
-				solutions.push(homework.toObject());
-			}
-		});
-		return solutions;
-	});
-	if (solutions.length == 0) {
-		throw Error("You don't have solutions");
-	}
-	const solutionPreviews = await Promise.all(
-		solutions.map(async (solution) => {
-			let solutionPreview = await HomeworkModel.findOne({
-				publicId: solution.homeworkPublicId,
-			})
-				.select('-_id subject description')
-				.then((result) => result.toObject());
-			return { ...solution, ...solutionPreview };
-		})
-	);
-
-	return solutionPreviews;
-};
-
 HomeworkService.getSolutionByStudent = async function (
 	homeworkPublicId,
 	solutionPublicId
@@ -555,12 +562,15 @@ HomeworkService.getSolutionByStudent = async function (
 		{ solutions: { $elemMatch: { publicId: solutionPublicId } } }
 	)
 		.select(
-			'-_id tasks homeworkmaxPoints attachments creatorName creatorPublicId subject description title'
+			'-_id tasks homeworkmaxPoints attachments creatorId subject description title attachments'
 		)
 		.exec()
 		.then(async (result) => {
 			result = result.toObject();
-			let solution = result.solutions[0];
+			var solution = result.soltuions[0];
+			const teacherInfo = await TeacherService.getTeacherInfo(
+				result.creatorId
+			);
 			if (!result || !solution) {
 				throw Error("Can't find homework / solution");
 			}
@@ -586,7 +596,16 @@ HomeworkService.getSolutionByStudent = async function (
 				})
 			);
 			result = { ...result, ...solution };
-			return { ...result, attachments };
+			return {
+				homework: {
+					title: result.title,
+					subject: result.subject,
+					creatorName: teacherInfo.name,
+					creatorPublicId: teacherInfo.publicId,
+					description: result.description,
+					attachments,
+				},
+			};
 		});
 	if (!solutionDocument) {
 		throw Error("Can't find solution");

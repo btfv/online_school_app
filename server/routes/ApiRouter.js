@@ -7,6 +7,7 @@ const { body, check, validationResult } = require('express-validator');
 const TeacherController = require('../controllers/TeacherController');
 const FilesController = require('../controllers/FilesController');
 const UserController = require('../controllers/UserController');
+const { isTeacher } = require('../controllers/AuthController');
 
 const validationRules = (req, res, next) => {
 	body('email')
@@ -141,16 +142,10 @@ ApiRouter.post(
 	HomeworkController.sendAnswers
 );
 ApiRouter.get(
-	'/homeworks/getSolutionByStudent',
+	'/homeworks/getSolution/:homeworkPublicId.:solutionPublicId',
 	AuthController.isStudent,
-	HomeworkController.getSolutionByStudent
+	HomeworkController.getSolution
 );
-ApiRouter.get(
-	'/homeworks/getSolutionByTeacher',
-	AuthController.isTeacher,
-	HomeworkController.getSolutionByTeacher
-);
-
 ApiRouter.get(
 	'/api/getStudentList',
 	AuthController.isTeacher,
@@ -168,4 +163,5 @@ ApiRouter.get(
 	StudentController.getStudentProfileByTeacher
 );
 ApiRouter.get('/upload_files/:fileReference', FilesController.getFile);
+ApiRouter.post('/checkSolution', isTeacher, HomeworkController.checkSolution);
 module.exports = ApiRouter;
