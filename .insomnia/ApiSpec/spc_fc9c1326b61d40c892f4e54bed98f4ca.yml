@@ -1,7 +1,7 @@
 _id: spc_fc9c1326b61d40c892f4e54bed98f4ca
 type: ApiSpec
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612195824859
+modified: 1612989785534
 created: 1609875195599
 fileName: Online School App API undefined
 contents: >-
@@ -95,7 +95,7 @@ contents: >-
                   example: [true, false, true, false]
                 - type: string
                   description: "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is"
-                  example: "Venera"
+                  example: "Venus"
       homeworkForStudent:
         type: object
         required:
@@ -186,6 +186,11 @@ contents: >-
         type: string
         format: publicId
         example: 'example-ZwseLUGUsHdYQ'
+      passwordSchema:
+        type: string
+        format: password
+        minLength: 8
+        maxLength: 20
       userRegistrationData:
           type: object
           required:
@@ -201,10 +206,7 @@ contents: >-
               minLength: 4
               maxLength: 12
             password:
-              type: string
-              format: password
-              minLength: 8
-              maxLength: 16
+              $ref: '#/components/schemas/passwordSchema'
             email:
               type: string
               format: email
@@ -228,87 +230,113 @@ contents: >-
               type: string
               format: login
             password:
-              type: string
-              format: password
-      
+              $ref: '#/components/schemas/passwordSchema'
     requestBodies:
       loginRequest:
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/userLoginData'
-                examples:
-                  user:
-                    value:
-                      login: 'Example'
-                      password: 'amdmw124_'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userLoginData'
+            examples:
+              user:
+                value:
+                  username: 'Example'
+                  password: 'amdmw124_'
       registrationRequest:
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/userRegistrationData'
-                examples:
-                  user:
-                    value:
-                      login: 'Example'
-                      password: 'amdmw124_'
-                      email: 'vasya@gmail.com'
-                      firstname: 'Vasiliy'
-                      lastname: 'Petrov'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userRegistrationData'
+            examples:
+              user:
+                value:
+                  username: 'Example'
+                  password: 'amdmw124_'
+                  email: 'vasya@gmail.com'
+                  firstname: 'Vasiliy'
+                  lastname: 'Petrov'
     responses:
         loginResponse:
-            '200':
-              description: "Succesfully logged in"
-              headers: 
-                Set-Cookie:
-                  schema: 
-                    type: string
-                    example: Authorization=abcde12345; Path=/; HttpOnly
+          description: "Succesfully logged in"
+          headers: 
+            Set-Cookie:
+              schema: 
+                type: string
+                example: Authorization=abcde12345; Path=/; HttpOnly
         unauthorized:
           description: "Unauthorized. Access token is missing or invalid"
         getListSuccess:
           content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    type: object
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                  - type: object
+                    description: "for student"
                     required:
                     - title
                     - description
-                    - publicId
+                    - subject
+                    - creatorName
+                    - creatorPublicId
+                    - homeworkPublicId
+                    - hasSolution
                     properties:
                       title:
                         type: string
+                      creatorPublicId:
+                        $ref: "#/components/schemas/publicIdSchema"
+                      creatorName:
+                        type: string
                       description:
                         type: string
-                      publicId:
-                        type: string
+                      homeworkPublicId:
+                        $ref: "#/components/schemas/publicIdSchema"
+                      solutionPublicId:
+                        $ref: "#/components/schemas/publicIdSchema"
                       subject:
                         type: string
                       hasSolution:
                         type: boolean
+                  - type: object
+                    description: "for teacher"
+                    required:
+                    - title
+                    - description
+                    - subject
+                    - creatorName
+                    - creatorPublicId
+                    - homeworkPublicId
+                    properties:
+                      title:
+                        type: string
+                      creatorPublicId:
+                        $ref: "#/components/schemas/publicIdSchema"
+                      creatorName:
+                        type: string
+                      description:
+                        type: string
+                      homeworkPublicId:
+                        $ref: "#/components/schemas/publicIdSchema"
+                      subject:
+                        type: string
         registrationResponse:
-              description: "Succesfully registered"
-              headers: 
-                Set-Cookie:
-                  schema: 
-                    type: string
-                    example: Authorization=abcde12345; Path=/; HttpOnly
+          description: "Succesfully registered"
         errorResponse:
           content:
             application/json:
               schema:
                 type: object
                 required:
-                  -errorMessage
+                  -error
                 properties:
-                  errorMessage:
+                  error:
                     type: string
               examples:
-                error:
+                offsetError:
                   value:
-                    errorMessage: 'Wrong offset parameter'
+                    error: 'Wrong offset parameter'
         getHomeworkSuccess:
           content:
             application/json:
@@ -352,26 +380,35 @@ contents: >-
         bearerFormat: JWT
   paths:
     /auth/studentLogin:
-        post:
-          summary: 'Auth request for student login'
-          requestBody:
-            $ref: '#/components/requestBodies/loginRequest'
-          responses:
+      post:
+        summary: 'Auth request for student login'
+        requestBody:
+          $ref: '#/components/requestBodies/loginRequest'
+        responses:
+          '200':
             $ref: '#/components/responses/loginResponse'
+          '400':
+            $ref: '#/components/responses/errorResponse'
     /auth/teacherLogin:
-        post:
-          summary: 'Auth request for teacher login'
-          requestBody:
-            $ref: '#/components/requestBodies/loginRequest'
-          responses:
+      post:
+        summary: 'Auth request for teacher login'
+        requestBody:
+          $ref: '#/components/requestBodies/loginRequest'
+        responses:
+          '200':
             $ref: '#/components/responses/loginResponse'
+          '400':
+            $ref: '#/components/responses/errorResponse'
     /auth/studentRegistration:
         post:
           summary: 'Registration request for student'
           requestBody:
             $ref: '#/components/requestBodies/registrationRequest'
           responses:
-            $ref: '#/components/responses/registrationResponse'
+            '200':
+              $ref: '#/components/responses/registrationResponse'
+            '400':
+              $ref: '#/components/responses/errorResponse'
     /auth/teacherRegistration:
         post:
           summary: 'Registration request for teacher'
@@ -380,6 +417,8 @@ contents: >-
           responses:
             '200':
               $ref: '#/components/responses/registrationResponse'
+            '400':
+              $ref: '#/components/responses/errorResponse'
     /api/getListOfHomeworks:
         get:
           security:
@@ -436,42 +475,31 @@ contents: >-
                 schema:
                   type: object
                   required:
-                    - taskType
-                    - condition
-                    - maxPoints
-                    - answer
+                    - title
+                    - subject
+                    - description
                   properties:
-                    taskType:
-                      type: integer
-                      enum: [1, 2, 3]
-                      description: "type of answer is 1 - option from list, 2 - string, 3 - detailed"
-                    condition:
+                    title:
                       type: string
-                      example: "Which planet is second farthest from Solar?"
-                      description: "problem condition"
-                    maxPoints:
-                      type: integer
-                      description: "how much points student receives if right solved task"
-                      minimum: 0
-                    options:
-                      description: "array of option's labels"
+                    subject:
+                      type: string
+                    attachments:
                       type: array
                       items:
                         type: string
-                      example: ["First", "Second", "third", "last one label"]
-                    answer:
-                        oneOf:
-                          - type: array
-                            description: "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong"
-                            items:
-                              type: boolean
-                            example: [true, false, true, false]
-                          - type: string
-                            description: "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is"
-                            example: "Venera"
+                        format: binary
+                    description:
+                      type: string
           responses:
             '200':
               description: "Homework succesfully created"
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      homeworkPublicId:
+                        $ref: '#/components/schemas/publicIdSchema'
             '400':
               $ref: '#/components/responses/errorResponse'
             '401':
@@ -513,7 +541,7 @@ contents: >-
                   answer:
                       example: 
                         - [true, false, true, false]
-                        - "Venera"
+                        - "Venus"
                       oneOf:
                         - type: array
                           description: "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong"
@@ -522,7 +550,7 @@ contents: >-
                           example: [true, false, true, false]
                         - type: string
                           description: "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is"
-                          example: "Venera"
+                          example: "Venus"
         responses:
           '200':
             description: "Task succesfully created and added"
@@ -602,7 +630,7 @@ contents: >-
                 properties:
                   homeworkPublicId:
                     $ref: '#/components/schemas/publicIdSchema'
-                  tasksInfo:
+                  answers:
                     type: array
                     items:
                       type: object
@@ -649,6 +677,29 @@ contents: >-
           $ref: '#/components/responses/errorResponse'
         '401':
           $ref: '#/components/responses/unauthorized'
+    /api/removeStudent/:
+      post:
+        security:
+            - bearerAuth: []
+        summary: 'Get homework back'
+        description: 'Works while student doesnt have the solution'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  homeworkPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+                  studentPublicId:
+                    $ref: '#/components/schemas/publicIdSchema'
+      responses:
+        '200':
+          description: "Successfully removed"
+        '400':
+          $ref: '#/components/responses/errorResponse'
+        '401':
+          $ref: '#/components/responses/unauthorized'
     /api/removeHomework/:
       post:
         security:
@@ -662,13 +713,13 @@ contents: >-
                 properties:
                   homeworkPublicId:
                     $ref: '#/components/schemas/publicIdSchema'
-      responses:
-        '200':
-          description: "Successfully removed"
-        '400':
-          $ref: '#/components/responses/errorResponse'
-        '401':
-          $ref: '#/components/responses/unauthorized'
+        responses:
+          '200':
+            description: "Successfully removed"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
     /api/checkSolution/:
       post:
         security:
@@ -685,7 +736,7 @@ contents: >-
                     $ref: '#/components/schemas/publicIdSchema'
                   solutionPublicId:
                     $ref: '#/components/schemas/publicIdSchema'
-                  checkTasksInfo:
+                  comments:
                     type: array
                     items:
                       type: object
@@ -693,22 +744,22 @@ contents: >-
                         - taskPublicId
                         - result
                       properties:
-                        taskPublicId:
+                        answerPublicId:
                           $ref: '#/components/schemas/publicIdSchema'
                         comment:
                           type: string
                           description: "comment from teacher to student because of this task. usually used in detailed answer tasks"
-                        result:
+                        points:
                           type: number
                           minimum: 0
                           description: "how much points gets student for answer"
-      responses:
-        '200':
-          description: "Successfully checked and sended to the student"
-        '400':
-          $ref: '#/components/responses/errorResponse'
-        '401':
-          $ref: '#/components/responses/unauthorized'
+        responses:
+          '200':
+            description: "Successfully checked and sended to the student"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
     /api/getUserInfo/{userPublicId}:
       get:
         security:
@@ -744,6 +795,28 @@ contents: >-
                     profilePicUrl:
                       type: string
                       format: uri
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
+    /user/changePassword:
+      post:
+        security:
+            - bearerAuth: []
+        summary: "Change password"
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  oldPassword:
+                    $ref: '#/components/schemas/passwordSchema'
+                  newPassword:
+                    $ref: '#/components/schemas/passwordSchema'
+        responses:
+          '200':
+            description: "Password successfully changed"
           '400':
             $ref: '#/components/responses/errorResponse'
           '401':
