@@ -1,0 +1,1791 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Online School App API",
+    "description": "My first API",
+    "contact": {
+      "name": "Bulat Faizrakhmanov",
+      "email": "fayzrakhman7@gmail.com"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/btfv/osa/1.0",
+      "description": "SwaggerHub API Auto Mocking"
+    },
+    {
+      "url": "https://btfv-app-backend.herokuapp.com/",
+      "description": "Main (production) server"
+    }
+  ],
+  "paths": {
+    "/auth/studentLogin": {
+      "post": {
+        "summary": "Auth request for student login",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/loginRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Succesfully logged in",
+            "headers": {
+              "Set-Cookie": {
+                "style": "simple",
+                "explode": false,
+                "schema": {
+                  "type": "string",
+                  "example": "Authorization=abcde12345; Path=/; HttpOnly"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/teacherLogin": {
+      "post": {
+        "summary": "Auth request for teacher login",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/loginRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Succesfully logged in",
+            "headers": {
+              "Set-Cookie": {
+                "style": "simple",
+                "explode": false,
+                "schema": {
+                  "type": "string",
+                  "example": "Authorization=abcde12345; Path=/; HttpOnly"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/studentRegistration": {
+      "post": {
+        "summary": "Registration request for student",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/registrationRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Succesfully registered"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/teacherRegistration": {
+      "post": {
+        "summary": "Registration request for teacher",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/registrationRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Succesfully registered"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/getListOfHomeworks": {
+      "get": {
+        "summary": "Returns a list of homeworks",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset in list",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "required": [
+                          "creatorName",
+                          "creatorPublicId",
+                          "description",
+                          "hasSolution",
+                          "homeworkPublicId",
+                          "subject",
+                          "title"
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "creatorPublicId": {
+                            "$ref": "#/components/schemas/publicIdSchema"
+                          },
+                          "creatorName": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "homeworkPublicId": {
+                            "$ref": "#/components/schemas/publicIdSchema"
+                          },
+                          "solutionPublicId": {
+                            "$ref": "#/components/schemas/publicIdSchema"
+                          },
+                          "subject": {
+                            "type": "string"
+                          },
+                          "hasSolution": {
+                            "type": "boolean"
+                          }
+                        },
+                        "description": "for student"
+                      },
+                      {
+                        "required": [
+                          "creatorName",
+                          "creatorPublicId",
+                          "description",
+                          "homeworkPublicId",
+                          "subject",
+                          "title"
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "creatorPublicId": {
+                            "$ref": "#/components/schemas/publicIdSchema"
+                          },
+                          "creatorName": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "homeworkPublicId": {
+                            "$ref": "#/components/schemas/publicIdSchema"
+                          },
+                          "subject": {
+                            "type": "string"
+                          }
+                        },
+                        "description": "for teacher"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/getHomework/{homeworkPublicId}": {
+      "get": {
+        "summary": "Returns a homework",
+        "description": "If teacher - then returns homework with answers, else without answers",
+        "parameters": [
+          {
+            "name": "homeworkPublicId",
+            "in": "path",
+            "description": "identificator of homework",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/publicIdSchema"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/getSolution/{homeworkPublicId}.{solutionPublicId}": {
+      "get": {
+        "summary": "Returns a solution",
+        "parameters": [
+          {
+            "name": "homeworkPublicId",
+            "in": "path",
+            "description": "identificator of homework",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/publicIdSchema"
+            }
+          },
+          {
+            "name": "solutionPublicId",
+            "in": "path",
+            "description": "identificator of solution",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/publicIdSchema"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/solutionSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/createHomework/": {
+      "post": {
+        "summary": "Creates new homework",
+        "requestBody": {
+          "description": "Creates new homework. Can be used without tasks provided. Remember: If you add tasks, you have to add them with answers.",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Homework succesfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_1"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/addTask/": {
+      "post": {
+        "summary": "Creates and adds task to an existing homework",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task succesfully created and added"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/sendHomework/": {
+      "post": {
+        "summary": "Sends homework to the student",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Homework succesfully sended"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/getStudentList/": {
+      "get": {
+        "summary": "Gets student's publicIds by their name",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "student's username",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "maxLength": 20,
+              "minLength": 2,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Query is correct",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "maxItems": 20,
+                  "minItems": 0,
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/inline_response_200_2"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sendAnswers/": {
+      "post": {
+        "summary": "Sends answers to the teacher",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_3"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Answers succesfully sended"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/removeTask/": {
+      "post": {
+        "summary": "Removes task from the homework",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_4"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully removed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/removeStudent/": {
+      "post": {
+        "summary": "Get homework back",
+        "description": "Works while student doesnt have the solution",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_5"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully removed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/removeHomework/": {
+      "post": {
+        "summary": "Removes homework",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_6"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully removed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/checkSolution/": {
+      "post": {
+        "summary": "Checks stundent's answers",
+        "description": "Sends comments and results of review to the student",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_7"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully checked and sended to the student"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/getUserInfo/{userPublicId}": {
+      "get": {
+        "summary": "Get's user info",
+        "description": "Get user info such as email, firstname, lastname, age, profile pic",
+        "parameters": [
+          {
+            "name": "userPublicId",
+            "in": "path",
+            "description": "identificator of user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/publicIdSchema"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_3"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/user/changePassword": {
+      "post": {
+        "summary": "Change password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/body_8"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password successfully changed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_400"
+                },
+                "examples": {
+                  "offsetError": {
+                    "value": {
+                      "error": "Wrong offset parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "attachmentSchema": {
+        "required": [
+          "name",
+          "reference"
+        ],
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "taskWithoutAnswerSchema": {
+        "required": [
+          "condition",
+          "maxPoints",
+          "publicId",
+          "taskType"
+        ],
+        "type": "object",
+        "properties": {
+          "publicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "taskType": {
+            "type": "integer",
+            "description": "type of answer is 1 - option from list, 2 - string, 3 - detailed",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "condition": {
+            "type": "string",
+            "description": "problem condition",
+            "example": "Which planet is second farthest from Solar?"
+          },
+          "maxPoints": {
+            "minimum": 0,
+            "type": "integer",
+            "description": "how much points student receives if right solved task"
+          },
+          "options": {
+            "type": "array",
+            "description": "array of option's labels",
+            "example": [
+              "First",
+              "Second",
+              "third",
+              "last one label"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "taskWithAnswerAndIdSchema": {
+        "required": [
+          "answer",
+          "condition",
+          "maxPoints",
+          "publicId",
+          "taskType"
+        ],
+        "type": "object",
+        "properties": {
+          "publicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "taskType": {
+            "type": "integer",
+            "description": "type of answer is 1 - option from list, 2 - string, 3 - detailed",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "condition": {
+            "type": "string",
+            "description": "problem condition",
+            "example": "Which planet is second farthest from Solar?"
+          },
+          "maxPoints": {
+            "minimum": 0,
+            "type": "integer",
+            "description": "how much points student receives if right solved task"
+          },
+          "options": {
+            "type": "array",
+            "description": "array of option's labels",
+            "example": [
+              "First",
+              "Second",
+              "third",
+              "last one label"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer": {
+            "oneOf": [
+              {
+                "type": "array",
+                "description": "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong",
+                "example": [
+                  true,
+                  false,
+                  true,
+                  false
+                ],
+                "items": {
+                  "type": "boolean"
+                }
+              },
+              {
+                "type": "string",
+                "description": "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is",
+                "example": "Venus"
+              }
+            ]
+          }
+        }
+      },
+      "homeworkForStudent": {
+        "required": [
+          "creatorName",
+          "creatorPublicId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "creatorPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "creatorName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/attachmentSchema"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/taskWithoutAnswerSchema"
+            }
+          }
+        }
+      },
+      "homeworkForTeacher": {
+        "required": [
+          "creatorName",
+          "creatorPublicId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "creatorPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "creatorName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/attachmentSchema"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/taskWithAnswerAndIdSchema"
+            }
+          }
+        }
+      },
+      "solutionSchema": {
+        "required": [
+          "answers",
+          "homework"
+        ],
+        "type": "object",
+        "properties": {
+          "homework": {
+            "$ref": "#/components/schemas/homeworkForTeacher"
+          },
+          "solution": {
+            "type": "array",
+            "description": "here is additional info with student answers, teachers comments, results and etc.",
+            "items": {
+              "$ref": "#/components/schemas/solutionSchema_solution"
+            }
+          }
+        },
+        "description": "in fact, solution is homework with student answers and result of answers checking added"
+      },
+      "publicIdSchema": {
+        "type": "string",
+        "format": "publicId",
+        "example": "example-ZwseLUGUsHdYQ"
+      },
+      "passwordSchema": {
+        "maxLength": 20,
+        "minLength": 8,
+        "type": "string",
+        "format": "password"
+      },
+      "userRegistrationData": {
+        "required": [
+          "email",
+          "firstname",
+          "lastname",
+          "login",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "login": {
+            "maxLength": 12,
+            "minLength": 4,
+            "type": "string",
+            "format": "login"
+          },
+          "password": {
+            "$ref": "#/components/schemas/passwordSchema"
+          },
+          "email": {
+            "maxLength": 16,
+            "minLength": 8,
+            "type": "string",
+            "format": "email"
+          },
+          "firstname": {
+            "maxLength": 12,
+            "minLength": 1,
+            "type": "string"
+          },
+          "lastname": {
+            "maxLength": 16,
+            "minLength": 4,
+            "type": "string"
+          }
+        }
+      },
+      "userLoginData": {
+        "required": [
+          "login",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "format": "login"
+          },
+          "password": {
+            "$ref": "#/components/schemas/passwordSchema"
+          }
+        }
+      },
+      "inline_response_400": {
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/homeworkForTeacher"
+          },
+          {
+            "$ref": "#/components/schemas/homeworkForStudent"
+          }
+        ]
+      },
+      "body": {
+        "required": [
+          "description",
+          "subject",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_1": {
+        "type": "object",
+        "properties": {
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          }
+        }
+      },
+      "body_1": {
+        "required": [
+          "answer",
+          "condition",
+          "maxPoints",
+          "taskType"
+        ],
+        "type": "object",
+        "properties": {
+          "taskType": {
+            "type": "integer",
+            "description": "type of answer is 1 - option from list, 2 - string, 3 - detailed",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "condition": {
+            "type": "string",
+            "description": "problem condition",
+            "example": "Which planet is second farthest from Solar?"
+          },
+          "maxPoints": {
+            "minimum": 0,
+            "type": "integer",
+            "description": "how much points student receives if right solved task"
+          },
+          "options": {
+            "type": "array",
+            "description": "array of option's labels",
+            "example": [
+              "First",
+              "Second",
+              "third",
+              "last one label"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer": {
+            "example": [
+              [
+                true,
+                false,
+                true,
+                false
+              ],
+              "Venus"
+            ],
+            "oneOf": [
+              {
+                "type": "array",
+                "description": "if the element is true, then the corresponding label from the array 'options' is correct, else the corresponding label is wrong",
+                "example": [
+                  true,
+                  false,
+                  true,
+                  false
+                ],
+                "items": {
+                  "type": "boolean"
+                }
+              },
+              {
+                "type": "string",
+                "description": "here is answer for tasks with types 2 or 3. if task type is 2 here is exact answer, if task type is 3 here is",
+                "example": "Venus"
+              }
+            ]
+          }
+        }
+      },
+      "body_2": {
+        "type": "object",
+        "properties": {
+          "studentPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "inline_response_200_2": {
+        "required": [
+          "publicId",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "mivanova"
+          },
+          "publicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          }
+        }
+      },
+      "apisendAnswers_answers": {
+        "type": "object",
+        "properties": {
+          "taskPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "answer": {
+            "example": [
+              [
+                false,
+                false,
+                true,
+                false
+              ],
+              "Solar System"
+            ],
+            "oneOf": [
+              {
+                "type": "array",
+                "description": "choosed options. Array connects with array 'options' in TaskWithAnswerSchema",
+                "example": [
+                  false,
+                  false,
+                  true,
+                  false
+                ],
+                "items": {
+                  "type": "boolean"
+                }
+              },
+              {
+                "type": "string",
+                "description": "text answer",
+                "example": "Solar System"
+              }
+            ]
+          }
+        }
+      },
+      "body_3": {
+        "type": "object",
+        "properties": {
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/apisendAnswers_answers"
+            }
+          }
+        }
+      },
+      "body_4": {
+        "type": "object",
+        "properties": {
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "taskPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          }
+        }
+      },
+      "body_5": {
+        "type": "object",
+        "properties": {
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "studentPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          }
+        }
+      },
+      "body_6": {
+        "type": "object",
+        "properties": {
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          }
+        }
+      },
+      "apicheckSolution_comments": {
+        "required": [
+          "result",
+          "taskPublicId"
+        ],
+        "type": "object",
+        "properties": {
+          "answerPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "comment": {
+            "type": "string",
+            "description": "comment from teacher to student because of this task. usually used in detailed answer tasks"
+          },
+          "points": {
+            "minimum": 0,
+            "type": "number",
+            "description": "how much points gets student for answer"
+          }
+        }
+      },
+      "body_7": {
+        "type": "object",
+        "properties": {
+          "homeworkPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "solutionPublicId": {
+            "$ref": "#/components/schemas/publicIdSchema"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/apicheckSolution_comments"
+            }
+          }
+        }
+      },
+      "inline_response_200_3": {
+        "required": [
+          "firstname",
+          "lastname"
+        ],
+        "type": "object",
+        "properties": {
+          "firstname": {
+            "type": "string",
+            "example": "Ivan"
+          },
+          "lastname": {
+            "type": "string",
+            "example": "Ivanov"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "profilePicUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "body_8": {
+        "type": "object",
+        "properties": {
+          "oldPassword": {
+            "$ref": "#/components/schemas/passwordSchema"
+          },
+          "newPassword": {
+            "$ref": "#/components/schemas/passwordSchema"
+          }
+        }
+      },
+      "solutionSchema_solution": {
+        "required": [
+          "result",
+          "studentAnswer"
+        ],
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "comment from teacher to student because of this task. usually used in detailed answer tasks"
+          },
+          "result": {
+            "minimum": 0,
+            "type": "number",
+            "description": "how much points gets student for answer"
+          },
+          "studentAnswer": {
+            "example": [
+              false,
+              false,
+              true,
+              false
+            ],
+            "oneOf": [
+              {
+                "type": "array",
+                "description": "choosed options. Array connects with array 'options' in TaskWithAnswerSchema",
+                "example": [
+                  false,
+                  false,
+                  true,
+                  false
+                ],
+                "items": {
+                  "type": "boolean"
+                }
+              },
+              {
+                "type": "string",
+                "description": "text answer",
+                "example": "Solar System"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "loginResponse": {
+        "description": "Succesfully logged in",
+        "headers": {
+          "Set-Cookie": {
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "Authorization=abcde12345; Path=/; HttpOnly"
+            }
+          }
+        }
+      },
+      "unauthorized": {
+        "description": "Unauthorized. Access token is missing or invalid"
+      },
+      "getListSuccess": {
+        "description": "Returns list",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "required": [
+                      "creatorName",
+                      "creatorPublicId",
+                      "description",
+                      "hasSolution",
+                      "homeworkPublicId",
+                      "subject",
+                      "title"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "creatorPublicId": {
+                        "$ref": "#/components/schemas/publicIdSchema"
+                      },
+                      "creatorName": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "homeworkPublicId": {
+                        "$ref": "#/components/schemas/publicIdSchema"
+                      },
+                      "solutionPublicId": {
+                        "$ref": "#/components/schemas/publicIdSchema"
+                      },
+                      "subject": {
+                        "type": "string"
+                      },
+                      "hasSolution": {
+                        "type": "boolean"
+                      }
+                    },
+                    "description": "for student"
+                  },
+                  {
+                    "required": [
+                      "creatorName",
+                      "creatorPublicId",
+                      "description",
+                      "homeworkPublicId",
+                      "subject",
+                      "title"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "creatorPublicId": {
+                        "$ref": "#/components/schemas/publicIdSchema"
+                      },
+                      "creatorName": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "homeworkPublicId": {
+                        "$ref": "#/components/schemas/publicIdSchema"
+                      },
+                      "subject": {
+                        "type": "string"
+                      }
+                    },
+                    "description": "for teacher"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "registrationResponse": {
+        "description": "Succesfully registered"
+      },
+      "errorResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/inline_response_400"
+            },
+            "examples": {
+              "offsetError": {
+                "value": {
+                  "error": "Wrong offset parameter"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getHomeworkSuccess": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/inline_response_200"
+            }
+          }
+        }
+      },
+      "getSolutionSuccess": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/solutionSchema"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "offsetParam": {
+        "name": "offset",
+        "in": "query",
+        "description": "offset in list",
+        "required": false,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "minimum": 0,
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "homeworkPublicIdParam": {
+        "name": "homeworkPublicId",
+        "in": "path",
+        "description": "identificator of homework",
+        "required": true,
+        "style": "simple",
+        "explode": false,
+        "schema": {
+          "$ref": "#/components/schemas/publicIdSchema"
+        }
+      },
+      "solutionPublicIdParam": {
+        "name": "solutionPublicId",
+        "in": "path",
+        "description": "identificator of solution",
+        "required": true,
+        "style": "simple",
+        "explode": false,
+        "schema": {
+          "$ref": "#/components/schemas/publicIdSchema"
+        }
+      }
+    },
+    "requestBodies": {
+      "loginRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/userLoginData"
+            },
+            "examples": {
+              "user": {
+                "value": {
+                  "username": "Example",
+                  "password": "amdmw124_"
+                }
+              }
+            }
+          }
+        }
+      },
+      "registrationRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/userRegistrationData"
+            },
+            "examples": {
+              "user": {
+                "value": {
+                  "username": "Example",
+                  "password": "amdmw124_",
+                  "email": "vasya@gmail.com",
+                  "firstname": "Vasiliy",
+                  "lastname": "Petrov"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
