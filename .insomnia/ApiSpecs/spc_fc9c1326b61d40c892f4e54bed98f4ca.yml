@@ -1718,7 +1718,7 @@
         }
       },
       "getSolutionSuccess": {
-        "description": "Solution found",
+        "description": "Solution found"
         "content": {
           "application/json": {
             "schema": {
