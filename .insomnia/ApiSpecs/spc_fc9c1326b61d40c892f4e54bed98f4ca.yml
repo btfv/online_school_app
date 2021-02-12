@@ -41,6 +41,8 @@
             }
           },
           "400": {
+            "description": "Bad request",
+            "description" : "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -80,6 +82,8 @@
             }
           },
           "400": {
+            "description": "Bad request",
+            "description" : "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -109,6 +113,8 @@
             "description": "Succesfully registered"
           },
           "400": {
+            "description": "Bad request",
+            "description" : "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -138,6 +144,8 @@
             "description": "Succesfully registered"
           },
           "400": {
+            "description": "Bad request",
+            "description" : "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -261,6 +269,8 @@
             }
           },
           "400": {
+            "description": "Bad request",
+            "description" : "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -306,6 +316,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Homework found",
             "content": {
               "application/json": {
                 "schema": {
@@ -315,6 +326,7 @@
             }
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -370,6 +382,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Solution found",
             "content": {
               "application/json": {
                 "schema": {
@@ -379,6 +392,7 @@
             }
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -430,6 +444,7 @@
             }
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -473,6 +488,7 @@
             "description": "Task succesfully created and added"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -516,6 +532,7 @@
             "description": "Homework succesfully sended"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -577,6 +594,7 @@
             }
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -612,6 +630,7 @@
             "description": "Answers succesfully sended"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -655,6 +674,7 @@
             "description": "Successfully removed"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -699,6 +719,7 @@
             "description": "Successfully removed"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -742,6 +763,7 @@
             "description": "Successfully removed"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -786,6 +808,7 @@
             "description": "Successfully checked and sended to the student"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -840,6 +863,7 @@
             }
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -883,6 +907,7 @@
             "description": "Password successfully changed"
           },
           "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
