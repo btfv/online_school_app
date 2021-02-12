@@ -1,7 +1,7 @@
 _id: spc_fc9c1326b61d40c892f4e54bed98f4ca
 type: ApiSpec
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612989785534
+modified: 1613081714168
 created: 1609875195599
 fileName: Online School App API undefined
 contents: >-
@@ -13,7 +13,7 @@ contents: >-
     contact:
       name: 'Bulat Faizrakhmanov'
       email: 'fayzrakhman7@gmail.com'
-    version: 1.0
+    version: '1.0'
   servers:
     - url: https://btfv-app-backend.herokuapp.com/
       description: Main (production) server
@@ -266,6 +266,7 @@ contents: >-
         unauthorized:
           description: "Unauthorized. Access token is missing or invalid"
         getListSuccess:
+          description: "Returns list"
           content:
             application/json:
               schema:
@@ -324,12 +325,13 @@ contents: >-
         registrationResponse:
           description: "Succesfully registered"
         errorResponse:
+          description: ""
           content:
             application/json:
               schema:
                 type: object
                 required:
-                  -error
+                  - error
                 properties:
                   error:
                     type: string
@@ -338,6 +340,7 @@ contents: >-
                   value:
                     error: 'Wrong offset parameter'
         getHomeworkSuccess:
+          description: ""
           content:
             application/json:
               schema:
@@ -345,6 +348,7 @@ contents: >-
                   - $ref: "#/components/schemas/homeworkForTeacher"
                   - $ref: "#/components/schemas/homeworkForStudent"
         getSolutionSuccess:
+          description: ""
           content:
             application/json:
               schema:
@@ -670,13 +674,13 @@ contents: >-
                     $ref: '#/components/schemas/publicIdSchema'
                   taskPublicId:
                     $ref: '#/components/schemas/publicIdSchema'
-      responses:
-        '200':
-          description: "Successfully removed"
-        '400':
-          $ref: '#/components/responses/errorResponse'
-        '401':
-          $ref: '#/components/responses/unauthorized'
+        responses:
+          '200':
+            description: "Successfully removed"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
     /api/removeStudent/:
       post:
         security:
@@ -693,13 +697,13 @@ contents: >-
                     $ref: '#/components/schemas/publicIdSchema'
                   studentPublicId:
                     $ref: '#/components/schemas/publicIdSchema'
-      responses:
-        '200':
-          description: "Successfully removed"
-        '400':
-          $ref: '#/components/responses/errorResponse'
-        '401':
-          $ref: '#/components/responses/unauthorized'
+        responses:
+          '200':
+            description: "Successfully removed"
+          '400':
+            $ref: '#/components/responses/errorResponse'
+          '401':
+            $ref: '#/components/responses/unauthorized'
     /api/removeHomework/:
       post:
         security:
@@ -775,6 +779,7 @@ contents: >-
               $ref: '#/components/schemas/publicIdSchema'
         responses:
           '200':
+            description: ""
             content:
               application/json:
                 schema:

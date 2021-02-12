@@ -1,7 +1,7 @@
 _id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512dba3e740
 type: Request
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612195824596
+modified: 1613080735213
 created: 1612195813662
 url: "{{ base_url }}/api/getUserInfo/{{ userPublicId }}"
 name: Get's user info

@@ -1,7 +1,7 @@
 _id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512d55819de
 type: Request
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612195824701
+modified: 1613080736977
 created: 1612195813717
 url: "{{ base_url }}/api/getSolution/{{ homeworkPublicId }}.{{ solutionPublicId }}"
 name: Returns a solution

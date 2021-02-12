@@ -1,7 +1,7 @@
 _id: req_wrk_a0b8b7231eec415bbf08194b8a6cb512a40d6192
 type: Request
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612195824614
+modified: 1613080735512
 created: 1612195813672
 url: "{{ base_url }}/api/checkSolution/"
 name: Checks stundent's answers
@@ -13,11 +13,11 @@ body:
     {
       "homeworkPublicId": null,
       "solutionPublicId": null,
-      "checkTasksInfo": [
+      "comments": [
         {
-          "taskPublicId": null,
+          "answerPublicId": null,
           "comment": "string",
-          "result": 0
+          "points": 0
         }
       ]
     }

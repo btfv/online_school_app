@@ -1,7 +1,7 @@
 _id: req_wrk_a0b8b7231eec415bbf08194b8a6cb51262c15a54
 type: Request
 parentId: wrk_a0b8b7231eec415bbf08194b8a6cb512
-modified: 1612195824672
+modified: 1613080736429
 created: 1612195813699
 url: "{{ base_url }}/api/sendHomework/"
 name: Sends homework to the student
@@ -13,7 +13,7 @@ body:
     {
       "studentPublicId": null,
       "homeworkPublicId": null,
-      "deadline": "2021-02-01T16:10:24.576Z"
+      "deadline": "2021-02-11T21:58:54.952Z"
     }
 parameters: []
 headers:
