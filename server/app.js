@@ -12,6 +12,7 @@ var mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 var ApiRouter = require('./routes/ApiRouter');
+const AuthRouter = require('./routes/AuthRouter');
 
 const secret = process.env.SECRET_KEY;
 
@@ -57,7 +58,7 @@ app.use(logger(process.env.NODE_ENV === 'development' ? 'dev' : 'tiny'));
 
 require('./config/passport');
 app.use('/api', ApiRouter);
-
+app.use('/auth', AuthRouter);
 app.use(function (req, res, next) {
 	next(createError(404));
 });

@@ -26,4 +26,25 @@ UserController.changePassword = async function (req, res, next) {
 	}
 };
 
+UserController.getInfo = async (req, res, next) => {
+	try {
+		const userPublicId = req.params.publicId;
+		const isTeacher = (req.query.isTeacher === 'true');
+		if (isTeacher) {
+			var profile = await TeacherService.getTeacherInfo({
+				teacherPublicId: userPublicId,
+				includeId: false,
+			});
+		} else {
+			var profile = await StudentService.getStudentInfo({
+				studentPublicId: userPublicId,
+				includeId: false,
+			});
+		}
+		return res.status(200).json(profile);
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
 module.exports = UserController;

@@ -15,22 +15,17 @@ const taskSchema = new mongoose.Schema({
 		required: true,
 	},
 	//answer is 1 - option from list, 2 - string, 3 - detailed
-	text: {
+	condition: {
 		type: String,
 		required: true,
 	},
-	options: [
+	optionLabels: [
 		{
-			optionText: {
-				type: String,
-				required: true,
-			},
-			isCorrect: {
-				type: Boolean,
-				required: true,
-			},
+			type: String,
+			required: true,
 		},
 	],
+	optionAnswers: [{ type: Boolean, required: true }],
 	stringAnswer: {
 		type: String,
 		required: false,

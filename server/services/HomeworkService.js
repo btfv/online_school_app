@@ -12,6 +12,12 @@ const HOMEWORKS_PER_REQUEST = 6;
 const SOLUTIONS_PER_REQUEST = 6;
 /* how much solutions can server send per one request */
 
+HomeworkService.typesOfAnswers = {
+	OPTIONS_ANSWER: 1,
+	STRING_ANSWER: 2,
+	DETAILED_ANSWER: 3,
+};
+
 HomeworkService.checkTeacherPermission = async function (
 	teacherPublicId,
 	homeworkPublicId
@@ -42,6 +48,19 @@ HomeworkService.checkStudentPermission = async function (
 	}
 };
 
+HomeworkService.getHomeworkInfo = async (homeworkId) => {
+	const homeworkInfo = await HomeworkModel.findById(
+		homeworkId,
+		'-_id title description creatorId subject publicId'
+	).then((result) => {
+		if (!result) {
+			throw Error("Can't find homework with this homeworkId");
+		}
+		return result;
+	});
+	return homeworkInfo;
+};
+
 HomeworkService.getPreviewsByStudent = async function (
 	studentPublicId,
 	offset
@@ -55,25 +74,27 @@ HomeworkService.getPreviewsByStudent = async function (
 		}
 	)
 		.select('-_id homeworks')
-		.then(async (result) => {
-			return Promise.all(
-				result.homeworks.map(async (preview) => {
-					const homeworkInfo = await HomeworkModel.findById(
-						preview.homeworkId,
-						'-_id title description creatorId subject publicId'
+		.exec()
+		.then(async (studentDocument) => {
+			return await Promise.all(
+				studentDocument.homeworks.map(async (homeworkDocument) => {
+					const homeworkId = homeworkDocument.homeworkId;
+					const homeworkInfo = await HomeworkService.getHomeworkInfo(
+						homeworkId
 					);
-					const creatorInfo = TeacherService.getTeacherInfo(
-						creatorId
-					);
+					const creatorId = homeworkInfo.creatorId;
+					const creatorInfo = await TeacherService.getTeacherInfo({
+						teacherId: creatorId,
+					});
 					return {
 						title: homeworkInfo.title,
 						description: homeworkInfo.description,
 						subject: homeworkInfo.subject,
 						homeworkPublicId: homeworkInfo.publicId,
-						solutionPublicId: preview.solutionPublicId,
-						hasSolution: preview.hasSolution,
-						creatorName:
-							creatorInfo.firstname + creatorInfo.lastname,
+						solutionPublicId: homeworkDocument.solutionPublicId,
+						hasSolution: homeworkDocument.hasSolution,
+						isChecked: homeworkDocument.isChecked,
+						creatorName: creatorInfo.name,
 						creatorPublicId: creatorInfo.publicId,
 					};
 				})
@@ -87,7 +108,7 @@ HomeworkService.getByStudent = async function (homeworkPublicId) {
 		publicId: homeworkPublicId,
 	})
 		.select(
-			'-_id title subject creatorPublicId creatorName publicId description attachments tasks'
+			'-_id title subject creatorPublicId creatorName publicId description attachments tasks deadline'
 		)
 		.then(async (result) => {
 			let attachments = await Promise.all(
@@ -115,24 +136,27 @@ HomeworkService.getPreviewsByTeacher = async function (
 			},
 		}
 	)
-		.select('-_id homeworks')
-		.then(async (result) => {
-			return Promise.all(
-				result.homeworks.map(async (homeworkId) => {
-					const homeworkInfo = await HomeworkModel.findById(
-						homeworkId,
-						'-_id title description creatorId subject publicId'
+		.select('_id homeworks')
+		.exec()
+		.then(async (teacherDocument) => {
+			if (teacherDocument.homeworks.length == 0) {
+				throw Error("You don't have any homeworks");
+			}
+			const creatorId = teacherDocument._id;
+			return await Promise.all(
+				teacherDocument.homeworks.map(async (homeworkId) => {
+					const homeworkInfo = await HomeworkService.getHomeworkInfo(
+						homeworkId
 					);
-					const creatorInfo = TeacherService.getTeacherInfo(
-						creatorId
-					);
+					const creatorInfo = await TeacherService.getTeacherInfo({
+						teacherId: creatorId,
+					});
 					return {
 						title: homeworkInfo.title,
 						description: homeworkInfo.description,
 						subject: homeworkInfo.subject,
 						homeworkPublicId: homeworkInfo.publicId,
-						creatorName:
-							creatorInfo.firstname + creatorInfo.lastname,
+						creatorName: creatorInfo.name,
 						creatorPublicId: creatorInfo.publicId,
 					};
 				})
@@ -145,25 +169,52 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 	const homeworkDocument = await HomeworkModel.findOne({
 		publicId: homeworkPublicId,
 	})
-		.select('-_id')
+		.select('-_id -tasks._id')
 		.then(async (result) => {
 			if (!result) {
 				throw Error("Homework doesn't exist");
 			}
+			result = result.toObject();
+			const creatorId = result.creatorId;
 			const attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await FilesService.getFileInfo(attachment);
 				})
 			);
-			const creatorInfo = TeacherService.getTeacherInfo(creatorId);
+			const creatorInfo = await TeacherService.getTeacherInfo({
+				teacherId: creatorId,
+			});
+			const tasks = result.tasks.map((task) => {
+				let answer;
+				switch (task.taskType) {
+					case 1:
+						answer = task.optionAnswers;
+						break;
+					case 2:
+						answer = task.stringAnswer;
+						break;
+					case 3:
+						answer = task.detailedAnswer;
+						break;
+				}
+				return {
+					taskType: task.taskType,
+					publicId: task.publicId,
+					answer,
+					condition: task.condition,
+					maxPoints: task.maxPoints,
+					options:
+						task.taskType === 1 ? task.optionLabels : undefined,
+				};
+			});
 			return {
 				title: result.title,
 				subject: result.subject,
 				creatorPublicId: creatorInfo.publicId,
-				creatorName: creatorInfo.firstname + creatorInfo.lastname,
+				creatorName: creatorInfo.name,
 				description: result.description,
 				attachments,
-				tasks: result.tasks,
+				tasks,
 			};
 		});
 	return homeworkDocument;
@@ -173,11 +224,14 @@ HomeworkService.createHomework = async function (
 	description,
 	subject,
 	creatorPublicId,
-	creatorId,
 	attachments
 ) {
+	const creatorInfo = await TeacherService.getTeacherInfo({
+		teacherPublicId: creatorPublicId,
+	});
+	const creatorId = creatorInfo._id;
 	if (attachments && attachments.length > 0) {
-		var attachmentIds = Promise.all(
+		var attachmentIds = await Promise.all(
 			attachments.map(async (attachment) => {
 				return await FilesService.uploadFile(attachment);
 			})
@@ -202,39 +256,48 @@ HomeworkService.createHomework = async function (
 
 HomeworkService.sendHomework = async function (
 	studentPublicId,
-	homeworkPublicId
+	homeworkPublicId,
+	deadline
 ) {
-	let homeworkDocument = await HomeworkModel.findOne(
+	const homeworkId = await HomeworkModel.findOne(
 		{
 			publicId: homeworkPublicId,
 		},
-		{ 'receivedStudents.studentPublicId': studentPublicId }
-	)
-		.select('title')
-		.exec();
-
-	if (homeworkDocument.receivedStudents.length) {
-		throw Error('This student already has this homework');
-	}
-	let studentName = await StudentModel.findOneAndUpdate(
-		{ publicId: studentPublicId },
 		{
-			$push: {
-				homeworks: {
-					homeworkPublicId,
-					homeworkTitle: homeworkDocument.title,
+			receivedStudents: {
+				$elemMatch: {
+					studentPublicId,
 				},
 			},
 		}
 	)
-		.select('-_id name')
+		.exec()
 		.then((result) => {
-			return result.firstname + ' ' + result.lastname;
+			if (result.receivedStudents.length) {
+				throw Error('This student already has this homework');
+			}
+			return result._id;
 		});
+	const studentId = await StudentModel.findOne(
+		{ publicId: studentPublicId },
+		'_id'
+	).then((result) => {
+		return result._id;
+	});
+	await StudentModel.findOneAndUpdate(
+		{ publicId: studentPublicId },
+		{
+			$push: {
+				homeworks: { homeworkId, deadline },
+			},
+		}
+	);
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
 		{
-			$push: { receivedStudents: { studentPublicId, studentName } },
+			$push: {
+				receivedStudents: { studentId, studentPublicId, deadline },
+			},
 		}
 	);
 	return true;
@@ -263,49 +326,55 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 	if (isNaN(task.points) || parseInt(task.points) < 0) {
 		throw Error("Points for task can't be negative");
 	}
-	if (
-		task.type === 2 &&
-		(!task.stringAnswer || 0 === task.stringAnswer.length)
-	) {
+	if (task.taskType === 2 && (!task.answer || 0 === task.answer.length)) {
 		throw Error("String answer can't be empty");
 	}
-
 	await HomeworkModel.findOne(
 		{ publicId: homeworkPublicId },
-		'solutions'
+		'receivedStudents'
 	).then((result) => {
-		if (result.solutions.length) {
+		if (result.receivedStudents.length) {
 			throw Error(
 				"You can't add task to the homework someone has received"
 			);
 		}
 	});
 	if (attachments !== 'undefined' && attachments) {
-		var attachmentIds = attachments.map(async (attachment) => {
-			return await FilesService.uploadFile(attachment);
-		});
-		attachmentIds = await Promise.all(attachmentIds);
+		var attachmentIds = await Promise.all(
+			attachments.map(async (attachment) => {
+				return await FilesService.uploadFile(attachment);
+			})
+		);
 	}
 	const publicId = nanoid();
-	let isTaskDetailed = task.type == 3 ? true : false;
-	const setHasDetailedTasks = isTaskDetailed
-		? { $set: { hasDetailedTasks: isTaskDetailed } }
-		: {};
+	const taskDocument = {
+		publicId,
+		taskType: task.taskType,
+		condition: task.text,
+		attachments: attachmentIds,
+		optionLabels:
+			task.taskType == this.typesOfAnswers.OPTIONS_ANSWER
+				? task.options
+				: [],
+		optionAnswers:
+			task.taskType == this.typesOfAnswers.OPTIONS_ANSWER
+				? task.answer
+				: [],
+		stringAnswer:
+			task.taskType == this.typesOfAnswers.STRING_ANSWER
+				? task.answer
+				: '',
+		detailedAnswer:
+			task.taskType == this.typesOfAnswers.DETAILED_ANSWER
+				? task.answer
+				: '',
+		maxPoints: parseInt(task.points),
+	};
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
 		{
-			...setHasDetailedTasks,
 			$push: {
-				tasks: {
-					publicId: publicId,
-					taskType: task.type,
-					text: task.text,
-					attachments: attachmentIds,
-					options: task.options,
-					stringAnswer: task.stringAnswer,
-					detailedAnswer: task.detailedAnswer,
-					maxPoints: parseInt(task.points),
-				},
+				tasks: taskDocument,
 			},
 			$inc: {
 				homeworkMaxPoints: parseInt(task.points),
@@ -317,9 +386,9 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 HomeworkService.removeTask = async function (homeworkPublicId, taskPublicId) {
 	await HomeworkModel.findOne(
 		{ publicId: homeworkPublicId },
-		'solutions'
+		'receivedStudents'
 	).then((result) => {
-		if (result.solutions.length) {
+		if (result.receivedStudents.length) {
 			throw Error(
 				"You can't remove task from the homework someone has received"
 			);
@@ -329,29 +398,45 @@ HomeworkService.removeTask = async function (homeworkPublicId, taskPublicId) {
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
 		{ $pull: { tasks: { publicId: taskPublicId } } }
-	).then((document) => {
-		if (!document) throw Error('Task not found');
-	});
+	)
+		.select('tasks')
+		.then((document) => {
+			if (!document.tasks) throw Error('Task not found');
+		});
 };
 
 HomeworkService.removeStudent = async function (
 	studentPublicId,
 	homeworkPublicId
 ) {
-	await StudentModel.findOne({ publicId: studentPublicId }).then(
-		(document) => {
-			if (document.hasSolution) {
-				throw Error('This user already has solution');
-			}
+	const homeworkId = await HomeworkModel.findOneAndUpdate(
+		{
+			publicId: homeworkPublicId,
+		},
+		{
+			$pull: { receivedStudents: { studentPublicId } },
 		}
-	);
+	).then(async (document) => {
+		const removedDocument = document.receivedStudents.filter((item) => {
+			if (item.studentPublicId == studentPublicId) {
+				return item;
+			}
+		})[0];
+		if (!removedDocument) {
+			throw Error("This user hasn't received this homework");
+		}
+		if (removedDocument.hasSolution) {
+			const { solutionId } = removedDocument;
+			await HomeworkModel.findOneAndUpdate(
+				{ publicId: homeworkPublicId },
+				{ $pull: { solutions: { _id: solutionId } } }
+			);
+		}
+		return document._id;
+	});
 	await StudentModel.findOneAndUpdate(
 		{ publicId: studentPublicId },
-		{ $pull: { homeworks: { homeworkPublicId } } }
-	);
-	await HomeworkModel.findOneAndUpdate(
-		{ publicId: homeworkPublicId },
-		{ $pull: { receivedStudents: { studentPublicId } } }
+		{ $pull: { homeworks: { homeworkId } } }
 	);
 };
 
@@ -369,29 +454,26 @@ HomeworkService.removeGroup = async function (groupPublicId, homeworkPublicId) {
 HomeworkService.removeHomework = async function (homeworkPublicId) {
 	const homeworkDocument = await HomeworkModel.findOne({
 		publicId: homeworkPublicId,
-	}).select('receivedStudents receivedGroups creatorPublicId attachments');
+	}).select('receivedStudents receivedGroups creatorId attachments');
 	const attachments = homeworkDocument.attachments;
+	const creatorId = homeworkDocument.creatorId;
+	const homeworkId = homeworkDocument._id;
 	attachments.map(async (attachmentId) => {
 		await FilesService.removeFile(attachmentId);
 	});
 	const students = homeworkDocument.receivedStudents;
 	students.map(async (student) => {
-		await HomeworkService.removeStudent(
-			student.studentPublicId,
-			homeworkPublicId
-		);
+		await HomeworkService.removeStudent(student.studentId, homeworkId);
 	});
-	const groups = homeworkDocument.receivedGroups;
+	/*const groups = homeworkDocument.receivedGroups;
 	groups.map(async (group) => {
 		await HomeworkService.removeGroup(
 			group.groupPublicId,
 			homeworkPublicId
 		);
-	});
-	const creatorPublicId = homeworkDocument.creatorPublicId;
-	const homeworkId = homeworkDocument._id;
+	});*/
 	await TeacherModel.findOneAndUpdate(
-		{ publicId: creatorPublicId },
+		{ _id: creatorId },
 		{
 			$pull: { homeworks: homeworkId },
 		}
@@ -503,14 +585,14 @@ HomeworkService.addSolutionByStudent = async function (
 			tasks.map((task, index) => {
 				let pointsForAnswer = 0;
 				switch (task.taskType) {
-					case 1:
+					case this.typesOfAnswers.OPTIONS_ANSWER:
 						pointsForAnswer = checkOptionsAnswer(
 							studentAnswers[index],
 							task.options,
 							task.maxPoints
 						);
 						break;
-					case 2:
+					case this.typesOfAnswers.STRING_ANSWER:
 						pointsForAnswer = checkStringAnswer(
 							studentAnswers[index],
 							task.stringAnswer,
@@ -521,11 +603,17 @@ HomeworkService.addSolutionByStudent = async function (
 				totalPoints += pointsForAnswer;
 				solutionDocument.answers.push({
 					detailedAnswer:
-						task.taskType == 3 ? studentAnswers[index] : null,
+						task.taskType == this.typesOfAnswers.DETAILED_ANSWER
+							? studentAnswers[index]
+							: null,
 					stringAnswer:
-						task.taskType == 2 ? studentAnswers[index] : null,
+						task.taskType == this.typesOfAnswers.STRING_ANSWER
+							? studentAnswers[index]
+							: null,
 					optionAnswers:
-						task.taskType == 1 ? studentAnswers[index] : null,
+						task.taskType == this.typesOfAnswers.OPTIONS_ANSWER
+							? studentAnswers[index]
+							: null,
 					points: pointsForTask,
 				});
 			});
@@ -568,9 +656,9 @@ HomeworkService.getSolutionByStudent = async function (
 		.then(async (result) => {
 			result = result.toObject();
 			var solution = result.soltuions[0];
-			const teacherInfo = await TeacherService.getTeacherInfo(
-				result.creatorId
-			);
+			const teacherInfo = await TeacherService.getTeacherInfo({
+				teacherId: result.creatorId,
+			});
 			if (!result || !solution) {
 				throw Error("Can't find homework / solution");
 			}

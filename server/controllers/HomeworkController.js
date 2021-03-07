@@ -4,22 +4,21 @@ const HomeworkController = {};
 HomeworkController.getListOfHomeworks = async (req, res, next) => {
 	try {
 		const userPublicId = req.user.publicId;
-		const offset = req.query.offset;
-		let previews;
+		const offset = Number.parseInt(req.query.offset);
 		if (req.user.isTeacher) {
-			previews = HomeworkService.getPreviewsByTeacher(
+			var previews = await HomeworkService.getPreviewsByTeacher(
 				userPublicId,
 				offset
 			);
 		} else {
-			previews = HomeworkService.getPreviewsByStudent(
+			var previews = await HomeworkService.getPreviewsByStudent(
 				userPublicId,
 				offset
 			);
 		}
-		return res.status(200).json(previews);
+		return res.status(200).json({previews});
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -28,13 +27,13 @@ HomeworkController.getHomework = async (req, res, next) => {
 		const homeworkPublicId = req.params.homeworkPublicId;
 		let homework;
 		if (req.user.isTeacher) {
-			homework = HomeworkService.getByTeacher(homeworkPublicId);
+			homework = await HomeworkService.getByTeacher(homeworkPublicId);
 		} else {
-			homework = HomeworkService.getByStudent(homeworkPublicId);
+			homework = await HomeworkService.getByStudent(homeworkPublicId);
 		}
 		return res.status(200).json(homework);
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -79,19 +78,17 @@ HomeworkController.addTask = async function (req, res, next) {
 		const {
 			homeworkPublicId,
 			taskType,
-			taskText,
-			taskOptions,
-			taskStringAnswer,
-			taskDetailedAnswer,
-			taskPoints,
+			condition,
+			options,
+			answer,
+			maxPoints,
 		} = req.body;
 		const taskDocument = {
-			type: taskType,
-			text: taskText,
-			options: taskOptions,
-			stringAnswer: taskStringAnswer,
-			detailedAnswer: taskDetailedAnswer,
-			points: taskPoints,
+			taskType,
+			text: condition,
+			options,
+			answer,
+			points: maxPoints,
 		};
 		var taskAttachments = [];
 		if (req.files !== undefined) {
@@ -104,10 +101,9 @@ HomeworkController.addTask = async function (req, res, next) {
 		);
 
 		return res
-			.status(200)
-			.json({ status: 200, message: 'Succesfully added' });
+			.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -122,7 +118,7 @@ HomeworkController.removeTask = async function (req, res, next) {
 		await HomeworkService.removeTask(homeworkPublicId, taskPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 HomeworkController.createHomework = async function (req, res, next) {
@@ -132,7 +128,6 @@ HomeworkController.createHomework = async function (req, res, next) {
 		 * {homeworkTitle, homeworkDescription, homeworkSubject, homeworkAttachments[]}
 		 */
 		const creatorPublicId = req.user.publicId;
-		const creatorId = req.user._id;
 		const homeworkAttachments = req.files ? Object.values(req.files) : [];
 		const homeworkTitle = req.body.title;
 		const homeworkDescription = req.body.description;
@@ -143,12 +138,11 @@ HomeworkController.createHomework = async function (req, res, next) {
 			homeworkDescription,
 			homeworkSubject,
 			creatorPublicId,
-			creatorId,
 			homeworkAttachments
 		);
 		return res.status(200).json({ homeworkPublicId });
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -162,7 +156,7 @@ HomeworkController.removeHomework = async function (req, res, next) {
 		await HomeworkService.removeHomework(homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -173,10 +167,11 @@ HomeworkController.sendHomework = async function (req, res, next) {
 		 */
 		const studentPublicId = req.body.studentPublicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
-		await HomeworkService.sendHomework(studentPublicId, homeworkPublicId);
+		const deadline = req.body.deadline;
+		await HomeworkService.sendHomework(studentPublicId, homeworkPublicId, deadline);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -190,7 +185,7 @@ HomeworkController.removeStudent = async function (req, res, next) {
 		await HomeworkService.removeStudent(studentPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -205,7 +200,7 @@ HomeworkController.addGroup = async function (req, res, next) {
 		HomeworkService.addGroup(groupPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -219,7 +214,7 @@ HomeworkController.removeGroup = async function (req, res, next) {
 		HomeworkService.removeGroup(groupPublicId, homeworkPublicId);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -238,7 +233,7 @@ HomeworkController.sendAnswers = async function (req, res, next) {
 		);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -264,7 +259,7 @@ HomeworkController.getSolution = async function (req, res, next) {
 		}
 		return res.status(200).json(solutionDocument);
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 
@@ -283,7 +278,7 @@ HomeworkController.checkSolution = async function (req, res, next) {
 		);
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 

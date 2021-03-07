@@ -3,77 +3,8 @@ const ApiRouter = express.Router();
 const AuthController = require('../controllers/AuthController');
 const HomeworkController = require('../controllers/HomeworkController');
 const StudentController = require('../controllers/StudentController');
-const { body, check, validationResult } = require('express-validator');
-const TeacherController = require('../controllers/TeacherController');
 const FilesController = require('../controllers/FilesController');
 const UserController = require('../controllers/UserController');
-const { isTeacher } = require('../controllers/AuthController');
-
-const validationRules = (req, res, next) => {
-	body('email')
-		.isEmail()
-		.isLength({ min: 10, max: 30 })
-		.withMessage('Email length should be 10 to 30 characters');
-	body('username', 'Username length should be 8 to 20 characters').isLength({
-		min: 8,
-		max: 20,
-	});
-	body('password')
-		.isLength({
-			min: 8,
-			max: 16,
-		})
-		.withMessage('Password length should be 8 to 16 characters')
-		.matches(/(?=.*\d)/)
-		.withMessage('Password should contain numbers')
-		.matches(/([a-zA-z0-9_-]*)/)
-		.withMessage('Password should contain only letters, numbers, - and _');
-	body('name')
-		.isLength({
-			min: 6,
-			max: 30,
-		})
-		.withMessage('Name length should be 6 to 30 characters')
-		.isAlpha()
-		.withMessage('Name must be alphabetic');
-	check('homeworkPublicId')
-		.isLength(21)
-		.withMessage('PublicId should be 21 character long')
-		.matches(/([a-zA-z0-9_-]*)/)
-		.withMessage('PublicId should contain only letters, numbers, - and _');
-	check('taskPublicId')
-		.isLength(21)
-		.withMessage('PublicId should be 21 character long')
-		.matches(/([a-zA-z0-9_-]*)/)
-		.withMessage('PublicId should contain only letters, numbers, - and _');
-	check('startHomeworkId', 'startHomeworkId should be number > 0').isInt({
-		min: 0,
-	});
-	var errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		res.status(400).json({ status: 400, message: errors.array() }).send();
-		return 0;
-	}
-	next();
-	return 1;
-};
-
-//open routes
-ApiRouter.post('/studentLogin', validationRules, AuthController.student.login);
-ApiRouter.post(
-	'/studentRegistration',
-	validationRules,
-	AuthController.student.register
-);
-
-ApiRouter.post('/teacherLogin', validationRules, AuthController.teacher.login);
-ApiRouter.post(
-	'/teacherRegistration',
-	validationRules,
-	AuthController.teacher.register
-);
-
-ApiRouter.get('/logout', AuthController.logout);
 
 //protected routes
 
@@ -95,7 +26,7 @@ ApiRouter.post(
 );
 
 ApiRouter.post(
-	'/homeworks/createHomework',
+	'/createHomework',
 	AuthController.isTeacher,
 	HomeworkController.createHomework
 );
@@ -107,17 +38,17 @@ ApiRouter.post(
 );
 
 ApiRouter.post(
-	'/homeworks/addTask',
+	'/addTask',
 	AuthController.isTeacher,
 	HomeworkController.addTask
 );
 ApiRouter.post(
-	'/homeworks/removeTask',
+	'/removeTask',
 	AuthController.isTeacher,
 	HomeworkController.removeTask
 );
 ApiRouter.post(
-	'/homeworks/sendHomework',
+	'/sendHomework',
 	AuthController.isTeacher,
 	HomeworkController.sendHomework
 );
@@ -127,17 +58,17 @@ ApiRouter.post(
 	HomeworkController.removeGroup
 );
 ApiRouter.post(
-	'/homeworks/addGroup',
+	'/addGroup',
 	AuthController.isTeacher,
 	HomeworkController.addGroup
 );
 ApiRouter.post(
-	'/homeworks/removeStudent',
+	'/removeStudent',
 	AuthController.isTeacher,
 	HomeworkController.removeStudent
 );
 ApiRouter.post(
-	'/api/sendAnswers',
+	'/sendAnswers',
 	AuthController.isStudent,
 	HomeworkController.sendAnswers
 );
@@ -147,21 +78,15 @@ ApiRouter.get(
 	HomeworkController.getSolution
 );
 ApiRouter.get(
-	'/api/getStudentList',
-	AuthController.isTeacher,
-	StudentController.getListOfStudents
-);
-
-ApiRouter.get(
-	'/students/getStudentsByName',
+	'/getStudentList',
 	AuthController.isTeacher,
 	StudentController.getStudentsByName
 );
 ApiRouter.get(
-	'/students/getStudentProfileByTeacher',
-	AuthController.isTeacher,
-	StudentController.getStudentProfileByTeacher
+	'/getUserInfo/:publicId',
+	AuthController.isStudent,
+	UserController.getInfo
 );
 ApiRouter.get('/upload_files/:fileReference', FilesController.getFile);
-ApiRouter.post('/checkSolution', isTeacher, HomeworkController.checkSolution);
+ApiRouter.post('/checkSolution', AuthController.isTeacher, HomeworkController.checkSolution);
 module.exports = ApiRouter;

@@ -66,6 +66,11 @@ const homeworkSchema = new mongoose.Schema({
 				required: true,
 				default: false,
 			},
+			deadline: {
+				type: Date,
+				required: false,
+				default: 0,
+			},
 		},
 	],
 	//publicids of users who received that homework
