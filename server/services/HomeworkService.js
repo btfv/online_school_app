@@ -452,33 +452,42 @@ HomeworkService.removeGroup = async function (groupPublicId, homeworkPublicId) {
 };
 
 HomeworkService.removeHomework = async function (homeworkPublicId) {
-	const homeworkDocument = await HomeworkModel.findOne({
+	await HomeworkModel.findOne({
 		publicId: homeworkPublicId,
-	}).select('receivedStudents receivedGroups creatorId attachments');
-	const attachments = homeworkDocument.attachments;
-	const creatorId = homeworkDocument.creatorId;
-	const homeworkId = homeworkDocument._id;
-	attachments.map(async (attachmentId) => {
-		await FilesService.removeFile(attachmentId);
-	});
-	const students = homeworkDocument.receivedStudents;
-	students.map(async (student) => {
-		await HomeworkService.removeStudent(student.studentId, homeworkId);
-	});
-	/*const groups = homeworkDocument.receivedGroups;
-	groups.map(async (group) => {
-		await HomeworkService.removeGroup(
-			group.groupPublicId,
-			homeworkPublicId
-		);
-	});*/
-	await TeacherModel.findOneAndUpdate(
-		{ _id: creatorId },
-		{
-			$pull: { homeworks: homeworkId },
-		}
-	);
-	await HomeworkModel.findByIdAndRemove(homeworkId);
+	})
+		.select('receivedStudents receivedGroups creatorId attachments')
+		.then(async (homeworkDocument) => {
+			const attachments = homeworkDocument.attachments;
+			const creatorId = homeworkDocument.creatorId;
+			const homeworkId = homeworkDocument._id;
+			attachments.map(async (attachmentId) => {
+				await FilesService.removeFile(attachmentId);
+			});
+			const students = homeworkDocument.receivedStudents;
+			students.map(async (student) => {
+				await HomeworkService.removeStudent(
+					student.studentPublicId,
+					homeworkPublicId
+				);
+			});
+			/*
+				const groups = homeworkDocument.receivedGroups;
+				groups.map(async (group) => {
+					await HomeworkService.removeGroup(
+						group.groupPublicId,
+						homeworkPublicId
+					);
+				});
+			*/
+			await TeacherModel.findOneAndUpdate(
+				{ _id: creatorId },
+				{
+					$pull: { homeworks: homeworkId },
+				}
+			);
+			await HomeworkModel.findByIdAndRemove(homeworkId);
+		});
+
 	return true;
 };
 

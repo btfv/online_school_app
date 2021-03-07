@@ -32,7 +32,7 @@ ApiRouter.post(
 );
 
 ApiRouter.post(
-	'/homeworks/removeHomework',
+	'/removeHomework',
 	AuthController.isTeacher,
 	HomeworkController.removeHomework
 );
