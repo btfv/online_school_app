@@ -17,7 +17,7 @@ const AuthRouter = require('./routes/AuthRouter');
 const secret = process.env.SECRET_KEY;
 
 var mongoDBaddress = process.env.DATABASE_ADDRESS;
-console.log('Connecting to the ' + mongoDBaddress);
+console.log('Connecting to the database');
 mongoose
 	.connect(mongoDBaddress, {
 		useNewUrlParser: true,

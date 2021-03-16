@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import CustomCard from './CustomCard';
+import HomeworkCard from './HomeworkCard';
 import { connect } from 'react-redux';
 import { solutionListActions } from '../redux/actions/solutionListActions';
 import { CircularProgress } from '@material-ui/core';
@@ -35,7 +35,7 @@ let SolutionList = (props) => {
 	} else {
 		var homeworks = solutionPreviews.map((preview) => {
 			return (
-				<CustomCard
+				<HomeworkCard
 					title={preview.homeworkTitle}
 					description={preview.description}
 					homeworkPublicId={preview.homeworkPublicId}

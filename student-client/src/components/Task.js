@@ -5,7 +5,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { TextField, Checkbox } from 'redux-form-material-ui/src';
-import { Field, FieldArray, reduxForm } from 'redux-form';
+import { Field } from 'redux-form';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -53,11 +53,11 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-let Task = (props) => {
+const Task = (props) => {
 	const classes = useStyles();
 	const { task, taskIndex } = props;
 
-	var optionsForm = (options) => {
+	const optionsForm = (options) => {
 		return (
 			<FormControl
 				required
@@ -66,7 +66,7 @@ let Task = (props) => {
 			>
 				<FormGroup>
 					{options.map((option, index) => {
-						let checkboxName = taskIndex + '.' + index;
+						const checkboxName = task.publicId + '.' + index;
 						return (
 							<FormControlLabel
 								control={
@@ -76,7 +76,7 @@ let Task = (props) => {
 										type='checkbox'
 									/>
 								}
-								label={option.optionText}
+								label={option}
 							/>
 						);
 					})}
@@ -85,11 +85,10 @@ let Task = (props) => {
 		);
 	};
 
-	let stringAnswerForm = () => {
-		let checkboxName = taskIndex;
+	const stringAnswerForm = () => {
 		return (
 			<Field
-				name={taskIndex}
+				name={task.publicId}
 				id='outlined-basic'
 				label='Answer'
 				variant='outlined'
@@ -99,11 +98,10 @@ let Task = (props) => {
 		);
 	};
 
-	let bigAnswerForm = () => {
-		let checkboxName = taskIndex;
+	const bigAnswerForm = () => {
 		return (
 			<Field
-				name={taskIndex}
+				name={task.publicId}
 				id='outlined-basic'
 				label='Answer'
 				variant='outlined'
@@ -118,12 +116,12 @@ let Task = (props) => {
 		<React.Fragment>
 			<Typography variant='h6'>Task #{taskIndex + 1}</Typography>
 			<Typography className={classes.taskText} variant='body1'>
-				{task.text}
+				{task.condition}
 			</Typography>
 			{(function () {
 				switch (task.taskType) {
 					case 1:
-						return optionsForm(task.options);
+						return optionsForm(task.optionLabels);
 					case 2:
 						return stringAnswerForm();
 					case 3:

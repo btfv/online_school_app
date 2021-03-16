@@ -16,7 +16,7 @@ HomeworkController.getListOfHomeworks = async (req, res, next) => {
 				offset
 			);
 		}
-		return res.status(200).json({previews});
+		return res.status(200).json(previews);
 	} catch (error) {
 		return res.status(400).json({ error: error.message });
 	}
@@ -223,13 +223,13 @@ HomeworkController.sendAnswers = async function (req, res, next) {
 		/**
 		 * {studentPublicId, studentId, studentName, homeworkPublicId, formValues}
 		 */
-		const studentId = req.user._id;
+		const studentPublicId = req.user.publicId;
 		const answers = req.body.answers;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		await HomeworkService.addSolutionByStudent(
 			homeworkPublicId,
 			answers,
-			studentId
+			studentPublicId
 		);
 		return res.status(200).send();
 	} catch (error) {

@@ -1,5 +1,6 @@
 import { homeworkConstants } from '../constants';
 import { homeworkService } from '../services/homeworkService';
+import { history } from '../store';
 
 export const homeworkActions = {
 	getHomework,
@@ -32,13 +33,15 @@ function getHomework(homeworkPublicId) {
 }
 
 function sendSolution(values, dispatch, props) {
-	let homeworkPublicId = props.homework.publicId;
+	const homeworkPublicId = props.homework.publicId;
 	return (dispatch) => {
 		dispatch(request());
 		homeworkService.sendSolution(values, homeworkPublicId).then(
-			(homeworkDocument) => {
+			() => {
 				dispatch(success());
-				history.push('/dashboard');
+				setTimeout(() => {
+					history.push('/dashboard');
+				}, 1200);
 			},
 			(error) => {
 				dispatch(failure(error.toString()));

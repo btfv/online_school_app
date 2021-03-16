@@ -1,5 +1,5 @@
 import { userService } from './userService';
-import { userActions } from '../actions/userActions';
+
 export default function handleResponse(response) {
 	return response.text().then((text) => {
 		const data = text && JSON.parse(text);

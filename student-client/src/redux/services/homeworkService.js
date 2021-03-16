@@ -1,5 +1,5 @@
 import config from '../../config';
-import handleResponse from './handleResponse'
+import handleResponse from './handleResponse';
 
 export const homeworkService = {
 	getHomework,
@@ -12,11 +12,13 @@ function getHomework(homeworkPublicId) {
 		mode: 'cors',
 		credentials: 'include',
 	};
-	let reqUrl =
-		'/api/homeworks/getByStudent?homeworkPublicId=' + homeworkPublicId;
+	let reqUrl = '/api/getHomework/' + homeworkPublicId;
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }
 function sendSolution(values, homeworkPublicId) {
+	const answers = Object.entries(values).map(([key, value]) => {
+		return { taskPublicId: key, answer: value };
+	});
 	const requestOptions = {
 		method: 'POST',
 		headers: {
@@ -25,8 +27,8 @@ function sendSolution(values, homeworkPublicId) {
 		},
 		mode: 'cors',
 		credentials: 'include',
-		body: JSON.stringify({ formValues: values, homeworkPublicId }),
+		body: JSON.stringify({ answers, homeworkPublicId }),
 	};
-	let reqUrl = '/api/homeworks/addSolutionByStudent';
+	const reqUrl = '/api/sendAnswers/';
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }

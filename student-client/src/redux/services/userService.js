@@ -20,7 +20,7 @@ function login(value) {
 		credentials: 'include',
 		body: JSON.stringify({ username, password }),
 	};
-	return fetch(config.API_URL + '/api/login', requestOptions)
+	return fetch(config.API_URL + '/auth/studentLogin', requestOptions)
 		.then(handleLoginResponse)
 		.then((user) => {
 			localStorage.setItem('user', JSON.stringify(user));
@@ -46,6 +46,6 @@ function changePassword(value) {
 		credentials: 'include',
 		body: reqBody,
 	};
-	const reqUrl = config.API_URL + '/api/student/changePassword';
+	const reqUrl = config.API_URL + '/user/changePassword';
 	return fetch(reqUrl, requestOptions).then(handleResponse);
 }

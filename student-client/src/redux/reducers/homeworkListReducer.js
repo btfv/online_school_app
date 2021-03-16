@@ -14,7 +14,7 @@ export default function homeworkListReducer(state = initialState, action) {
 				loadingHomeworkPreviews: false,
 				loadedHomeworkPreviews: true,
 				homeworkPreviews: state.homeworkPreviews.concat(
-					action.homeworkPreviews
+					action.previews
 				),
 			};
 		case homeworkListConstants.HOMEWORK_LIST_FAILURE:

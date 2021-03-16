@@ -5,6 +5,7 @@ const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
 const FilesService = require('./FilesService');
 const TeacherService = require('./TeacherService');
+const StudentService = require('./StudentService');
 const HomeworkService = {};
 
 const HOMEWORKS_PER_REQUEST = 6;
@@ -76,7 +77,7 @@ HomeworkService.getPreviewsByStudent = async function (
 		.select('-_id homeworks')
 		.exec()
 		.then(async (studentDocument) => {
-			return await Promise.all(
+			const previews = await Promise.all(
 				studentDocument.homeworks.map(async (homeworkDocument) => {
 					const homeworkId = homeworkDocument.homeworkId;
 					const homeworkInfo = await HomeworkService.getHomeworkInfo(
@@ -99,6 +100,10 @@ HomeworkService.getPreviewsByStudent = async function (
 					};
 				})
 			);
+			if (!previews.length) {
+				throw Error("You don't have homeworks");
+			}
+			return previews;
 		});
 	return homeworkPreviews;
 };
@@ -108,17 +113,35 @@ HomeworkService.getByStudent = async function (homeworkPublicId) {
 		publicId: homeworkPublicId,
 	})
 		.select(
-			'-_id title subject creatorPublicId creatorName publicId description attachments tasks deadline'
+			'-_id title subject creatorId publicId description attachments tasks deadline'
 		)
 		.then(async (result) => {
-			let attachments = await Promise.all(
+			const attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await FilesService.getFileInfo(attachment);
 				})
 			);
+			const creatorInfo = await TeacherService.getTeacherInfo({
+				teacherId: result.creatorId,
+			});
+			const tasks = result.tasks
+				.toObject()
+				.map(
+					({
+						_id,
+						optionAnswers,
+						detailedAnswer,
+						stringAnswer,
+						number,
+						...task
+					}) => task
+				);
 			return {
 				...result.toObject(),
 				attachments,
+				tasks,
+				creatorName: creatorInfo.name,
+				creatorPublicId: creatorInfo.publicId,
 			};
 		});
 	return homeworkDocument;
@@ -339,8 +362,9 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 			);
 		}
 	});
+	var attachmentIds = [];
 	if (attachments !== 'undefined' && attachments) {
-		var attachmentIds = await Promise.all(
+		attachmentIds = await Promise.all(
 			attachments.map(async (attachment) => {
 				return await FilesService.uploadFile(attachment);
 			})
@@ -542,7 +566,7 @@ HomeworkService.checkSolution = async function (
 HomeworkService.addSolutionByStudent = async function (
 	homeworkPublicId,
 	studentAnswers,
-	studentId
+	studentPublicId
 ) {
 	const checkStringAnswer = (answer, rightAnswer, points) => {
 		if (
@@ -554,29 +578,27 @@ HomeworkService.addSolutionByStudent = async function (
 		return 0;
 	};
 	const checkOptionsAnswer = (answers, rightAnswers, points) => {
-		let mistakes = 0;
+		var mistakes = 0;
 		answers.map((option, index) => {
 			option = option || false;
 			if (option !== rightAnswers[index].isCorrect) {
 				mistakes++;
 			}
 		});
-		if (mistakes) {
-			return 0;
-		}
+		if (mistakes) return 0;
 		return points;
 	};
-	/**
-	 * answers: {publicId, studentId, studentPublicId, answers: [{detailedAnswer, optionAnswer, stringAnswer, attachments}]}
-	 */
 	const solutionPublicId = nanoid();
+	const studentInfo = await StudentService.getStudentInfo({
+		studentPublicId,
+	});
 	var solutionDocument = {
 		publicId: solutionPublicId,
-		studentId,
+		studentId: studentInfo._id,
 	};
 
 	await HomeworkModel.findOne({ publicId: homeworkPublicId })
-		.select('-_id tasks')
+		.select('tasks')
 		.then(async (result) => {
 			const { tasks } = result;
 
@@ -588,43 +610,53 @@ HomeworkService.addSolutionByStudent = async function (
 			if (tasks.length != studentAnswers.length) {
 				throw Error('Count of answers does not match count of tasks');
 			}
-			var totalPoints = 0;
 
+			var totalPoints = 0;
 			solutionDocument.answers = [];
-			tasks.map((task, index) => {
+
+			tasks.map((task) => {
 				let pointsForAnswer = 0;
+
+				const studentAnswer = studentAnswers.filter(
+					(obj) => obj.taskPublicId === task.publicId
+				)[0];
 				switch (task.taskType) {
 					case this.typesOfAnswers.OPTIONS_ANSWER:
+						task.optionAnswers = task.optionAnswers.map(
+							(option) => {
+								return option || false;
+							}
+						);
 						pointsForAnswer = checkOptionsAnswer(
-							studentAnswers[index],
-							task.options,
+							studentAnswer.answer,
+							task.optionAnswers,
 							task.maxPoints
 						);
 						break;
 					case this.typesOfAnswers.STRING_ANSWER:
 						pointsForAnswer = checkStringAnswer(
-							studentAnswers[index],
+							studentAnswer.answer,
 							task.stringAnswer,
 							task.maxPoints
 						);
 						break;
 				}
-				totalPoints += pointsForAnswer;
 				solutionDocument.answers.push({
 					detailedAnswer:
 						task.taskType == this.typesOfAnswers.DETAILED_ANSWER
-							? studentAnswers[index]
+							? studentAnswer.answer
 							: null,
 					stringAnswer:
 						task.taskType == this.typesOfAnswers.STRING_ANSWER
-							? studentAnswers[index]
+							? studentAnswer.answer
 							: null,
 					optionAnswers:
 						task.taskType == this.typesOfAnswers.OPTIONS_ANSWER
-							? studentAnswers[index]
+							? studentAnswer.answer
 							: null,
-					points: pointsForTask,
+					points: pointsForAnswer,
 				});
+				totalPoints += pointsForAnswer;
 			});
 			solutionDocument.totalPoints = totalPoints;
 			await HomeworkModel.findOneAndUpdate(
@@ -632,7 +664,7 @@ HomeworkService.addSolutionByStudent = async function (
 					_id: result._id,
 					receivedStudents: {
 						$elemMatch: {
-							studentId,
+							studentId: studentInfo._id,
 						},
 					},
 				},
@@ -643,7 +675,30 @@ HomeworkService.addSolutionByStudent = async function (
 						'receivedStudents.$.solutionPublicId': solutionPublicId,
 					},
 				}
-			);
+			).then((result) => {
+				if (!result) {
+					throw Error('Homework not found');
+				}
+			});
+			await StudentModel.findOneAndUpdate(
+				{
+					_id: studentInfo._id,
+					homeworks: {
+						$elemMatch: {
+							homeworkId: result._id,
+						},
+					},
+				},
+				{
+					$set: {
+						'homeworks.$.hasSolution': true,
+					},
+				}
+			).then((result) => {
+				if (!result) {
+					throw Error('User not found');
+				}
+			});
 		});
 	return true;
 };

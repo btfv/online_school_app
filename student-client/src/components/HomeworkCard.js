@@ -27,23 +27,25 @@ const useStyles = makeStyles({
 	},
 });
 
-export default function CustomCard(props) {
+export default function HomeworkCard(props) {
 	const classes = useStyles();
-
 	const {
 		title,
 		description,
 		solutionPublicId,
 		homeworkPublicId,
 		subject,
+		creatorName,
+		creatorPublicId,
 	} = props;
-	const homeworkHref = '/dashboard/homework/' + homeworkPublicId;
-	const solutionHref =
-		'/dashboard/homework/' +
-		homeworkPublicId +
-		'/solution/' +
-		solutionPublicId;
-	const isSolution = Boolean(solutionPublicId);
+	const hasSolution = Boolean(props.hasSolution);
+	const isChecked = Boolean(props.isChecked);
+	const homeworkHref = !hasSolution
+		? '/dashboard/homework/' + homeworkPublicId
+		: '/dashboard/homework/' +
+		  homeworkPublicId +
+		  '/solution/' +
+		  solutionPublicId;
 
 	return (
 		<Card className={classes.root} variant='outlined'>
@@ -53,13 +55,13 @@ export default function CustomCard(props) {
 					color='textSecondary'
 					gutterBottom
 				>
-					{isSolution ? 'Solution' : 'Homework'}
+					{subject}
 				</Typography>
 				<Typography variant='h5' component='h2'>
 					{title}
 				</Typography>
 				<Typography className={classes.pos} color='textSecondary'>
-					{subject}
+					by {creatorName}
 				</Typography>
 				<Typography variant='body2' component='p'>
 					{description}
@@ -69,9 +71,12 @@ export default function CustomCard(props) {
 				<Button
 					size='small'
 					component={Link}
-					to={isSolution ? solutionHref : homeworkHref}
+					to={homeworkHref}
+					disabled={hasSolution && !isChecked}
 				>
-					Open {isSolution ? 'Solution' : 'Homework'}
+					{hasSolution && !isChecked
+						? 'Checking...'
+						: 'Open ' + (hasSolution ? 'Solution' : 'Homework')}
 				</Button>
 			</CardActions>
 		</Card>

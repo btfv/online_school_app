@@ -16,8 +16,8 @@ function getListOfHomeworks(startHomeworkId) {
 	return (dispatch) => {
 		dispatch(request());
 		homeworkListService.getListOfHomeworks(startHomeworkId).then(
-			(homeworkPreviews) => {
-				dispatch(success(homeworkPreviews));
+			(previews) => {
+				dispatch(success(previews));
 			},
 			(error) => {
 				dispatch(failure(error.toString()));
@@ -28,10 +28,10 @@ function getListOfHomeworks(startHomeworkId) {
 	function request() {
 		return { type: homeworkListConstants.HOMEWORK_LIST_REQUEST };
 	}
-	function success(homeworkPreviews) {
+	function success(previews) {
 		return {
 			type: homeworkListConstants.HOMEWORK_LIST_SUCCESS,
-			homeworkPreviews,
+			previews,
 		};
 	}
 	function failure(error) {

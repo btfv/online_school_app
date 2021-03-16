@@ -20,9 +20,7 @@ export const initialState = {
 	},
 	homeworkReducer: {
 		gettingHomework: false,
-		homework: {},
 		sendingSolution: false,
-		firstAttempt: false,
 	},
 	solutionListReducer: {
 		solutionPreviews: [],
@@ -32,6 +30,7 @@ export const initialState = {
 	solutionReducer: {
 		gettingSolution: false,
 		solution: {},
+		solutionSended: false,
 		firstAttempt: false,
 	},
 };
