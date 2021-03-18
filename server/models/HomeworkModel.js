@@ -56,11 +56,6 @@ const homeworkSchema = new mongoose.Schema({
 				required: false,
 				default: null,
 			},
-			isChecked: {
-				type: Boolean,
-				required: true,
-				default: false,
-			},
 			deadline: {
 				type: Date,
 				required: false,

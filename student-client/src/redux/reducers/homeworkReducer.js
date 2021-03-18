@@ -22,6 +22,9 @@ export default function homeworkReducer(state = initialState, action) {
 		case homeworkConstants.SEND_SOLUTION_FAILURE:
 			return { ...state, error: action.error, sendingSolution: false };
 
+		case homeworkConstants.CLEAR_HOMEWORK:
+			return { ...initialState };
+
 		case homeworkConstants.CLEAR_ERROR:
 			return { ...state, error: null };
 		default:

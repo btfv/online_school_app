@@ -516,25 +516,64 @@ HomeworkService.removeHomework = async function (homeworkPublicId) {
 };
 
 HomeworkService.checkSolution = async function (
-	solutionPublicId,
 	homeworkPublicId,
+	solutionPublicId,
 	comments
 ) {
 	await HomeworkModel.findOneAndUpdate(
-		{ publicId: homeworkPublicId, 'solutions.publicId': solutionPublicId },
+		{
+			publicId: homeworkPublicId,
+			'solutions.publicId': solutionPublicId,
+		},
 		{
 			$set: {
 				'solutions.$.isChecked': true,
+				'solutions.$.totalPoints': 0,
 			},
 		}
 	)
-		.select({ solutions: { $elemMatch: { publicId: solutionPublicId } } })
+		.select('solutions')
 		.then(async (result) => {
-			const studentId = result.solutions[0].studentId;
-			await StudentModel.findOneAndUpdate(
+			if (!result) {
+				throw Error("Can't find homework");
+			}
+			const solution = result.solutions[0];
+			if (!solution) {
+				throw Error("Can't find solution");
+			}
+			await Promise.all(
+				comments.map(async (comment) => {
+					await HomeworkModel.updateOne(
+						{
+							publicId: homeworkPublicId,
+						},
+						{
+							$set: {
+								'solutions.$[i].answers.$[j].comment':
+									comment.comment,
+								'solutions.$[i].answers.$[j].points':
+									comment.points,
+							},
+							$inc: {
+								'solutions.$[i].totalPoints': parseInt(
+									comment.points
+								),
+							},
+						},
+						{
+							arrayFilters: [
+								{ 'i.publicId': solutionPublicId },
+								{ 'j.publicId': comment.answerPublicId },
+							],
+						}
+					);
+				})
+			);
+			const studentId = solution.studentId;
+			await StudentModel.updateOne(
 				{
 					_id: studentId,
-					'homeworks.homeworkPublicId': homeworkPublicId,
+					'homeworks.homeworkId': result._id,
 				},
 				{
 					$set: {
@@ -543,23 +582,7 @@ HomeworkService.checkSolution = async function (
 					},
 				}
 			);
-			comments.map(async (comment) => {
-				await HomeworkModel.findOneAndUpdate(
-					{
-						publicId: homeworkPublicId,
-						'solutions.publicId': solutionPublicId,
-						'solutions.answers.publicId': comment.answerPublicId,
-					},
-					{
-						$set: {
-							'solutions.$.$.comment': comment.comment,
-							'solutions.$.$.points': comment.points,
-						},
-					}
-				);
-			});
 		});
-
 	return true;
 };
 
@@ -588,10 +611,11 @@ HomeworkService.addSolutionByStudent = async function (
 		if (mistakes) return 0;
 		return points;
 	};
-	const solutionPublicId = nanoid();
+
 	const studentInfo = await StudentService.getStudentInfo({
 		studentPublicId,
 	});
+	const solutionPublicId = nanoid();
 	var solutionDocument = {
 		publicId: solutionPublicId,
 		studentId: studentInfo._id,
@@ -610,6 +634,19 @@ HomeworkService.addSolutionByStudent = async function (
 			if (tasks.length != studentAnswers.length) {
 				throw Error('Count of answers does not match count of tasks');
 			}
+
+			await StudentModel.findOne({
+				_id: studentInfo._id,
+				homeworks: {
+					$elemMatch: {
+						homeworkId: result._id,
+					},
+				},
+			}).then((document) => {
+				if (document.homeworks[0].hasSolution) {
+					throw Error('You already have solution!');
+				}
+			});
 
 			var totalPoints = 0;
 			solutionDocument.answers = [];
@@ -655,6 +692,7 @@ HomeworkService.addSolutionByStudent = async function (
 							? studentAnswer.answer
 							: null,
 					points: pointsForAnswer,
+					publicId: nanoid(),
 				});
 				totalPoints += pointsForAnswer;
 			});

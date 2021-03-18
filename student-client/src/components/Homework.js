@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/Check';
+import { homeworkListActions } from '../redux/actions/homeworkListActions';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -80,22 +81,15 @@ var Homework = (props) => {
 		sendingSolution,
 		getHomework,
 		solutionSended,
+		clearHomeworkList,
 	} = props;
 	const { publicId } = props.match.params;
 	const classes = useStyles();
 
 	if (solutionSended) {
-		return (
-			<div className={classes.root}>
-				<div className={classes.centerCircle}>
-					<Fab aria-label='save' color='primary'>
-						{<CheckIcon />}
-					</Fab>
-				</div>
-			</div>
-		);
+		clearHomeworkList();
 	}
-	if (!gettingHomework && !homework) {
+	if (!gettingHomework && !homework && !solutionSended) {
 		getHomework(publicId);
 		return (
 			<div className={classes.root}>
@@ -114,107 +108,116 @@ var Homework = (props) => {
 			</div>
 		);
 	}
-	return (
-		<React.Fragment>
-			<CssBaseline />
-			<main>
-				{/* Hero unit */}
-				<div className={classes.heroContent}>
-					<div className={classes.backLink}>
-						<IconButton component={Link} to='/dashboard/homeworks'>
-							<ArrowBackIosIcon
-								fontSize='large'
-								className={classes.arrowIcon}
-							/>
-						</IconButton>
-					</div>
-					<Container maxWidth='sm'>
-						<Typography
-							component='h2'
-							variant='h3'
-							align='center'
-							color='textPrimary'
-							gutterBottom
-						>
-							{homework.title}
-						</Typography>
-						<Typography
-							variant='h5'
-							align='center'
-							color='textSecondary'
-							paragraph
-						>
-							{homework.description}
-						</Typography>
-						<Typography
-							variant='body1'
-							align='center'
-							color='textSecondary'
-							paragraph
-						>
-							Created by {homework.creatorName}
-						</Typography>
-						<div className={classes.heroButtons}>
-							{homework.attachments.map((attachment) => {
-								return (
-									<AttachmentPanel
-										name={attachment.name}
-										reference={attachment.reference}
-									/>
-								);
-							})}
+	if (homework)
+		return (
+			<React.Fragment>
+				<CssBaseline />
+				<main>
+					{/* Hero unit */}
+					<div className={classes.heroContent}>
+						<div className={classes.backLink}>
+							<IconButton
+								component={Link}
+								to='/dashboard/homeworks'
+							>
+								<ArrowBackIosIcon
+									fontSize='large'
+									className={classes.arrowIcon}
+								/>
+							</IconButton>
 						</div>
-						<div className={classes.tasks}>
-							<Typography variant='h4' align='center' paragraph>
-								Tasks
+						<Container maxWidth='sm'>
+							<Typography
+								component='h2'
+								variant='h3'
+								align='center'
+								color='textPrimary'
+								gutterBottom
+							>
+								{homework.title}
 							</Typography>
-							{!homework.tasks || homework.tasks.length == 0 ? (
+							<Typography
+								variant='h5'
+								align='center'
+								color='textSecondary'
+								paragraph
+							>
+								{homework.description}
+							</Typography>
+							<Typography
+								variant='body1'
+								align='center'
+								color='textSecondary'
+								paragraph
+							>
+								Created by {homework.creatorName}
+							</Typography>
+							<div className={classes.heroButtons}>
+								{homework.attachments.map((attachment) => {
+									return (
+										<AttachmentPanel
+											name={attachment.name}
+											reference={attachment.reference}
+										/>
+									);
+								})}
+							</div>
+							<div className={classes.tasks}>
 								<Typography
-									variant='body1'
-									color='error'
+									variant='h4'
 									align='center'
 									paragraph
 								>
-									There is no tasks
+									Tasks
 								</Typography>
-							) : (
-								''
-							)}
-							<form
-								noValidate
-								onSubmit={handleSubmit(sendSolution)}
-							>
-								<div>
-									{homework.tasks.map((task, index) => {
-										return (
-											<Task
-												taskIndex={index}
-												task={task}
-											/>
-										);
-									})}
-								</div>
-								<Button
-									type='submit'
-									fullWidth
-									variant='contained'
-									color='primary'
-									className={classes.sendHomework}
+								{!homework.tasks ||
+								homework.tasks.length == 0 ? (
+									<Typography
+										variant='body1'
+										color='error'
+										align='center'
+										paragraph
+									>
+										There is no tasks
+									</Typography>
+								) : (
+									''
+								)}
+								<form
+									noValidate
+									onSubmit={handleSubmit(sendSolution)}
 								>
-									Send Homework
-								</Button>
-							</form>
-						</div>
-					</Container>
-				</div>
-			</main>
-			{/* Footer */}
-			<footer className={classes.footer}>
-				<Copyright />
-			</footer>
-			{/* End footer */}
-		</React.Fragment>
-	);
+									<div>
+										{homework.tasks.map((task, index) => {
+											return (
+												<Task
+													taskIndex={index}
+													task={task}
+												/>
+											);
+										})}
+									</div>
+									<Button
+										type='submit'
+										fullWidth
+										variant='contained'
+										color='primary'
+										className={classes.sendHomework}
+									>
+										Send Homework
+									</Button>
+								</form>
+							</div>
+						</Container>
+					</div>
+				</main>
+				{/* Footer */}
+				<footer className={classes.footer}>
+					<Copyright />
+				</footer>
+				{/* End footer */}
+			</React.Fragment>
+		);
 };
 Homework = reduxForm({ form: 'homeworkForm' })(Homework);
 
@@ -238,6 +241,7 @@ const mapStateToProps = (state) => {
 const actionCreators = {
 	getHomework: homeworkActions.getHomework,
 	sendSolution: homeworkActions.sendSolution,
+	clearHomeworkList: homeworkListActions.clearHomeworkList,
 };
 
 export default connect(mapStateToProps, actionCreators)(Homework);

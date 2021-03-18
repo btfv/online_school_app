@@ -6,7 +6,14 @@ export const homeworkActions = {
 	getHomework,
 	sendSolution,
 	clearError,
+	clearHomework,
 };
+
+function clearHomework() {
+	return (dispatch) => {
+		dispatch({ type: homeworkConstants.CLEAR_HOMEWORK });
+	};
+}
 
 function getHomework(homeworkPublicId) {
 	return (dispatch) => {
@@ -39,9 +46,7 @@ function sendSolution(values, dispatch, props) {
 		homeworkService.sendSolution(values, homeworkPublicId).then(
 			() => {
 				dispatch(success());
-				setTimeout(() => {
-					history.push('/dashboard');
-				}, 1200);
+				history.push('/dashboard');
 			},
 			(error) => {
 				dispatch(failure(error.toString()));
