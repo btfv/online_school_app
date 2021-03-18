@@ -9,7 +9,6 @@ import { withSnackbar } from 'notistack';
 import { connect } from 'react-redux';
 import { userActions } from './redux/actions/userActions';
 import { homeworkListActions } from './redux/actions/homeworkListActions';
-import { solutionListActions } from './redux/actions/solutionListActions';
 import { solutionActions } from './redux/actions/solutionActions';
 import { homeworkActions } from './redux/actions/homeworkActions';
 
@@ -20,8 +19,6 @@ let App = (props) => {
 		clearHomeworkListError,
 		clearAuthError,
 		authError,
-		solutionListError,
-		clearSolutionListError,
 		solutionError,
 		clearSolutionError,
 		clearHomeworkError,
@@ -40,13 +37,6 @@ let App = (props) => {
 			autoHideDuration: 5000,
 		});
 		clearHomeworkListError();
-	}
-	if (solutionListError) {
-		enqueueSnackbar(solutionListError, {
-			variant: 'error',
-			autoHideDuration: 3000,
-		});
-		clearSolutionListError();
 	}
 	if (solutionError) {
 		enqueueSnackbar(solutionError, {
@@ -78,7 +68,6 @@ const mapStateToProps = (state) => {
 	return {
 		authError: state.authReducer.error,
 		homeworkListError: state.homeworkListReducer.error,
-		solutionListError: state.solutionListReducer.error,
 		homeworkError: state.homeworkReducer.error,
 		solutionError: state.solutionReducer.error,
 	};
@@ -86,7 +75,6 @@ const mapStateToProps = (state) => {
 const actionCreators = {
 	clearAuthError: userActions.clearError,
 	clearHomeworkListError: homeworkListActions.clearError,
-	clearSolutionListError: solutionListActions.clearError,
 	clearSolutionError: solutionActions.clearError,
 	clearHomeworkError: homeworkActions.clearError,
 };

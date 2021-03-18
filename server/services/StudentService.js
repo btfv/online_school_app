@@ -64,12 +64,12 @@ StudentService.getStudentProfileByTeacher = async function (studentPublicId) {
 };
 
 StudentService.changePassword = async function (
-	userId,
+	studentPublicId,
 	oldPassword,
 	newPassword
 ) {
-	const studentPasswordHash = await StudentModel.findById(
-		userId,
+	const studentPasswordHash = await StudentModel.findOne(
+		{ publicId: studentPublicId },
 		'-_id passwordHash'
 	)
 		.exec()
@@ -84,9 +84,12 @@ StudentService.changePassword = async function (
 		throw Error('Incorrect password');
 	}
 	const passwordHash = await bcrypt.hash(newPassword, passwordHashCost);
-	await StudentModel.findByIdAndUpdate(userId, {
-		passwordHash: passwordHash,
-	});
+	await StudentModel.findOneAndUpdate(
+		{ publicId: studentPublicId },
+		{
+			passwordHash,
+		}
+	);
 };
 
 StudentService.getStudentsByName = async function (name) {

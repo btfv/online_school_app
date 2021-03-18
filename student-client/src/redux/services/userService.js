@@ -46,6 +46,6 @@ function changePassword(value) {
 		credentials: 'include',
 		body: reqBody,
 	};
-	const reqUrl = config.API_URL + '/user/changePassword';
+	const reqUrl = config.API_URL + '/auth/changePassword';
 	return fetch(reqUrl, requestOptions).then(handleResponse);
 }

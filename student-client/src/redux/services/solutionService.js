@@ -12,9 +12,9 @@ function getSolution(homeworkPublicId, solutionPublicId) {
 		credentials: 'include',
 	};
 	let reqUrl =
-		'/api/homeworks/getSolutionByStudent?homeworkPublicId=' +
+		'/api/getSolution/' +
 		homeworkPublicId +
-		'&solutionPublicId=' +
+		'.' +
 		solutionPublicId;
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }

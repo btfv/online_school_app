@@ -40,30 +40,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 let Solution = (props) => {
-	const { solution, gettingSolution, getSolution, firstAttempt } = props;
+	const { solutionData, gettingSolution, getSolution } = props;
 	const { homeworkPublicId, solutionPublicId } = props.match.params;
 	const classes = useStyles();
-	var content = ' ';
 
-	var homeworkMaxPoints = 0;
-
-	if (
-		Object.keys(solution).length == 0 &&
-		!gettingSolution &&
-		!firstAttempt
-	) {
+	if (!solutionData && !gettingSolution) {
 		getSolution(homeworkPublicId, solutionPublicId);
 	}
-	if (Object.keys(solution).length != 0 && !gettingSolution) {
-		let attachments = solution.attachments.map((attachment) => {
-			return (
-				<AttachmentPanel
-					name={attachment.name}
-					reference={attachment.reference}
-				/>
-			);
-		});
-		content = (
+	if (solutionData) {
+		const { solution, homework } = solutionData;
+		return (
 			<React.Fragment>
 				<CssBaseline />
 				<main>
@@ -87,7 +73,7 @@ let Solution = (props) => {
 								color='textSecondary'
 								paragraph
 							>
-								{solution.subject}
+								{homework.subject}
 							</Typography>
 							<Typography
 								component='h2'
@@ -96,7 +82,7 @@ let Solution = (props) => {
 								color='textPrimary'
 								gutterBottom
 							>
-								{solution.title}
+								{homework.title}
 							</Typography>
 							<Typography
 								variant='h5'
@@ -104,10 +90,17 @@ let Solution = (props) => {
 								color='textSecondary'
 								paragraph
 							>
-								{solution.description}
+								{homework.description}
 							</Typography>
 							<div className={classes.heroButtons}>
-								{attachments}
+								{homework.attachments.map((attachment) => {
+									return (
+										<AttachmentPanel
+											name={attachment.name}
+											reference={attachment.reference}
+										/>
+									);
+								})}
 							</div>
 							<div className={classes.tasks}>
 								<Typography
@@ -117,21 +110,27 @@ let Solution = (props) => {
 								>
 									Tasks
 								</Typography>
-								{solution.tasks.map((task, index) => {
-									homeworkMaxPoints += task.maxPoints;
+								{homework.tasks.map((task, index) => {
+									const answer = solution.answers.filter(
+										(answer) => {
+											return (
+												task.publicId ==
+												answer.taskPublicId
+											);
+										}
+									)[0];
 									return (
 										<TaskWithAnswer
 											taskIndex={index}
 											task={task}
-											answer={solution.answers[index]}
+											answer={answer}
 										/>
 									);
 								})}
 							</div>
 							<Typography variant='h6' align='center' paragraph>
 								Totally you get {solution.totalPoints}/
-								{homeworkMaxPoints} points for this
-								homework
+								{homework.homeworkMaxPoints} points for this homework
 							</Typography>
 						</Container>
 					</div>
@@ -144,20 +143,14 @@ let Solution = (props) => {
 			</React.Fragment>
 		);
 	}
-	return (
-		<div>
-			{props.gettingSolution ? <CircularProgress /> : ''}
-			{content}
-		</div>
-	);
+	return <CircularProgress />;
 };
 
 const mapStateToProps = (state) => {
-	const { solution, gettingSolution, firstAttempt } = state.solutionReducer;
+	const { solutionData, gettingSolution } = state.solutionReducer;
 	return {
-		solution,
+		solutionData,
 		gettingSolution,
-		firstAttempt,
 	};
 };
 

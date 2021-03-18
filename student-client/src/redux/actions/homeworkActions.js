@@ -24,6 +24,7 @@ function getHomework(homeworkPublicId) {
 			},
 			(error) => {
 				dispatch(failure(error.toString()));
+				history.push('/dashboard');
 			}
 		);
 	};

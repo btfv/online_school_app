@@ -25,47 +25,17 @@ HomeworkController.getListOfHomeworks = async (req, res, next) => {
 HomeworkController.getHomework = async (req, res, next) => {
 	try {
 		const homeworkPublicId = req.params.homeworkPublicId;
-		let homework;
 		if (req.user.isTeacher) {
-			homework = await HomeworkService.getByTeacher(homeworkPublicId);
+			var homework = await HomeworkService.getByTeacher(homeworkPublicId);
 		} else {
-			homework = await HomeworkService.getByStudent(homeworkPublicId);
+			var homework = await HomeworkService.getByStudent(
+				homeworkPublicId,
+				req.user.publicId
+			);
 		}
 		return res.status(200).json(homework);
 	} catch (error) {
 		return res.status(400).json({ error: error.message });
-	}
-};
-
-HomeworkController.getByStudent = async function (req, res, next) {
-	/**
-	 * {studentPublicId, query:homeworkPublicId}
-	 */
-	try {
-		const studentPublicId = req.user.publicId;
-		const homeworkPublicId = req.query.homeworkPublicId;
-		const homeworkDocuments = await HomeworkService.getByStudent(
-			homeworkPublicId
-		);
-		return res.status(200).json(homeworkDocuments);
-	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
-	}
-};
-
-HomeworkController.getByTeacher = async function (req, res, next) {
-	/**
-	 * {teacherPublicId, query:homeworkPublicId}
-	 */
-	try {
-		const teacherPublicId = req.user.publicId;
-		const homeworkPublicId = req.query.homeworkPublicId;
-		const homeworkDocuments = await HomeworkService.getByTeacher(
-			homeworkPublicId
-		);
-		return res.status(200).json(homeworkDocuments);
-	} catch (error) {
-		return res.status(400).json({ status: 400, error: error.toString() });
 	}
 };
 
@@ -100,8 +70,7 @@ HomeworkController.addTask = async function (req, res, next) {
 			taskAttachments
 		);
 
-		return res
-			.status(200).send();
+		return res.status(200).send();
 	} catch (error) {
 		return res.status(400).json({ error: error.message });
 	}
@@ -168,7 +137,11 @@ HomeworkController.sendHomework = async function (req, res, next) {
 		const studentPublicId = req.body.studentPublicId;
 		const homeworkPublicId = req.body.homeworkPublicId;
 		const deadline = req.body.deadline;
-		await HomeworkService.sendHomework(studentPublicId, homeworkPublicId, deadline);
+		await HomeworkService.sendHomework(
+			studentPublicId,
+			homeworkPublicId,
+			deadline
+		);
 		return res.status(200).send();
 	} catch (error) {
 		return res.status(400).json({ error: error.message });
@@ -245,13 +218,12 @@ HomeworkController.getSolution = async function (req, res, next) {
 		 */
 		const { homeworkPublicId, solutionPublicId } = req.params;
 		var solutionDocument;
-		if(req.user.isTeacher){
+		if (req.user.isTeacher) {
 			solutionDocument = await HomeworkService.getSolutionByTeacher(
 				homeworkPublicId,
 				solutionPublicId
 			);
-		}
-		else {
+		} else {
 			solutionDocument = await HomeworkService.getSolutionByStudent(
 				homeworkPublicId,
 				solutionPublicId
@@ -265,16 +237,12 @@ HomeworkController.getSolution = async function (req, res, next) {
 
 HomeworkController.checkSolution = async function (req, res, next) {
 	try {
-		const {
-			homeworkPublicId,
-			solutionPublicId,
-			comments,
-		} = req.body;
+		const { homeworkPublicId, solutionPublicId, comments } = req.body;
 
 		await HomeworkService.checkSolution(
 			homeworkPublicId,
 			solutionPublicId,
-			comments,
+			comments
 		);
 		return res.status(200).send();
 	} catch (error) {

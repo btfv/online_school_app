@@ -20,12 +20,6 @@ ApiRouter.get(
 );
 
 ApiRouter.post(
-	'/user/changePassword',
-	AuthController.isStudent,
-	UserController.changePassword
-);
-
-ApiRouter.post(
 	'/createHomework',
 	AuthController.isTeacher,
 	HomeworkController.createHomework
@@ -73,7 +67,7 @@ ApiRouter.post(
 	HomeworkController.sendAnswers
 );
 ApiRouter.get(
-	'/homeworks/getSolution/:homeworkPublicId.:solutionPublicId',
+	'/getSolution/:homeworkPublicId.:solutionPublicId',
 	AuthController.isStudent,
 	HomeworkController.getSolution
 );

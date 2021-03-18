@@ -1,6 +1,6 @@
 import { solutionConstants } from '../constants';
 import { solutionService } from '../services/solutionService';
-
+import { history } from '../store'
 export const solutionActions = {
 	getSolution,
 	clearError
@@ -15,6 +15,7 @@ function getSolution(homeworkPublicId, solutionPublicId) {
 			},
 			(error) => {
 				dispatch(failure(error.toString()));
+				history.push('/dashboard');
 			}
 		);
 	};

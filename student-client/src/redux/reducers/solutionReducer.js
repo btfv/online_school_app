@@ -6,13 +6,12 @@ export default function solutionReducer(state = initialState, action) {
 			return {
 				...state,
 				gettingSolution: true,
-				firstAttempt: true,
 			};
 		case solutionConstants.SOLUTION_SUCCESS:
 			return {
 				...state,
 				gettingSolution: false,
-				solution: action.solutionDocument,
+				solutionData: action.solutionDocument,
 			};
 		case solutionConstants.SOLUTION_FAILURE:
 			return {

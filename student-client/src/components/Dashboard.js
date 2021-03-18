@@ -10,7 +10,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import HomeworksList from './HomeworksList';
 import Homework from './Homework';
-import SolutionList from './SolutionList';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -190,14 +189,6 @@ export default function DashboardComponent(props) {
 					>
 						<ListItemText primary='Homeworks' />
 					</ListItem>
-					<ListItem
-						component={NavLink}
-						to={'/dashboard/solutions'}
-						button
-						key='solutions'
-					>
-						<ListItemText primary='Solutions' />
-					</ListItem>
 				</List>
 			</Drawer>
 			<Router history={history}>
@@ -205,10 +196,6 @@ export default function DashboardComponent(props) {
 					<Route
 						path='/dashboard/homeworks'
 						component={HomeworksList}
-					/>
-					<Route
-						path='/dashboard/solutions'
-						component={SolutionList}
 					/>
 					<Route
 						exact

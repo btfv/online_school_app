@@ -37,6 +37,10 @@ const answerSchema = new mongoose.Schema({
 		required: false,
 		default: 0,
 	},
+	taskPublicId: {
+		type: String,
+		required: true,
+	}
 });
 
 module.exports = answerSchema;

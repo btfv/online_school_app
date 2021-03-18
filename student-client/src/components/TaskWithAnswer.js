@@ -32,8 +32,7 @@ const useStyles = makeStyles((theme) => ({
 		transform: 'translateY(-50%)',
 	},
 	formControl: {
-		minWidth: 125,
-		maxWidth: 400,
+		width: 200,
 		display: 'flex',
 		'margin-left': 'auto',
 		'margin-right': 'auto',
@@ -64,31 +63,43 @@ const WrongAnswerCheckbox = withStyles({
 	checked: {},
 })((props) => <Checkbox color='default' {...props} />);
 
-let TaskWithAnswer = (props) => {
+const RightAnswerCheckbox = withStyles({
+	root: {
+		color: '#4caf50',
+		'&$checked': {
+			color: '#4caf50',
+		},
+	},
+	checked: {},
+})((props) => <Checkbox color='default' {...props} />);
+
+const TaskWithAnswer = (props) => {
 	const classes = useStyles();
 	const { task, taskIndex, answer } = props;
-	console.log(task);
-	var optionsForm = (options, answers) => {
-		return options.map((option, index) => {
+
+	var optionsForm = (optionLabels, studentAnswers, rightAnswers) => {
+		return optionLabels.map((option, index) => {
 			return (
 				<FormControlLabel
 					control={(() => {
-						let errorCheckbox = (
-							<WrongAnswerCheckbox checked={option.isCorrect} />
-						);
-						let normalCheckbox = (
-							<Checkbox
-								checked={option.isCorrect}
-								color='primary'
-							/>
-						);
-						if (option.isCorrect != Boolean(answers[index])) {
-							return errorCheckbox;
+						if (
+							rightAnswers[index] !==
+							Boolean(studentAnswers[index])
+						) {
+							return (
+								<WrongAnswerCheckbox
+									checked={rightAnswers[index]}
+								/>
+							);
 						} else {
-							return normalCheckbox;
+							return (
+								<RightAnswerCheckbox
+									checked={rightAnswers[index]}
+								/>
+							);
 						}
 					})()}
-					label={option.optionText}
+					label={option}
 					className={classes.formControl}
 				/>
 			);
@@ -116,40 +127,46 @@ let TaskWithAnswer = (props) => {
 		);
 	};
 
-	let detailedAnswerForm = (userAnswer) => {
+	let detailedAnswerForm = (studentAnswer) => {
 		return (
 			<TextField
 				label='Your answer'
 				color='primary'
-				value={userAnswer}
+				value={studentAnswer}
 				variant='outlined'
 				className={classes.textField}
 				multiline
 			/>
 		);
 	};
-	let content = (task, answer) => {
-		switch (task.taskType) {
-			case 1:
-				return optionsForm(task.options, answer.optionAnswers);
-			case 2:
-				return stringAnswerForm(task.stringAnswer, answer.stringAnswer);
-			case 3:
-				return detailedAnswerForm(answer.detailedAnswer);
-		}
-	};
 	return (
 		<div className={classes.root}>
 			<Typography variant='h6'>Task #{taskIndex + 1}</Typography>
 			<Typography className={classes.taskText} variant='body1'>
-				{task.text}
+				{task.condition}
 			</Typography>
 			<FormGroup className={classes.formControl}>
-				{content(task, answer)}
+				{(() => {
+					switch (task.taskType) {
+						case 1:
+							return optionsForm(
+								task.optionLabels,
+								answer.optionAnswers,
+								task.optionAnswers
+							);
+						case 2:
+							return stringAnswerForm(
+								task.stringAnswer,
+								answer.stringAnswer
+							);
+						case 3:
+							return detailedAnswerForm(answer.detailedAnswer);
+					}
+				})()}
 			</FormGroup>
 			<div className={classes.grade}>
 				<Typography variant='body1'>
-					You get <b>{answer.grade + '/' + task.maxPoints}</b> points
+					You get <b>{answer.points + '/' + task.maxPoints}</b> points
 				</Typography>
 			</div>
 		</div>

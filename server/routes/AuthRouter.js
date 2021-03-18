@@ -2,6 +2,7 @@ const express = require('express');
 const AuthRouter = express.Router();
 const AuthController = require('../controllers/AuthController');
 const { body, check, validationResult } = require('express-validator');
+const UserController = require('../controllers/UserController');
 
 const validationRules = (req, res, next) => {
 	body('email')
@@ -68,5 +69,11 @@ AuthRouter.post(
 );
 
 AuthRouter.get('/logout', AuthController.logout);
+
+AuthRouter.post(
+	'/changePassword',
+	AuthController.isStudent,
+	UserController.changePassword
+);
 
 module.exports = AuthRouter;

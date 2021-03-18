@@ -22,16 +22,9 @@ export const initialState = {
 		gettingHomework: false,
 		sendingSolution: false,
 	},
-	solutionListReducer: {
-		solutionPreviews: [],
-		loadedSolutionPreviews: false,
-		loadingSolutionPreviews: false,
-	},
 	solutionReducer: {
 		gettingSolution: false,
-		solution: {},
 		solutionSended: false,
-		firstAttempt: false,
 	},
 };
 

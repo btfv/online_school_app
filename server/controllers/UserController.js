@@ -4,25 +4,25 @@ const UserController = {};
 
 UserController.changePassword = async function (req, res, next) {
 	try {
-		const userId = req.user._id;
+		const publicId = req.user.publicId;
 		const oldPassword = req.body.oldPassword;
 		const newPassword = req.body.newPassword;
 		if (req.user.isTeacher) {
 			await TeacherService.changePassword(
-				userId,
+				publicId,
 				oldPassword,
 				newPassword
 			);
 		} else {
 			await StudentService.changePassword(
-				userId,
+				publicId,
 				oldPassword,
 				newPassword
 			);
 		}
 		return res.status(200).send();
 	} catch (error) {
-		return res.status(400).json({ error });
+		return res.status(400).json({ error: error.message });
 	}
 };
 

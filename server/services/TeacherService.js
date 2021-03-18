@@ -51,12 +51,12 @@ TeacherService.getTeacherInfo = async (params) => {
 };
 
 TeacherService.changePassword = async function (
-	teacherId,
+	teacherPublicId,
 	oldPassword,
 	newPassword
 ) {
-	const teacherPasswordHash = await TeacherModel.findById(
-		teacherId,
+	const teacherPasswordHash = await TeacherModel.findOne(
+		{ publicId: teacherPublicId },
 		'-_id passwordHash'
 	)
 		.exec()
@@ -71,9 +71,12 @@ TeacherService.changePassword = async function (
 		throw Error('Incorrect password');
 	}
 	const passwordHash = await bcrypt.hash(newPassword, passwordHashCost);
-	await TeacherModel.findByIdAndUpdate(teacherId, {
-		passwordHash: passwordHash,
-	});
+	await TeacherModel.findOneAndUpdate(
+		{ publicId: teacherPublicId },
+		{
+			passwordHash,
+		}
+	);
 };
 
 module.exports = TeacherService;

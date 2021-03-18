@@ -108,14 +108,26 @@ HomeworkService.getPreviewsByStudent = async function (
 	return homeworkPreviews;
 };
 
-HomeworkService.getByStudent = async function (homeworkPublicId) {
-	const homeworkDocument = await HomeworkModel.findOne({
+HomeworkService.getByStudent = async function (
+	homeworkPublicId,
+	studentPublicId
+) {
+	return await HomeworkModel.findOne({
 		publicId: homeworkPublicId,
 	})
 		.select(
-			'-_id title subject creatorId publicId description attachments tasks deadline'
+			'title subject creatorId publicId description attachments tasks deadline'
 		)
 		.then(async (result) => {
+			await StudentModel.findOne({
+				publicId: studentPublicId,
+				'homeworks.homeworkId': result._id,
+				'homeworks.hasSolution': true,
+			}).then((result) => {
+				if (result) {
+					throw Error('You have solution, please, wait for check');
+				}
+			});
 			const attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await FilesService.getFileInfo(attachment);
@@ -144,7 +156,6 @@ HomeworkService.getByStudent = async function (homeworkPublicId) {
 				creatorPublicId: creatorInfo.publicId,
 			};
 		});
-	return homeworkDocument;
 };
 
 HomeworkService.getPreviewsByTeacher = async function (
@@ -371,6 +382,13 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 		);
 	}
 	const publicId = nanoid();
+
+	if (task.options) {
+		task.options = task.options.map((option) => {
+			return option || false;
+		});
+	}
+
 	const taskDocument = {
 		publicId,
 		taskType: task.taskType,
@@ -664,6 +682,11 @@ HomeworkService.addSolutionByStudent = async function (
 								return option || false;
 							}
 						);
+						studentAnswer.answer = studentAnswer.answer.map(
+							(option) => {
+								return option || false;
+							}
+						);
 						pointsForAnswer = checkOptionsAnswer(
 							studentAnswer.answer,
 							task.optionAnswers,
@@ -693,6 +716,7 @@ HomeworkService.addSolutionByStudent = async function (
 							: null,
 					points: pointsForAnswer,
 					publicId: nanoid(),
+					taskPublicId: task.publicId,
 				});
 				totalPoints += pointsForAnswer;
 			});
@@ -752,19 +776,23 @@ HomeworkService.getSolutionByStudent = async function (
 		{ solutions: { $elemMatch: { publicId: solutionPublicId } } }
 	)
 		.select(
-			'-_id tasks homeworkmaxPoints attachments creatorId subject description title attachments'
+			'-_id tasks homeworkMaxPoints attachments creatorId subject description title attachments'
 		)
 		.exec()
 		.then(async (result) => {
 			result = result.toObject();
-			var solution = result.soltuions[0];
+			if (!result) {
+				throw Error("Can't find homework");
+			}
+			var solution = result.solutions[0];
 			const teacherInfo = await TeacherService.getTeacherInfo({
 				teacherId: result.creatorId,
 			});
-			if (!result || !solution) {
-				throw Error("Can't find homework / solution");
+			if (!solution) {
+				throw Error("Can't find solution");
 			}
 			delete solution._id;
+			delete solution.studentId;
 			delete result.solutions;
 			solution.answers = solution.answers.map((answer) => {
 				delete answer._id;
@@ -785,7 +813,6 @@ HomeworkService.getSolutionByStudent = async function (
 					return await FilesService.getFileInfo(attachment);
 				})
 			);
-			result = { ...result, ...solution };
 			return {
 				homework: {
 					title: result.title,
@@ -794,7 +821,10 @@ HomeworkService.getSolutionByStudent = async function (
 					creatorPublicId: teacherInfo.publicId,
 					description: result.description,
 					attachments,
+					tasks: result.tasks,
+					homeworkMaxPoints: result.homeworkMaxPoints,
 				},
+				solution,
 			};
 		});
 	if (!solutionDocument) {
