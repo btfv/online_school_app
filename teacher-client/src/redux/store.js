@@ -21,10 +21,7 @@ export const initialState = {
 	},
 	homeworkReducer: {
 		gettingHomework: false,
-		homework: {},
 		sendingSolution: false,
-		firstAttempt: false,
-		addedTask: false,
 	},
 	solutionListReducer: {
 		solutionPreviews: [],
@@ -32,22 +29,22 @@ export const initialState = {
 		loadingSolutionPreviews: false,
 	},
 	solutionReducer: {
-		gettingSolution: false,
-		solution: {},
-		firstAttempt: false,
+		loadingSolution: false,
+		loadedSolution: false,
 	},
-	studentListReducer: {
+	receivedStudentsReducer: {
 		loadingStudents: false,
 		loadedStudents: false,
-		students: [],
-		receivedStudentsOnClient: [],
+		receivedStudents: [],
+		searchingStudents: false,
+		searchedStudents: false,
+		searchedStudentsList: [],
 	},
 	addHomeworkReducer: {
 		addedHomework: false,
 		addHomework: false,
 	},
 	studentProfileReducer: {
-		profile: {},
 		loadingProfile: false,
 		loadedProfile: false,
 	},

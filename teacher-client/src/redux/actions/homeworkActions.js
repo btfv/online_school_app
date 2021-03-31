@@ -9,7 +9,14 @@ export const homeworkActions = {
 	clearError,
 	removeTask,
 	removeHomework,
+	clearHomework,
 };
+
+function clearHomework() {
+	return (dispatch) => {
+		dispatch({ type: homeworkConstants.CLEAR_HOMEWORK });
+	};
+}
 
 function getHomework(homeworkPublicId) {
 	return (dispatch) => {
@@ -36,7 +43,7 @@ function getHomework(homeworkPublicId) {
 }
 
 function addTask(values, dispatch, props) {
-	const homeworkPublicId = props.homework.publicId;
+	const homeworkPublicId = props.match.params.publicId;
 	return (dispatch) => {
 		dispatch(request());
 		homeworkService.addTask({ ...values, homeworkPublicId }).then(

@@ -13,7 +13,7 @@ import { homeworkListActions } from './redux/actions/homeworkListActions';
 import { solutionListActions } from './redux/actions/solutionListActions';
 import { solutionActions } from './redux/actions/solutionActions';
 import { homeworkActions } from './redux/actions/homeworkActions';
-import { studentListActions } from './redux/actions/studentListActions';
+import { receivedStudentsActions } from './redux/actions/receivedStudentsActions';
 import { addHomeworkActions } from './redux/actions/addHomeworkActions';
 import { studentProfileActions } from './redux/actions/studentProfileActions';
 import SignUp from './components/SignUp';
@@ -30,8 +30,8 @@ let App = (props) => {
 		clearSolutionError,
 		clearHomeworkError,
 		homeworkError,
-		clearStudentListError,
-		studentListError,
+		clearReceivedStudentsError,
+		receivedStudentsError,
 		addHomeworkError,
 		clearAddHomeworkError,
 		studentProfileError,
@@ -72,12 +72,12 @@ let App = (props) => {
 		});
 		clearHomeworkError();
 	}
-	if (studentListError) {
-		enqueueSnackbar(studentListError, {
+	if (receivedStudentsError) {
+		enqueueSnackbar(receivedStudentsError, {
 			variant: 'error',
 			autoHideDuration: 3000,
 		});
-		clearStudentListError();
+		clearReceivedStudentsError();
 	}
 	if (addHomeworkError) {
 		enqueueSnackbar(addHomeworkError, {
@@ -111,9 +111,9 @@ const mapStateToProps = (state) => {
 		authError: state.authReducer.error,
 		homeworkListError: state.homeworkListReducer.error,
 		solutionListError: state.solutionListReducer.error,
+		receivedStudentsError: state.receivedStudentsReducer.error,
 		homeworkError: state.homeworkReducer.error,
 		solutionError: state.solutionReducer.error,
-		studentListError: state.studentListReducer.error,
 		addHomeworkError: state.addHomeworkReducer.error,
 		studentProfileError: state.studentProfileReducer.error,
 	};
@@ -124,7 +124,7 @@ const actionCreators = {
 	clearSolutionListError: solutionListActions.clearError,
 	clearSolutionError: solutionActions.clearError,
 	clearHomeworkError: homeworkActions.clearError,
-	clearStudentListError: studentListActions.clearError,
+	clearReceivedStudentsError: receivedStudentsActions.clearError,
 	clearAddHomeworkError: addHomeworkActions.clearError,
 	clearStudentProfileError: studentProfileActions.clearError,
 };

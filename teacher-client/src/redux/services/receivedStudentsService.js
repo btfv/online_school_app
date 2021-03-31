@@ -1,11 +1,27 @@
 import config from '../../config';
-import { userService } from './userService';
 import handleResponse from './handleResponse';
 
-export const studentListService = {
+export const receivedStudentsService = {
 	getStudentsByName,
-	addStudentToHomework
+	addStudentToHomework,
+	getReceivedStudents,
 };
+function getReceivedStudents(homeworkPublicId, offset) {
+	const requestOptions = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+	};
+	return fetch(
+		config.API_URL +
+			'/api/getReceivedStudents?' +
+			'offset=' +
+			offset +
+			'&homeworkPublicId=' +
+			homeworkPublicId,
+		requestOptions
+	).then(handleResponse);
+}
 function getStudentsByName(name) {
 	const requestOptions = {
 		method: 'GET',
@@ -13,7 +29,7 @@ function getStudentsByName(name) {
 		credentials: 'include',
 	};
 	return fetch(
-		config.API_URL + '/api/students/getStudentsByName?' + 'name=' + name,
+		config.API_URL + '/api/getStudentList?' + 'name=' + name,
 		requestOptions
 	).then(handleResponse);
 }
@@ -31,7 +47,7 @@ function addStudentToHomework(homeworkPublicId, studentPublicId) {
 		body: JSON.stringify(requestBody),
 	};
 	return fetch(
-		config.API_URL + '/api/homeworks/addStudent',
+		config.API_URL + '/api/sendHomework',
 		requestOptions
 	).then(handleResponse);
 }

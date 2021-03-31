@@ -1,5 +1,5 @@
 import config from '../../config';
-import handleResponse from './handleResponse';
+import handleResponse, { handleLoginResponse } from './handleResponse';
 
 export const userService = {
 	login,
@@ -21,8 +21,8 @@ function login(value) {
 		credentials: 'include',
 		body: JSON.stringify({ username, password }),
 	};
-	return fetch(config.API_URL + '/api/teacher/login', requestOptions)
-		.then(handleResponse)
+	return fetch(config.API_URL + '/auth/teacherLogin', requestOptions)
+		.then(handleLoginResponse)
 		.then((user) => {
 			localStorage.setItem('user', JSON.stringify(user));
 			return user;
@@ -42,7 +42,7 @@ function changePassword(value) {
 		credentials: 'include',
 		body: reqBody,
 	};
-	const reqUrl = config.API_URL + '/api/teacher/changePassword';
+	const reqUrl = config.API_URL + '/auth/changePassword';
 	return fetch(reqUrl, requestOptions).then(handleResponse);
 }
 
@@ -71,7 +71,7 @@ function logout() {
 		credentials: 'include',
 	};
 	let reqUrl =
-		'/api/logout';
+		'/auth/logout';
 	fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 	window.location.reload();
 }

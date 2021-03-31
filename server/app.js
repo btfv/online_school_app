@@ -25,7 +25,11 @@ mongoose
 	})
 	.then(() => {
 		console.log('Connected to the database');
-	});
+	})
+	.catch((error) => {
+		console.log('Connection ' + error);
+		process.exit();
+	})
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));

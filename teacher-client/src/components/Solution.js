@@ -14,6 +14,19 @@ import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
 
 const useStyles = makeStyles((theme) => ({
+	root: {
+		'flex-wrap': 'wrap',
+		width: '100%',
+		display: 'flex',
+		'justify-content': 'center',
+	},
+	centerCircle: {
+		position: 'fixed',
+		'align-items': 'center',
+		display: 'flex',
+		padding: 0,
+		height: '90%',
+	},
 	icon: {
 		marginRight: theme.spacing(2),
 	},
@@ -54,29 +67,49 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-let Solution = (props) => {
+const Solution = (props) => {
 	const {
 		solution,
-		gettingSolution,
+		loadingSolution,
 		getSolution,
-
-		firstAttempt,
+		loadedSolution,
+		clearSolution,
 	} = props;
 	const { homeworkPublicId, solutionPublicId } = props.match.params;
 	const classes = useStyles();
-	var content = ' ';
 
-	var homeworkMaxPoints = 0;
-
-	if (
-		Object.keys(solution).length == 0 &&
-		!gettingSolution &&
-		!firstAttempt
-	) {
-		getSolution(homeworkPublicId, solutionPublicId);
+	if (solution && solutionPublicId != solution.publicId) {
+		clearSolution();
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
 	}
-	if (Object.keys(solution).length != 0 && !gettingSolution) {
-		let attachments = solution.attachments.map((attachment) => {
+
+	if (!loadingSolution && !loadedSolution) {
+		getSolution(homeworkPublicId, solutionPublicId);
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
+	}
+	if (loadingSolution) {
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
+	}
+	if (solution) {
+		const attachments = solution.attachments.map((attachment) => {
 			return (
 				<AttachmentPanel
 					name={attachment.name}
@@ -84,7 +117,7 @@ let Solution = (props) => {
 				/>
 			);
 		});
-		content = (
+		return (
 			<React.Fragment>
 				<CssBaseline />
 				<main>
@@ -139,7 +172,6 @@ let Solution = (props) => {
 									Tasks
 								</Typography>
 								{solution.tasks.map((task, index) => {
-									homeworkMaxPoints += task.maxPoints;
 									return (
 										<TaskWithAnswer
 											taskIndex={index}
@@ -151,7 +183,8 @@ let Solution = (props) => {
 							</div>
 							<Typography variant='h6' align='center' paragraph>
 								Totally student gets {solution.totalPoints}/
-								{homeworkMaxPoints} points for this homework
+								{solution.homeworkMaxPoints} points for this
+								homework
 							</Typography>
 						</Container>
 					</div>
@@ -164,25 +197,21 @@ let Solution = (props) => {
 			</React.Fragment>
 		);
 	}
-	return (
-		<div>
-			{props.gettingSolution ? <CircularProgress /> : ''}
-			{content}
-		</div>
-	);
+	return <div></div>;
 };
 
 const mapStateToProps = (state) => {
-	const { solution, gettingSolution, firstAttempt } = state.solutionReducer;
+	const { solution, loadingSolution, loadedSolution } = state.solutionReducer;
 	return {
 		solution,
-		gettingSolution,
-		firstAttempt,
+		loadingSolution,
+		loadedSolution,
 	};
 };
 
 const actionCreators = {
 	getSolution: solutionActions.getSolution,
+	clearSolution: solutionActions.clearSolution,
 };
 
 export default connect(mapStateToProps, actionCreators)(Solution);

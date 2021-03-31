@@ -27,23 +27,17 @@ const useStyles = makeStyles({
 	},
 });
 
-export default function CustomCard(props) {
+export default function HomeworkCard(props) {
 	const classes = useStyles();
-
 	const {
 		title,
 		description,
-		solutionPublicId,
 		homeworkPublicId,
 		subject,
+		creatorName,
+		creatorPublicId,
 	} = props;
 	const homeworkHref = '/dashboard/homework/' + homeworkPublicId;
-	const solutionHref =
-		'/dashboard/homework/' +
-		homeworkPublicId +
-		'/solution/' +
-		solutionPublicId;
-	const isSolution = Boolean(solutionPublicId);
 
 	return (
 		<Card className={classes.root} variant='outlined'>
@@ -53,25 +47,21 @@ export default function CustomCard(props) {
 					color='textSecondary'
 					gutterBottom
 				>
-					{isSolution ? 'Solution' : 'Homework'}
+					{subject}
 				</Typography>
 				<Typography variant='h5' component='h2'>
 					{title}
 				</Typography>
 				<Typography className={classes.pos} color='textSecondary'>
-					{subject}
+					by {creatorName}
 				</Typography>
 				<Typography variant='body2' component='p'>
 					{description}
 				</Typography>
 			</CardContent>
 			<CardActions>
-				<Button
-					size='small'
-					component={Link}
-					to={isSolution ? solutionHref : homeworkHref}
-				>
-					Open {isSolution ? 'Solution' : 'Homework'}
+				<Button size='small' component={Link} to={homeworkHref}>
+					Open homework
 				</Button>
 			</CardActions>
 		</Card>

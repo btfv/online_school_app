@@ -11,15 +11,17 @@ import { Link } from 'react-router-dom';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import { connect } from 'react-redux';
-import { studentListActions } from '../../redux/actions/studentListActions';
+import { receivedStudentsActions } from '../../redux/actions/receivedStudentsActions';
 import {
 	MenuItem,
 	TextField,
 	ListItemText,
 	ListItem,
 	List,
+	CircularProgress,
 } from '@material-ui/core';
 import ReactSelectMaterialUi from 'react-select-material-ui';
+import AddStudentForm from './AddStudentForm';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -43,57 +45,34 @@ let ReceivedStudentsTable = (props) => {
 	const classes = useStyles();
 	const [addStudentFormState, openAddStudentForm] = useState(false);
 	const {
-		handleSubmit,
-		receivedStudents,
 		homeworkPublicId,
-		getStudentsList,
-		getStudentsByName,
+		receivedStudents,
 		loadingStudents,
 		loadedStudents,
-		students,
-		addStudentToHomework,
-		clearStudentList,
-		receivedStudentsOnClient,
+		getReceivedStudents,
 	} = props;
 
-	let addStudentForm = (studentList) => (
-		<form className={classes.form}>
-			<div>
-				<TextField
-					variant='outlined'
-					label='Student Name'
-					onChange={(event) => {
-						let inputValue = event.target.value;
-						if (inputValue.length > 2) {
-							getStudentsByName(inputValue);
-						} else {
-							clearStudentList();
-						}
-					}}
-					className={classes.addStudentFields}
-				/>
-			</div>
-			<div>
-				<div>
-					<List>
-						{studentList.map((student) => (
-							<MenuItem
-								onClick={() => {
-									addStudentToHomework(
-										homeworkPublicId,
-										student.publicId,
-										student.name
-									);
-								}}
-							>
-								{student.name}
-							</MenuItem>
-						))}
-					</List>
+	if (!loadingStudents && !loadedStudents) {
+		const offset = receivedStudents.length;
+		getReceivedStudents(homeworkPublicId, offset);
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
 				</div>
 			</div>
-		</form>
-	);
+		);
+	}
+	if (loadingStudents) {
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<TableContainer component={Paper} className={classes.root}>
 			<Table className={classes.table} aria-label='simple table'>
@@ -106,57 +85,61 @@ let ReceivedStudentsTable = (props) => {
 				</TableHead>
 				<TableBody>
 					{(() => {
-						return receivedStudents.concat(receivedStudentsOnClient).map((student, index) => {
-							if (Object.keys(student).length > 0)
-								return (
-									<TableRow key={'student.' + index}>
-										<TableCell component='th' scope='row'>
+						return receivedStudents.map((student, index) => {
+							return (
+								<TableRow key={'student.' + index}>
+									<TableCell component='th' scope='row'>
+										<Link
+											to={
+												'/dashboard/student/' +
+												student.studentPublicId
+											}
+										>
+											{student.firstname +
+												' ' +
+												student.lastname}
+										</Link>
+									</TableCell>
+									<TableCell align='right'>
+										{student.hasSolution ? '+' : '-'}
+									</TableCell>
+									<TableCell align='right'>
+										{student.hasSolution ? (
 											<Link
 												to={
-													'/dashboard/student/' +
-													student.studentPublicId
+													'/dashboard/homework/' +
+													homeworkPublicId +
+													'/solution/' +
+													student.solutionPublicId
 												}
 											>
-												{student.studentName}
+												Solution
 											</Link>
-										</TableCell>
-										<TableCell align='right'>
-											{student.hasSolution ? '+' : '-'}
-										</TableCell>
-										<TableCell align='right'>
-											{student.hasSolution ? (
-												<Link
-													to={
-														'/dashboard/homework/' +
-														homeworkPublicId +
-														'/solution/' +
-														student.solutionPublicId
-													}
-												>
-													Solution
-												</Link>
-											) : (
-												''
-											)}
-										</TableCell>
-									</TableRow>
-								);
+										) : (
+											''
+										)}
+									</TableCell>
+								</TableRow>
+							);
 						});
 					})()}
 					<TableRow>
 						<TableCell colspan='3' align='center'>
 							<IconButton
 								onClick={() => {
-									//if (!loadedStudents) getStudentsByName(' ');
 									openAddStudentForm(!addStudentFormState);
 								}}
 							>
 								<AddIcon fontSize='large' />
 							</IconButton>
 							<div className={classes.addTaskForm}>
-								{addStudentFormState
-									? addStudentForm(students)
-									: ''}
+								{addStudentFormState ? (
+									<AddStudentForm
+										homeworkPublicId={homeworkPublicId}
+									/>
+								) : (
+									''
+								)}
 							</div>
 						</TableCell>
 					</TableRow>
@@ -168,23 +151,19 @@ let ReceivedStudentsTable = (props) => {
 
 const mapStateToProps = (state) => {
 	const {
-		students,
+		receivedStudents,
 		loadingStudents,
 		loadedStudents,
-		receivedStudentsOnClient,
-	} = state.studentListReducer;
+	} = state.receivedStudentsReducer;
 	return {
-		students,
+		receivedStudents,
 		loadingStudents,
 		loadedStudents,
-		receivedStudentsOnClient,
 	};
 };
 
 const actionCreators = {
-	getStudentsByName: studentListActions.getStudentsByName,
-	addStudentToHomework: studentListActions.addStudentToHomework,
-	clearStudentList: studentListActions.clearStudentList,
+	getReceivedStudents: receivedStudentsActions.getReceivedStudents,
 };
 
 export default connect(mapStateToProps, actionCreators)(ReceivedStudentsTable);

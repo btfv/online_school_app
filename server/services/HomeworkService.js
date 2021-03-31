@@ -5,13 +5,14 @@ const TeacherModel = require('../models/TeacherModel');
 const GroupModel = require('../models/GroupModel');
 const FilesService = require('./FilesService');
 const TeacherService = require('./TeacherService');
-const StudentService = require('./StudentService');
 const HomeworkService = {};
+module.exports = HomeworkService; 
 
 const HOMEWORKS_PER_REQUEST = 6;
 /* how much homeworks can server send per one request */
 const SOLUTIONS_PER_REQUEST = 6;
 /* how much solutions can server send per one request */
+const STUDENTS_PER_REQUEST = 10;
 
 HomeworkService.typesOfAnswers = {
 	OPTIONS_ANSWER: 1,
@@ -47,19 +48,6 @@ HomeworkService.checkStudentPermission = async function (
 	} else {
 		return false;
 	}
-};
-
-HomeworkService.getHomeworkInfo = async (homeworkId) => {
-	const homeworkInfo = await HomeworkModel.findById(
-		homeworkId,
-		'-_id title description creatorId subject publicId'
-	).then((result) => {
-		if (!result) {
-			throw Error("Can't find homework with this homeworkId");
-		}
-		return result;
-	});
-	return homeworkInfo;
 };
 
 HomeworkService.getPreviewsByStudent = async function (
@@ -243,6 +231,7 @@ HomeworkService.getByTeacher = async function (homeworkPublicId) {
 			});
 			return {
 				title: result.title,
+				publicId: homeworkPublicId,
 				subject: result.subject,
 				creatorPublicId: creatorInfo.publicId,
 				creatorName: creatorInfo.name,
@@ -367,6 +356,9 @@ HomeworkService.addTask = async function (homeworkPublicId, task, attachments) {
 		{ publicId: homeworkPublicId },
 		'receivedStudents'
 	).then((result) => {
+		if (!result) {
+			throw Error('Homework not found');
+		}
 		if (result.receivedStudents.length) {
 			throw Error(
 				"You can't add task to the homework someone has received"
@@ -844,12 +836,12 @@ HomeworkService.getSolutionByTeacher = async function (
 		{ solutions: { $elemMatch: { publicId: solutionPublicId } } }
 	)
 		.select(
-			'-_id tasks homeworkmaxPoints attachments creatorName creatorPublicId subject description title'
+			'-_id tasks homeworkMaxPoints attachments creatorName creatorPublicId subject description title'
 		)
 		.exec()
 		.then(async (result) => {
 			result = result.toObject();
-			let solution = result.solutions[0];
+			var solution = result.solutions[0];
 			delete solution._id;
 			delete result.solutions;
 			solution.answers = solution.answers.map((answer) => {
@@ -866,7 +858,7 @@ HomeworkService.getSolutionByTeacher = async function (
 				delete task._id;
 				return task;
 			});
-			let attachments = await Promise.all(
+			const attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await FilesService.getFileInfo(attachment);
 				})
@@ -880,4 +872,46 @@ HomeworkService.getSolutionByTeacher = async function (
 	return solutionDocument;
 };
 
-module.exports = HomeworkService;
+HomeworkService.getReceivedStudents = async (homeworkPublicId, offset) => {
+	return await HomeworkModel.findOne(
+		{ publicId: homeworkPublicId },
+		{
+			receivedStudents: {
+				$slice: [offset, offset + STUDENTS_PER_REQUEST],
+			},
+		}
+	).then(async (homework) => {
+		if (!homework) {
+			throw Error('Homework not found');
+		}
+		var { receivedStudents } = homework.toObject();
+		return await Promise.all(
+			receivedStudents.map(async ({ _id, ...student }) => {
+				const studentInfo = await StudentService.getStudentInfo({
+					includeId: false,
+					studentId: student.studentId,
+				});
+				return {
+					...studentInfo,
+					...student,
+					studentId: undefined,
+					name: undefined,
+				};
+			})
+		);
+	});
+};
+
+HomeworkService.getHomeworkInfo = async (homeworkId) => {
+	return await HomeworkModel.findById(
+		homeworkId,
+		'-_id title description creatorId subject publicId'
+	).then((result) => {
+		if (!result) {
+			throw Error("Can't find homework with this homeworkId");
+		}
+		return result.toObject();
+	});
+};
+
+const StudentService = require('./StudentService');

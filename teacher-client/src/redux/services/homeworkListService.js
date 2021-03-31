@@ -13,9 +13,10 @@ function getListOfHomeworks(startHomeworkId) {
 	};
 	return fetch(
 		config.API_URL +
-			'/api/homeworks/getPreviewsByTeacher?' +
-			'startHomeworkId=' +
-			startHomeworkId,
+			'/api/getListOfHomeworks?' +
+			new URLSearchParams({
+				offset: startHomeworkId,
+			}),
 		requestOptions
 	).then(handleResponse);
 }

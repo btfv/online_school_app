@@ -5,13 +5,12 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TextField from '@material-ui/core/TextField';
-import Task from './Task';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		margin: '20px auto',
 	},
-	bullet: {
+	bulconst: {
 		display: 'inline-block',
 		margin: '0 2px',
 		transform: 'scale(0.8)',
@@ -65,37 +64,42 @@ const WrongAnswerCheckbox = withStyles({
 	checked: {},
 })((props) => <Checkbox color='default' {...props} />);
 
-let TaskWithAnswer = (props) => {
+const TaskWithAnswer = (props) => {
 	const classes = useStyles();
 	const { task, taskIndex, answer } = props;
-	var optionsForm = (options, answers) => {
-		return options.map((option, index) => {
+
+	
+
+	const optionsForm = (labels, rightAnswers, studentAnswers) => {
+		return labels.map((label, index) => {
 			return (
 				<FormControlLabel
 					control={(() => {
-						let errorCheckbox = (
-							<WrongAnswerCheckbox checked={option.isCorrect} />
+						const errorCheckbox = (
+							<WrongAnswerCheckbox
+								checked={rightAnswers[index]}
+							/>
 						);
-						let normalCheckbox = (
+						const normalCheckbox = (
 							<Checkbox
-								checked={option.isCorrect}
+								checked={rightAnswers[index]}
 								color='primary'
 							/>
 						);
-						if (option.isCorrect != Boolean(answers[index])) {
+						if (Boolean(rightAnswers[index]) !== Boolean(studentAnswers[index])) {
 							return errorCheckbox;
 						} else {
 							return normalCheckbox;
 						}
 					})()}
-					label={option.optionText}
+					label={label}
 					className={classes.formControl}
 				/>
 			);
 		});
 	};
 
-	let stringAnswerForm = (rightAnswer, userAnswer) => {
+	const stringAnswerForm = (rightAnswer, userAnswer) => {
 		return (
 			<React.Fragment>
 				<TextField
@@ -116,7 +120,7 @@ let TaskWithAnswer = (props) => {
 		);
 	};
 
-	let detailedAnswerForm = (userAnswer) => {
+	const detailedAnswerForm = (userAnswer) => {
 		return (
 			<TextField
 				label='Your answer'
@@ -128,13 +132,17 @@ let TaskWithAnswer = (props) => {
 			/>
 		);
 	};
-	let content = (task, answer) => {
+	const content = (task, answer) => {
 		if (!answer) {
 			return <Typography variant='body1'>No answer</Typography>;
 		}
 		switch (task.taskType) {
 			case 1:
-				return optionsForm(task.options, answer.optionAnswers);
+				return optionsForm(
+					task.optionLabels,
+					task.optionAnswers,
+					answer.optionAnswers
+				);
 			case 2:
 				return stringAnswerForm(task.stringAnswer, answer.stringAnswer);
 			case 3:
@@ -145,23 +153,21 @@ let TaskWithAnswer = (props) => {
 		<div className={classes.root}>
 			<Typography variant='h6'>Task #{taskIndex + 1}</Typography>
 			<Typography className={classes.taskText} variant='body1'>
-				{task.text}
+				{task.condition}
 			</Typography>
 			<FormGroup className={classes.formControl}>
 				{content(task, answer)}
 			</FormGroup>
 			<div className={classes.grade}>
-				{(() => {
-					if (typeof answer !== 'undefined') {
-						return (
-							<Typography variant='body1'>
-								Student gets{' '}
-								<b>{answer.grade + '/' + task.maxPoints} </b>
-								points
-							</Typography>
-						);
-					}
-				})()}
+				{typeof answer !== 'undefined' ? (
+					<Typography variant='body1'>
+						Student gets{' '}
+						<b>{answer.points + '/' + task.maxPoints} </b>
+						points
+					</Typography>
+				) : (
+					''
+				)}
 			</div>
 		</div>
 	);

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import CustomCard from './CustomCard';
+import HomeworkCard from './HomeworkCard';
 import { connect } from 'react-redux';
 import { homeworkListActions } from '../redux/actions/homeworkListActions';
 import { CircularProgress, Typography } from '@material-ui/core';
@@ -21,41 +21,42 @@ const useStyles = makeStyles({
 	},
 });
 
-let HomeworksList = (props) => {
+const HomeworksList = (props) => {
 	const classes = useStyles();
 	const {
 		homeworkPreviews,
 		loadingHomeworkPreviews,
 		loadedHomeworkPreviews,
+		getListOfHomeworks,
 	} = props;
-	if (homeworkPreviews.length == 0) {
-		if (!loadingHomeworkPreviews && !loadedHomeworkPreviews)
-			props.getListOfHomeworks(0);
-	} else {
-		var homeworks = homeworkPreviews.map((preview) => {
-			return (
-				<CustomCard
-					title={preview.title}
-					description={preview.description}
-					homeworkPublicId={preview.publicId}
-					subject={preview.subject}
-				/>
-			);
-		});
+	if (!loadingHomeworkPreviews && !loadedHomeworkPreviews) {
+		getListOfHomeworks(0);
 	}
-	return (
-		<div className={classes.root}>
-			{loadingHomeworkPreviews ? (
+	if (loadingHomeworkPreviews) {
+		return (
+			<div className={classes.root}>
 				<div className={classes.centerCircle}>
 					<CircularProgress />
 				</div>
-			) : (
-				''
-			)}
-			{homeworks}
-		</div>
-	);
-};
+			</div>
+		);
+	}
+	if (loadedHomeworkPreviews) {
+		const homeworks = homeworkPreviews.map((preview) => {
+			return (
+				<HomeworkCard
+					title={preview.title}
+					description={preview.description}
+					homeworkPublicId={preview.homeworkPublicId}
+					subject={preview.subject}
+					creatorName={preview.creatorName}
+					creatorPublicId={preview.creatorPublicId}
+				/>
+			);
+		});
+		return <div className={classes.root}>{homeworks}</div>;
+	}
+	return <div className={classes.root}></div>;};
 
 const mapStateToProps = (state) => {
 	const {

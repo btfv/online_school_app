@@ -105,6 +105,7 @@ export default function DashboardComponent(props) {
 	const handleDrawerClose = () => {
 		setOpen(false);
 	};
+
 	return (
 		<div className={classes.root}>
 			<AppBar position='static'>

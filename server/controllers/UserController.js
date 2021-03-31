@@ -29,7 +29,7 @@ UserController.changePassword = async function (req, res, next) {
 UserController.getInfo = async (req, res, next) => {
 	try {
 		const userPublicId = req.params.publicId;
-		const isTeacher = (req.query.isTeacher === 'true');
+		const isTeacher = req.query.isTeacher === 'true';
 		if (isTeacher) {
 			var profile = await TeacherService.getTeacherInfo({
 				teacherPublicId: userPublicId,
@@ -39,6 +39,7 @@ UserController.getInfo = async (req, res, next) => {
 			var profile = await StudentService.getStudentInfo({
 				studentPublicId: userPublicId,
 				includeId: false,
+				includeHomeworks: true,
 			});
 		}
 		return res.status(200).json(profile);

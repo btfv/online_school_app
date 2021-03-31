@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -58,24 +58,24 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-let Task = (props) => {
+var Task = (props) => {
 	const classes = useStyles();
 	const { task, taskIndex, removeTask, homeworkPublicId } = props;
 
-	var optionsForm = (options) => {
+	const optionsForm = (labels, answers) => {
 		return (
 			<React.Fragment>
 				<Typography variant='subtitle2'>Answer options:</Typography>
-				{options.map((option) => {
+				{labels.map((label, index) => {
 					return (
 						<FormControlLabel
 							control={
 								<Checkbox
-									checked={option.isCorrect}
+									checked={Boolean(answers[index])}
 									color='primary'
 								/>
 							}
-							label={option.optionText}
+							label={label}
 							className={classes.formControl}
 						/>
 					);
@@ -84,7 +84,7 @@ let Task = (props) => {
 		);
 	};
 
-	let stringAnswerForm = (taskAnswer) => {
+	const stringAnswerForm = (taskAnswer) => {
 		return (
 			<TextField
 				label='Answer'
@@ -95,19 +95,19 @@ let Task = (props) => {
 			/>
 		);
 	};
-	let content = (task) => {
+	const content = (task) => {
 		switch (task.taskType) {
 			case 1:
-				return optionsForm(task.options);
+				return optionsForm(task.options, task.answer);
 			case 2:
-				return stringAnswerForm(task.stringAnswer);
+				return stringAnswerForm(task.answer);
 		}
 	};
 	return (
 		<div className={classes.root}>
 			<Typography variant='h6'>Task #{taskIndex + 1}</Typography>
 			<Typography className={classes.taskText} variant='body1'>
-				{task.text}
+				{task.condition}
 			</Typography>
 			<div>
 				<IconButton

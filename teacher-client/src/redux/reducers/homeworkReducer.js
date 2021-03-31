@@ -6,7 +6,6 @@ export default function homeworkReducer(state = initialState, action) {
 			return {
 				...state,
 				gettingHomework: true,
-				firstAttempt: true,
 				addedTask: false,
 			};
 		case homeworkConstants.HOMEWORK_SUCCESS:
@@ -34,6 +33,9 @@ export default function homeworkReducer(state = initialState, action) {
 		case homeworkConstants.REMOVE_HOMEWORK_FAILURE:
 			return { ...state, error: action.error };
 
+		case homeworkConstants.CLEAR_HOMEWORK:
+			return { ...initialState };
+			
 		case homeworkConstants.CLEAR_ERROR:
 			return { ...state, error: null };
 		default:

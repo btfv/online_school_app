@@ -7,6 +7,7 @@ export const addHomeworkService = {
 
 function addHomework(value) {
 	const reqBody = new FormData();
+	console.log(value);
 	for (let prop in value) {
 		if (prop !== 'homeworkAttachments') reqBody.append(prop, value[prop]);
 	}
@@ -25,7 +26,7 @@ function addHomework(value) {
 		body: reqBody,
 	};
 	return fetch(
-		config.API_URL + '/api/homeworks/addHomework',
+		config.API_URL + '/api/createHomework',
 		requestOptions
 	).then(handleResponse);
 }

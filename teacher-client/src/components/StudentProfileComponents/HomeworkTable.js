@@ -35,6 +35,7 @@ let HomeworkTable = (props) => {
 					<TableRow>
 						<TableCell>Homework Name</TableCell>
 						<TableCell align='right'>Has Solution</TableCell>
+						<TableCell align='right'>Is checked</TableCell>
 						<TableCell align='right'>Solution</TableCell>
 					</TableRow>
 				</TableHead>
@@ -50,18 +51,21 @@ let HomeworkTable = (props) => {
 													homework.homeworkPublicId
 												}
 											>
-												{homework.homeworkTitle}
+												{homework.title}
 											</Link>
 										</TableCell>
 										<TableCell align='right'>
 											{homework.hasSolution ? '+' : '-'}
 										</TableCell>
 										<TableCell align='right'>
-											{homework.hasSolution ? (
+											{homework.isChecked ? '+' : '-'}
+										</TableCell>
+										<TableCell align='right'>
+											{homework.isChecked ? (
 												<Link
 													to={
 														'/dashboard/homework/' +
-														homework.homeworkPublicId +
+														homework.publicId +
 														'/solution/' +
 														homework.solutionPublicId
 													}

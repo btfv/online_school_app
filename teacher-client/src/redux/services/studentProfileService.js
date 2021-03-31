@@ -2,7 +2,7 @@ import config from '../../config';
 import handleResponse from './handleResponse';
 
 export const studentProfileService = {
-	getProfile
+	getProfile,
 };
 
 function getProfile(studentPublicId) {
@@ -10,8 +10,11 @@ function getProfile(studentPublicId) {
 		method: 'GET',
 		mode: 'cors',
 		credentials: 'include',
-    };
-    const reqUrl = config.API_URL + '/api/students/getStudentProfileByTeacher?studentPublicId=' + studentPublicId;
-	return fetch(reqUrl, requestOptions)
-		.then(handleResponse);
+	};
+	const reqUrl =
+		config.API_URL +
+		'/api/getUserInfo/' +
+		studentPublicId +
+		'?isTeacher=false';
+	return fetch(reqUrl, requestOptions).then(handleResponse);
 }

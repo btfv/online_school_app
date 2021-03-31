@@ -30,6 +30,14 @@ function login(value) {
 
 function logout() {
 	localStorage.removeItem('user');
+	const requestOptions = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+	};
+	let reqUrl =
+		'/api/logout';
+	fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 	window.location.reload();
 }
 

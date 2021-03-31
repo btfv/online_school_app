@@ -27,6 +27,12 @@ import BackLink from './BackLink';
 import { homeworkListActions } from '../redux/actions/homeworkListActions';
 
 const useStyles = makeStyles((theme) => ({
+	root: {
+		'flex-wrap': 'wrap',
+		width: '100%',
+		display: 'flex',
+		'justify-content': 'center',
+	},
 	icon: {
 		marginRight: theme.spacing(2),
 	},
@@ -86,40 +92,73 @@ const useStyles = makeStyles((theme) => ({
 		'margin-top': theme.spacing(2),
 		'margin-bottom': theme.spacing(4),
 	},
+	centerCircle: {
+		position: 'fixed',
+		'align-items': 'center',
+		display: 'flex',
+		padding: 0,
+		height: '90%',
+	},
 }));
 
-let Homework = (props) => {
+var Homework = (props) => {
 	const {
 		handleSubmit,
 		homework,
 		gettingHomework,
 		getHomework,
-		firstAttempt,
 		addTask,
 		addedTask,
 		history,
 		removeHomework,
 		clearHomeworkList,
+		clearHomework,
 	} = props;
 	const { publicId } = props.match.params;
 	const classes = useStyles();
-	var content = ' ';
 
 	const [openAddTaskForm, setOpenAddTaskForm] = useState(false);
 	const [addTaskType, setAddTaskType] = useState();
 
-	if (
-		(!gettingHomework && !firstAttempt) ||
-		(homework && homework.publicId != publicId)
-	) {
-		getHomework(publicId);
+	if (homework && publicId !== homework.publicId) {
+		clearHomework();
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
 	}
+
+	if (!gettingHomework && !homework) {
+		getHomework(publicId);
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
+	}
+
+	if (gettingHomework) {
+		return (
+			<div className={classes.root}>
+				<div className={classes.centerCircle}>
+					<CircularProgress />
+				</div>
+			</div>
+		);
+	}
+
 	if (addedTask) {
 		getHomework(publicId);
 		openAddTaskForm ? setOpenAddTaskForm(false) : null;
 	}
-	if (Object.keys(homework).length != 0 && !gettingHomework) {
-		let attachments = homework.attachments.map((attachment) => {
+
+	if (homework) {
+		const attachments = homework.attachments.map((attachment) => {
 			return (
 				<AttachmentPanel
 					name={attachment.name}
@@ -127,7 +166,7 @@ let Homework = (props) => {
 				/>
 			);
 		});
-		let renderOptions = ({ fields }) => (
+		const renderOptions = ({ fields }) => (
 			<div className={classes.options}>
 				<IconButton onClick={() => fields.push({})}>
 					<AddIcon fontSize='small' />
@@ -162,7 +201,7 @@ let Homework = (props) => {
 				))}
 			</div>
 		);
-		let renderStringAnswer = () => (
+		const renderStringAnswer = () => (
 			<Field
 				name='taskStringAnswer'
 				id='outlined-basic'
@@ -172,7 +211,7 @@ let Homework = (props) => {
 				component={TextField}
 			/>
 		);
-		let addTaskForm = (
+		const addTaskForm = (
 			<form onSubmit={handleSubmit(addTask)}>
 				<Field
 					name='taskText'
@@ -231,7 +270,7 @@ let Homework = (props) => {
 				</Button>
 			</form>
 		);
-		content = (
+		return (
 			<React.Fragment>
 				<CssBaseline />
 				<main>
@@ -313,9 +352,8 @@ let Homework = (props) => {
 									Received Students
 								</Typography>
 								<ReceivedStudentsTable
-									receivedStudents={homework.receivedStudents}
 									homeworkPublicId={publicId}
-								/>{' '}
+								/>
 								<Button
 									variant='outlined'
 									color='secondary'
@@ -340,12 +378,7 @@ let Homework = (props) => {
 			</React.Fragment>
 		);
 	}
-	return (
-		<div>
-			{props.gettingHomework ? <CircularProgress /> : ''}
-			{content}
-		</div>
-	);
+	return <div></div>;
 };
 Homework = reduxForm({ form: 'addTaskForm' })(Homework);
 
@@ -369,6 +402,7 @@ const actionCreators = {
 	addTask: homeworkActions.addTask,
 	removeHomework: homeworkActions.removeHomework,
 	clearHomeworkList: homeworkListActions.clearList,
+	clearHomework: homeworkActions.clearHomework,
 };
 
 export default connect(mapStateToProps, actionCreators)(Homework);

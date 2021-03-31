@@ -14,32 +14,33 @@ function getHomework(homeworkPublicId) {
 		mode: 'cors',
 		credentials: 'include',
 	};
-	let reqUrl =
-		'/api/homeworks/getByTeacher?homeworkPublicId=' + homeworkPublicId;
+	let reqUrl = '/api/getHomework/' + homeworkPublicId;
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }
 function addTask(values) {
-	var requestBody = values;
+	var requestBody = {
+		homeworkPublicId: values.homeworkPublicId,
+		maxPoints: parseInt(values.taskPoints),
+		condition: values.taskText,
+	};
 	switch (values.taskType) {
 		case 'options':
 			requestBody.taskType = 1;
-			delete requestBody.taskStringAnswer;
-			requestBody.taskOptions = values.optionList.map((option) => {
-				return {
-					isCorrect: option.optionIsCorrect,
-					optionText: option.optionText,
-				};
+			requestBody.answer = values.optionList.map((option) => {
+				return option.isCorrect;
+			});
+			requestBody.options = values.optionList.map((option) => {
+				return option.optionText;
 			});
 			break;
 		case 'stringAnswer':
 			requestBody.taskType = 2;
+			requestBody.answer = values.taskStringAnswer;
 			break;
 		case 'detailedAnswer':
 			requestBody.taskType = 3;
-			delete requestBody.taskStringAnswer;
 			break;
 	}
-	delete requestBody.optionList;
 	const requestOptions = {
 		method: 'POST',
 		headers: {
@@ -50,7 +51,7 @@ function addTask(values) {
 		credentials: 'include',
 		body: JSON.stringify(requestBody),
 	};
-	let reqUrl = '/api/homeworks/addTask';
+	const reqUrl = '/api/addTask';
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }
 
@@ -82,6 +83,6 @@ function removeHomework(homeworkPublicId) {
 		credentials: 'include',
 		body: JSON.stringify(requestBody),
 	};
-	let reqUrl = '/api/homeworks/removeHomework';
+	let reqUrl = '/api/removeHomework';
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }

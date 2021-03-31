@@ -6,7 +6,7 @@ import homeworkListReducer from './homeworkListReducer';
 import homeworkReducer from './homeworkReducer';
 import solutionListReducer from './solutionListReducer';
 import solutionReducer from './solutionReducer';
-import studentListReducer from './studentListReducer';
+import receivedStudentsReducer from './receivedStudentsReducer';
 import addHomeworkReducer from './addHomeworkReducer';
 import studentProfileReducer from './studentProfileReducer';
 
@@ -19,7 +19,7 @@ const rootReducer = (history) =>
 		homeworkReducer,
 		solutionListReducer,
 		solutionReducer,
-		studentListReducer,
+		receivedStudentsReducer,
 		addHomeworkReducer,
 		studentProfileReducer,
 	});

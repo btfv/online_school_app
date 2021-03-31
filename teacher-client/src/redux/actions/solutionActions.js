@@ -3,8 +3,15 @@ import { solutionService } from '../services/solutionService';
 
 export const solutionActions = {
 	getSolution,
-	clearError
+	clearError,
+	clearSolution,
 };
+
+function clearSolution() {
+	return (dispatch) => {
+		dispatch({ type: solutionConstants.CLEAR_SOLUTION });
+	};
+}
 
 function getSolution(homeworkPublicId, solutionPublicId) {
 	return (dispatch) => {

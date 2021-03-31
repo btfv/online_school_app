@@ -1,27 +1,50 @@
 const bcrypt = require('bcrypt');
+const HomeworkModel = require('../models/HomeworkModel');
 
 const StudentModel = require('../models/StudentModel');
 const passwordHashCost = Number.parseInt(process.env.PASSWORD_HASH_COST, 10);
 
 const StudentService = {};
+module.exports = StudentService;
 
 const COUNT_OF_USERS_IN_QUERY = Number.parseInt(
 	process.env.COUNT_OF_USERS_IN_QUERY
 );
 
 StudentService.getStudentInfo = async (params) => {
-	const { studentId, studentPublicId, includeId = true } = params;
+	const {
+		studentId,
+		studentPublicId,
+		includeId = true,
+		includeHomeworks = false,
+	} = params;
 	if (studentId) {
 		return await StudentModel.findById(
 			studentId,
-			'_id firstname lastname publicId'
+			'_id firstname lastname publicId age' +
+				(includeHomeworks ? ' homeworks' : '')
 		)
 			.exec()
-			.then((result) => {
+			.then(async (result) => {
 				if (!result) {
 					throw Error('User not found');
 				}
 				result = result.toObject();
+				if (includeHomeworks) {
+					result.homeworks = await Promise.all(
+						result.homeworks.map(async (homework) => {
+							var homeworkInfo = await HomeworkService.getHomeworkInfo(
+								homework.homeworkId
+							);
+							return {
+								...homework,
+								homeworkId: undefined,
+								title: homeworkInfo.title,
+								publicId: homeworkInfo.publicId,
+							};
+						})
+					);
+				}
 				if (!includeId) {
 					delete result._id;
 				}
@@ -33,23 +56,49 @@ StudentService.getStudentInfo = async (params) => {
 	} else {
 		return await StudentModel.findOne(
 			{ publicId: studentPublicId },
-			'_id firstname lastname publicId'
+			'-_id firstname lastname publicId age' +
+				(includeHomeworks ? ' homeworks' : '')
 		)
 			.exec()
-			.then((result) => {
+			.then(async (result) => {
 				if (!result) {
 					throw Error('User not found');
 				}
 				result = result.toObject();
-				if (!includeId) {
-					delete result._id;
+				if (includeHomeworks) {
+					var homeworks = await Promise.all(
+						result.homeworks.map(async ({ _id, ...homework }) => {
+							const homeworkInfo = await HomeworkService.getHomeworkInfo(
+								homework.homeworkId
+							);
+							return {
+								...homework,
+								homeworkId: undefined,
+								title: homeworkInfo.title,
+								publicId: homeworkInfo.publicId,
+							};
+						})
+					);
 				}
 				return {
 					...result,
+					homeworks,
 					name: result.firstname + ' ' + result.lastname,
 				};
 			});
 	}
+};
+
+StudentService.getHomeworkInfo = async (homeworkId) => {
+	return await HomeworkModel.findById(
+		homeworkId,
+		'-_id title description creatorId subject publicId'
+	).then((result) => {
+		if (!result) {
+			throw Error("Can't find homework with this homeworkId");
+		}
+		return result.toObject();
+	});
 };
 
 StudentService.getStudentProfileByTeacher = async function (studentPublicId) {
@@ -97,7 +146,12 @@ StudentService.getStudentsByName = async function (name) {
 		throw Error('Too short name');
 	}
 	const userDocuments = await StudentModel.find(
-		{ name: new RegExp(name, 'i') },
+		{
+			$or: [
+				{ firstname: new RegExp(name, 'i') },
+				{ lastname: new RegExp(name, 'i') },
+			],
+		},
 		'-_id firstname lastname publicId'
 	)
 		.limit(COUNT_OF_USERS_IN_QUERY)
@@ -113,4 +167,4 @@ StudentService.getListOfStudents = async function (sliceNumber) {
 	return userDocuments;
 };
 
-module.exports = StudentService;
+const HomeworkService = require('./HomeworkService');
