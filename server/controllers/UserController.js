@@ -48,4 +48,36 @@ UserController.getInfo = async (req, res, next) => {
 	}
 };
 
+UserController.setUserPicture = async (req, res, next) => {
+	try {
+		const file = req.files ? Object.values(req.files)[0] : null;
+		if (!file) {
+			throw Error('There is no file');
+		}
+		if (file.size > 1 * 1024 * 1024) {
+			throw Error('Max file size is 1 megabyte');
+		}
+		if (req.user.isTeacher) {
+			await TeacherService.uploadProfilePicture(req.user.publicId, file);
+		}
+		return res.status(200).send();
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
+UserController.getProfile = async (req, res, next) => {
+	try {
+		const userPublicId = req.user.publicId;
+		const isTeacher = req.user.isTeacher;
+
+		if (isTeacher) {
+			var profile = await TeacherService.getTeacherProfile(userPublicId);
+		}
+		return res.status(200).json(profile);
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
 module.exports = UserController;

@@ -4,11 +4,11 @@ import { connectRouter } from 'connected-react-router';
 import authReducer from './authReducer';
 import homeworkListReducer from './homeworkListReducer';
 import homeworkReducer from './homeworkReducer';
-import solutionListReducer from './solutionListReducer';
 import solutionReducer from './solutionReducer';
 import receivedStudentsReducer from './receivedStudentsReducer';
 import addHomeworkReducer from './addHomeworkReducer';
 import studentProfileReducer from './studentProfileReducer';
+import profileReducer from './profileReducer';
 
 const rootReducer = (history) =>
 	combineReducers({
@@ -17,10 +17,10 @@ const rootReducer = (history) =>
 		authReducer,
 		homeworkListReducer,
 		homeworkReducer,
-		solutionListReducer,
 		solutionReducer,
 		receivedStudentsReducer,
 		addHomeworkReducer,
 		studentProfileReducer,
+		profileReducer,
 	});
 export default rootReducer;

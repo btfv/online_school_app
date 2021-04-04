@@ -25,6 +25,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import ReceivedStudentsTable from './HomeworkComponents/ReceivedStudentsTable';
 import BackLink from './BackLink';
 import { homeworkListActions } from '../redux/actions/homeworkListActions';
+import TaskCarousel from './HomeworkComponents/TaskCarousel';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -307,15 +308,10 @@ var Homework = (props) => {
 									Tasks
 								</Typography>
 								{homework.tasks.length ? (
-									homework.tasks.map((task, index) => {
-										return (
-											<Task
-												homeworkPublicId={publicId}
-												taskIndex={index}
-												task={task}
-											/>
-										);
-									})
+									<TaskCarousel
+										tasks={homework.tasks}
+										homeworkPublicId={publicId}
+									/>
 								) : (
 									<Typography
 										variant='body1'

@@ -3,6 +3,18 @@ const FilesService = require('../services/FilesService');
 
 const FilesController = {};
 
+FilesController.getAvatar = async (req, res, next) => {
+	try {
+		const filePath = path.join(
+			__dirname,
+			'../upload_files/' + req.params.filePath
+		);
+		return res.sendFile(filePath);
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
 FilesController.getFile = async function (req, res, next) {
 	/**
 	 * GET
@@ -17,7 +29,7 @@ FilesController.getFile = async function (req, res, next) {
 		);
 		return res.status(200).download(filePath, fileName);
 	} catch (error) {
-		return res.status(400).json({ error: error.toString() });
+		return res.status(400).json({ error: error.message });
 	}
 };
 

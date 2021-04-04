@@ -1,5 +1,4 @@
 import React from 'react';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { TextField } from '@material-ui/core';
 
 const styles = {
@@ -35,6 +34,7 @@ export const FileInput = ({
 	floatingLabelText,
 	fullWidth,
 	input,
+	multiple,
 	label,
 	meta: { touched, error },
 	...custom
@@ -46,7 +46,7 @@ export const FileInput = ({
 			fullWidth={fullWidth}
 			floatingLabelShrinkStyle={styles.FFS}
 			inputStyle={styles.exampleImageInput}
-			multiple={true}
+			multiple={multiple}
 			type='file'
 			errorText={error}
 			{...input}

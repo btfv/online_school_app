@@ -1,11 +1,23 @@
 const bcrypt = require('bcrypt');
+const { unlink } = require('fs');
+const { nanoid } = require('nanoid');
+const path = require('path');
+const fs = require('fs');
 
 const TeacherModel = require('../models/TeacherModel');
+const FilesService = require('./FilesService');
 const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
 const TeacherService = {};
 
 const COUNT_OF_USERS_IN_QUERY = process.env.COUNT_OF_USERS_IN_QUERY;
+
+TeacherService.getTeacherProfile = async (publicId) => {
+	return await TeacherModel.findOne(
+		{ publicId },
+		'-_id firstname lastname profilePictureRef'
+	).then((result) => result.toObject());
+};
 
 TeacherService.getTeacherInfo = async (params) => {
 	const { teacherId, teacherPublicId, includeId = true } = params;
@@ -76,6 +88,37 @@ TeacherService.changePassword = async function (
 		{
 			passwordHash,
 		}
+	);
+};
+
+TeacherService.uploadProfilePicture = async (teacherPublicId, pictureFile) => {
+	const extension = pictureFile.name.split('.').pop();
+	if (extension !== 'png' && extension !== 'jpg' && extension !== 'jpeg') {
+		throw Error('png, jpg, jpeg formats are available only');
+	}
+	await TeacherModel.findOne(
+		{ publicId: teacherPublicId },
+		'profilePictureRef'
+	).then(async (result) => {
+		if (!result) {
+			throw Error('Teacher not found');
+		}
+		if (result.profilePictureRef) {
+			const filePath = path.join(
+				__dirname,
+				'../upload_files/' + result.profilePictureRef
+			);
+			fs.unlink(filePath, (err) => {
+				if (err) throw Error(err);
+			});
+		}
+	});
+
+	const fileName = nanoid(10) + Date.now().toString() + '.' + extension;
+	await pictureFile.mv('./upload_files/' + fileName);
+	await TeacherModel.findOneAndUpdate(
+		{ publicId: teacherPublicId },
+		{ profilePictureRef: fileName }
 	);
 };
 

@@ -14,21 +14,6 @@ const useStyles = makeStyles((theme) => ({
 	root: {
 		margin: '20px auto',
 	},
-	bullet: {
-		display: 'inline-block',
-		margin: '0 2px',
-		transform: 'scale(0.8)',
-	},
-	title: {
-		fontSize: 14,
-	},
-	pos: {
-		marginBottom: 12,
-	},
-	icon: {
-		margin: 0,
-		display: 'inline-block',
-	},
 	attachmentName: {
 		'margin-left': 5,
 		display: 'inline-block',
@@ -50,11 +35,22 @@ const useStyles = makeStyles((theme) => ({
 		'margin-left': 'auto',
 		'margin-right': 'auto',
 	},
-	taskText: {
-		margin: theme.spacing(2),
+	taskHeader: {
+		'margin-bottom': theme.spacing(1),
+		padding: 0,
+		display: 'inline-flex',
+	},
+	taskHeaderText: {
+		margin: 'auto',
 	},
 	grade: {
 		'margin-top': theme.spacing(2),
+	},
+	condition: {
+		'margin-bottom': theme.spacing(1),
+	},
+	optionsForm: {
+		margin: 'auto',
 	},
 }));
 
@@ -64,7 +60,7 @@ var Task = (props) => {
 
 	const optionsForm = (labels, answers) => {
 		return (
-			<React.Fragment>
+			<div className={classes.optionsForm}>
 				<Typography variant='subtitle2'>Answer options:</Typography>
 				{labels.map((label, index) => {
 					return (
@@ -80,7 +76,7 @@ var Task = (props) => {
 						/>
 					);
 				})}
-			</React.Fragment>
+			</div>
 		);
 	};
 
@@ -105,11 +101,10 @@ var Task = (props) => {
 	};
 	return (
 		<div className={classes.root}>
-			<Typography variant='h6'>Task #{taskIndex + 1}</Typography>
-			<Typography className={classes.taskText} variant='body1'>
-				{task.condition}
-			</Typography>
-			<div>
+			<div class={classes.taskHeader}>
+				<Typography className={classes.taskHeaderText} variant='h6'>
+					Task #{taskIndex + 1}
+				</Typography>
 				<IconButton
 					onClick={() => {
 						removeTask(homeworkPublicId, task.publicId);
@@ -118,6 +113,9 @@ var Task = (props) => {
 					<DeleteIcon />
 				</IconButton>
 			</div>
+			<Typography variant='body1' className={classes.condition}>
+				{task.condition}
+			</Typography>
 			<FormGroup className={classes.formControl}>
 				{content(task)}
 			</FormGroup>

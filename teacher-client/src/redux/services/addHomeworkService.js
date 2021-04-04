@@ -7,7 +7,6 @@ export const addHomeworkService = {
 
 function addHomework(value) {
 	const reqBody = new FormData();
-	console.log(value);
 	for (let prop in value) {
 		if (prop !== 'homeworkAttachments') reqBody.append(prop, value[prop]);
 	}

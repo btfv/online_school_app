@@ -8,9 +8,9 @@ import { CircularProgress, Typography } from '@material-ui/core';
 const useStyles = makeStyles({
 	root: {
 		'flex-wrap': 'wrap',
-		width: '100%',
 		display: 'flex',
 		'justify-content': 'center',
+		padding: '0 10px',
 	},
 	centerCircle: {
 		position: 'fixed',
@@ -56,7 +56,8 @@ const HomeworksList = (props) => {
 		});
 		return <div className={classes.root}>{homeworks}</div>;
 	}
-	return <div className={classes.root}></div>;};
+	return <div className={classes.root}></div>;
+};
 
 const mapStateToProps = (state) => {
 	const {

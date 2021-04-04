@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-let AddHomework = (props) => {
+var AddHomework = (props) => {
 	const classes = useStyles();
 	const { handleSubmit, addHomework } = props;
 
@@ -101,9 +101,9 @@ let AddHomework = (props) => {
 									id='attachments-input'
 									multiple={true}
 									component={FileInput}
-									floatingLabelText='auf'
 									fullWidth={true}
 									value={null}
+									multiple={true}
 								/>
 								<div>
 									<Button

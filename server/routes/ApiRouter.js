@@ -87,9 +87,20 @@ ApiRouter.get(
 	HomeworkController.getReceivedStudents
 );
 ApiRouter.get('/upload_files/:fileReference', FilesController.getFile);
+ApiRouter.get('/get_avatar/:filePath', FilesController.getAvatar);
 ApiRouter.post(
 	'/checkSolution',
 	AuthController.isTeacher,
 	HomeworkController.checkSolution
 );
+ApiRouter.post(
+	'/uploadProfilePic',
+	AuthController.isTeacher,
+	UserController.setUserPicture
+);
+ApiRouter.get(
+	'/getProfile',
+	AuthController.isStudent,
+	UserController.getProfile
+)
 module.exports = ApiRouter;

@@ -5,6 +5,11 @@ const teacherSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	profilePictureRef: {
+		type: String,
+		required: false,
+		default: undefined,
+	},
 	username: {
 		type: String,
 		required: true,

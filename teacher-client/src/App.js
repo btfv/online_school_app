@@ -10,13 +10,13 @@ import { withSnackbar } from 'notistack';
 import { connect } from 'react-redux';
 import { userActions } from './redux/actions/userActions';
 import { homeworkListActions } from './redux/actions/homeworkListActions';
-import { solutionListActions } from './redux/actions/solutionListActions';
 import { solutionActions } from './redux/actions/solutionActions';
 import { homeworkActions } from './redux/actions/homeworkActions';
 import { receivedStudentsActions } from './redux/actions/receivedStudentsActions';
 import { addHomeworkActions } from './redux/actions/addHomeworkActions';
 import { studentProfileActions } from './redux/actions/studentProfileActions';
 import SignUp from './components/SignUp';
+import { profileActions } from './redux/actions/profileActions';
 let App = (props) => {
 	const {
 		enqueueSnackbar,
@@ -24,8 +24,6 @@ let App = (props) => {
 		clearHomeworkListError,
 		clearAuthError,
 		authError,
-		solutionListError,
-		clearSolutionListError,
 		solutionError,
 		clearSolutionError,
 		clearHomeworkError,
@@ -35,7 +33,9 @@ let App = (props) => {
 		addHomeworkError,
 		clearAddHomeworkError,
 		studentProfileError,
-		clearStudentProfileError
+		clearStudentProfileError,
+		profileError,
+		clearProfileError,
 	} = props;
 	if (authError) {
 		enqueueSnackbar(authError, {
@@ -50,13 +50,6 @@ let App = (props) => {
 			autoHideDuration: 5000,
 		});
 		clearHomeworkListError();
-	}
-	if (solutionListError) {
-		enqueueSnackbar(solutionListError, {
-			variant: 'error',
-			autoHideDuration: 3000,
-		});
-		clearSolutionListError();
 	}
 	if (solutionError) {
 		enqueueSnackbar(solutionError, {
@@ -86,12 +79,19 @@ let App = (props) => {
 		});
 		clearAddHomeworkError();
 	}
-	if(studentProfileError){
+	if (studentProfileError) {
 		enqueueSnackbar(studentProfileError, {
 			variant: 'error',
 			autoHideDuration: 3000,
 		});
 		clearStudentProfileError();
+	}
+	if (profileError) {
+		enqueueSnackbar(profileError, {
+			variant: 'error',
+			autoHideDuration: 3000,
+		});
+		clearProfileError();
 	}
 	return (
 		<div className='App'>
@@ -110,23 +110,23 @@ const mapStateToProps = (state) => {
 	return {
 		authError: state.authReducer.error,
 		homeworkListError: state.homeworkListReducer.error,
-		solutionListError: state.solutionListReducer.error,
 		receivedStudentsError: state.receivedStudentsReducer.error,
 		homeworkError: state.homeworkReducer.error,
 		solutionError: state.solutionReducer.error,
 		addHomeworkError: state.addHomeworkReducer.error,
 		studentProfileError: state.studentProfileReducer.error,
+		profileError: state.profileReducer.error,
 	};
 };
 const actionCreators = {
 	clearAuthError: userActions.clearError,
 	clearHomeworkListError: homeworkListActions.clearError,
-	clearSolutionListError: solutionListActions.clearError,
 	clearSolutionError: solutionActions.clearError,
 	clearHomeworkError: homeworkActions.clearError,
 	clearReceivedStudentsError: receivedStudentsActions.clearError,
 	clearAddHomeworkError: addHomeworkActions.clearError,
 	clearStudentProfileError: studentProfileActions.clearError,
+	clearProfileError: profileActions.clearError,
 };
 App = withSnackbar(App);
 App = connect(mapStateToProps, actionCreators)(App);

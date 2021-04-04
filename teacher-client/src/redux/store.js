@@ -23,11 +23,6 @@ export const initialState = {
 		gettingHomework: false,
 		sendingSolution: false,
 	},
-	solutionListReducer: {
-		solutionPreviews: [],
-		loadedSolutionPreviews: false,
-		loadingSolutionPreviews: false,
-	},
 	solutionReducer: {
 		loadingSolution: false,
 		loadedSolution: false,
@@ -47,6 +42,12 @@ export const initialState = {
 	studentProfileReducer: {
 		loadingProfile: false,
 		loadedProfile: false,
+	},
+	profileReducer: {
+		loadingProfile: false,
+		loadedProfile: false,
+		uploadingPicture: false,
+		uploadedPicture: false,
 	},
 };
 
