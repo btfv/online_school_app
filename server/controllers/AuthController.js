@@ -31,10 +31,13 @@ AuthController.isStudent = async (req, res, next) => {
 				if (error) {
 					throw error;
 				}
+				if (user.isTeacher && !user.hasAccess) {
+					throw Error('You have to wait for admin approval');
+				}
 				req.user = user;
 				next();
 			} catch (error) {
-				res.status(400).json({ error });
+				res.status(400).json({ error: error.message });
 			}
 		}
 	)(req, res, next);
@@ -61,7 +64,7 @@ AuthController.isTeacher = async (req, res, next) => {
 			req.user = user;
 			next();
 		} catch (error) {
-			res.status(400).json({ error });
+			res.status(400).json({ error: error.message });
 		}
 	})(req, res, next);
 };
