@@ -12,6 +12,7 @@ import TaskWithAnswer from './TaskWithAnswer';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
+import TeacherInfoBox from './TeacherInfoBox';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -35,28 +36,13 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(2, 0, 6),
 	},
 	heroButtons: {
-		marginTop: theme.spacing(4),
-	},
-	cardGrid: {
-		paddingTop: theme.spacing(8),
-		paddingBottom: theme.spacing(8),
-	},
-	card: {
-		height: '100%',
-		display: 'flex',
-		flexDirection: 'column',
-	},
-	cardMedia: {
-		paddingTop: '56.25%', // 16:9
-	},
-	cardContent: {
-		flexGrow: 1,
+		marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(2),
 	},
 	footer: {
 		backgroundColor: theme.palette.background.paper,
 		padding: theme.spacing(6),
 	},
-	tasks: {},
 	backLink: { position: 'absolute', 'margin-left': 30 },
 	sendHomework: {
 		'min-width': 200,
@@ -160,8 +146,17 @@ const Solution = (props) => {
 							>
 								{solution.description}
 							</Typography>
+							{attachments && attachments.length ? (
+								<div className={classes.heroButtons}>
+									{attachments}
+								</div>
+							) : (
+								''
+							)}
 							<div className={classes.heroButtons}>
-								{attachments}
+								<TeacherInfoBox
+									profile={solution.checkedByInfo}
+								/>
 							</div>
 							<div className={classes.tasks}>
 								<Typography
