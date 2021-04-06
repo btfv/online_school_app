@@ -1,7 +1,7 @@
 import { studentProfileConstants } from '../constants';
 import { initialState } from '../store';
 
-export default function studentProfileReducer(state = initialState, action) {
+export default function studentProfileReducer(state = initialState.studentProfileReducer, action) {
 	switch (action.type) {
 		case studentProfileConstants.STUDENT_PROFILE_REQUEST:
 			return {

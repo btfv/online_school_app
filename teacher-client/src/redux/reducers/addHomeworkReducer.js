@@ -1,7 +1,7 @@
 import { addHomeworkConstants } from '../constants';
 import { initialState } from '../store';
 
-export default function addHomeworkReducer(state = initialState, action) {
+export default function addHomeworkReducer(state = initialState.addHomeworkReducer, action) {
 	switch (action.type) {
 		case addHomeworkConstants.ADD_HOMEWORK_REQUEST:
 			return {

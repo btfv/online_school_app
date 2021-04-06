@@ -1,11 +1,11 @@
 import { profileConstants } from '../constants';
 import { initialState } from '../store';
 
-export default function profileReducer(state = initialState, action) {
+export default function profileReducer(state = initialState.profileReducer, action) {
 	switch (action.type) {
 		case profileConstants.CLEAR_PROFILE:
 			return {
-				...initialState,
+				...initialState.profileReducer,
 			};
 		case profileConstants.GET_PROFILE_REQUEST:
 			return {

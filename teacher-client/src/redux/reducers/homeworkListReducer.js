@@ -1,7 +1,7 @@
 import { homeworkListConstants } from '../constants';
 import { initialState } from '../store';
 
-export default function homeworkListReducer(state = initialState, action) {
+export default function homeworkListReducer(state = initialState.homeworkListReducer, action) {
 	switch (action.type) {
 		case homeworkListConstants.HOMEWORK_LIST_REQUEST:
 			return {

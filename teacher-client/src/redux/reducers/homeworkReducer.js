@@ -1,6 +1,9 @@
 import { homeworkConstants } from '../constants';
 import { initialState } from '../store';
-export default function homeworkReducer(state = initialState, action) {
+export default function homeworkReducer(
+	state = initialState.homeworkReducer,
+	action
+) {
 	switch (action.type) {
 		case homeworkConstants.HOMEWORK_REQUEST:
 			return {
@@ -34,8 +37,8 @@ export default function homeworkReducer(state = initialState, action) {
 			return { ...state, error: action.error };
 
 		case homeworkConstants.CLEAR_HOMEWORK:
-			return { ...initialState };
-			
+			return { ...initialState.homeworkReducer };
+
 		case homeworkConstants.CLEAR_ERROR:
 			return { ...state, error: null };
 		default:

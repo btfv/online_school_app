@@ -1,6 +1,6 @@
 import { solutionConstants } from '../constants';
 import { initialState } from '../store';
-export default function solutionReducer(state = initialState, action) {
+export default function solutionReducer(state = initialState.solutionReducer, action) {
 	switch (action.type) {
 		case solutionConstants.SOLUTION_REQUEST:
 			return {
@@ -24,7 +24,7 @@ export default function solutionReducer(state = initialState, action) {
 		case solutionConstants.CLEAR_ERROR:
 			return { ...state, error: null };
 		case solutionConstants.CLEAR_SOLUTION:
-			return { ...initialState };
+			return { ...initialState.solutionReducer };
 		default:
 			return state;
 	}

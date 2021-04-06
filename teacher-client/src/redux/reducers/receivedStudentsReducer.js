@@ -1,7 +1,7 @@
 import { receivedStudentsConstants } from '../constants';
 import { initialState } from '../store';
 
-export default function receivedStudentsReducer(state = initialState, action) {
+export default function receivedStudentsReducer(state = initialState.receivedStudentsReducer, action) {
 	switch (action.type) {
 		case receivedStudentsConstants.STUDENT_LIST_REQUEST:
 			return {
