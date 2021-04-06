@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const answerSchema = require('./AnswerSchema');
 const solutionSchema = new mongoose.Schema({
+	checkedById: {
+		type: mongoose.Types.ObjectId,
+		required: true,
+	},
 	isChecked: {
 		type: Boolean,
 		required: true,

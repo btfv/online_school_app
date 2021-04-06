@@ -13,11 +13,8 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Copyright from './Copyright';
 import AttachmentPanel from './AttachmentPanel';
-import Task from './Task';
 import { reduxForm, FieldArray, Field } from 'redux-form';
 import { TextField, Select, Checkbox } from 'redux-form-material-ui/src';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
@@ -25,6 +22,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import ReceivedStudentsTable from './HomeworkComponents/ReceivedStudentsTable';
 import BackLink from './BackLink';
 import { homeworkListActions } from '../redux/actions/homeworkListActions';
+import { receivedStudentsActions } from '../redux/actions/receivedStudentsActions';
 import TaskCarousel from './HomeworkComponents/TaskCarousel';
 
 const useStyles = makeStyles((theme) => ({
@@ -114,6 +112,7 @@ var Homework = (props) => {
 		removeHomework,
 		clearHomeworkList,
 		clearHomework,
+		clearReceivedStudentsList,
 	} = props;
 	const { publicId } = props.match.params;
 	const classes = useStyles();
@@ -123,6 +122,7 @@ var Homework = (props) => {
 
 	if (homework && publicId !== homework.publicId) {
 		clearHomework();
+		clearReceivedStudentsList();
 		return (
 			<div className={classes.root}>
 				<div className={classes.centerCircle}>
@@ -399,6 +399,7 @@ const actionCreators = {
 	removeHomework: homeworkActions.removeHomework,
 	clearHomeworkList: homeworkListActions.clearList,
 	clearHomework: homeworkActions.clearHomework,
+	clearReceivedStudentsList: receivedStudentsActions.clearStudentList,
 };
 
 export default connect(mapStateToProps, actionCreators)(Homework);

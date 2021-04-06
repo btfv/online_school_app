@@ -1,7 +1,10 @@
 import { receivedStudentsConstants } from '../constants';
 import { initialState } from '../store';
 
-export default function receivedStudentsReducer(state = initialState.receivedStudentsReducer, action) {
+export default function receivedStudentsReducer(
+	state = initialState.receivedStudentsReducer,
+	action
+) {
 	switch (action.type) {
 		case receivedStudentsConstants.STUDENT_LIST_REQUEST:
 			return {
@@ -26,8 +29,7 @@ export default function receivedStudentsReducer(state = initialState.receivedStu
 			};
 		case receivedStudentsConstants.CLEAR_STUDENT_LIST:
 			return {
-				...state,
-				searchedStudentsList: [],
+				...initialState.receivedStudentsReducer,
 			};
 
 		case receivedStudentsConstants.SEARCH_LIST_REQUEST:

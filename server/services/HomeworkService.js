@@ -6,7 +6,7 @@ const GroupModel = require('../models/GroupModel');
 const FilesService = require('./FilesService');
 const TeacherService = require('./TeacherService');
 const HomeworkService = {};
-module.exports = HomeworkService; 
+module.exports = HomeworkService;
 
 const HOMEWORKS_PER_REQUEST = 6;
 /* how much homeworks can server send per one request */
@@ -528,8 +528,13 @@ HomeworkService.removeHomework = async function (homeworkPublicId) {
 HomeworkService.checkSolution = async function (
 	homeworkPublicId,
 	solutionPublicId,
-	comments
+	comments,
+	checkedByPublicId
 ) {
+	const teacherInfo = await TeacherService.getTeacherInfo({
+		teacherPublicId: checkedByPublicId,
+		includeId: true,
+	});
 	await HomeworkModel.findOneAndUpdate(
 		{
 			publicId: homeworkPublicId,
@@ -537,6 +542,7 @@ HomeworkService.checkSolution = async function (
 		},
 		{
 			$set: {
+				'solutions.$.checkedById': teacherInfo._id,
 				'solutions.$.isChecked': true,
 				'solutions.$.totalPoints': 0,
 			},
@@ -842,6 +848,13 @@ HomeworkService.getSolutionByTeacher = async function (
 		.then(async (result) => {
 			result = result.toObject();
 			var solution = result.solutions[0];
+			const teacherInfo = await TeacherService.getTeacherInfo({
+				includeId: false,
+				teacherId: solution.checkedById,
+			});
+			if (!result || !solution) {
+				throw Error('Homework / solution not found');
+			}
 			delete solution._id;
 			delete result.solutions;
 			solution.answers = solution.answers.map((answer) => {
@@ -863,7 +876,13 @@ HomeworkService.getSolutionByTeacher = async function (
 					return await FilesService.getFileInfo(attachment);
 				})
 			);
-			result = { ...result, ...solution };
+			solution.checkedById = undefined;
+			solution.studentId = undefined;
+			result = {
+				...result,
+				...solution,
+				checkedByInfo: { ...teacherInfo },
+			};
 			return { ...result, attachments };
 		});
 	if (!solutionDocument) {
