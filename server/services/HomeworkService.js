@@ -851,6 +851,7 @@ HomeworkService.getSolutionByTeacher = async function (
 			const teacherInfo = await TeacherService.getTeacherInfo({
 				includeId: false,
 				teacherId: solution.checkedById,
+				includeAvatarRef: true,
 			});
 			if (!result || !solution) {
 				throw Error('Homework / solution not found');

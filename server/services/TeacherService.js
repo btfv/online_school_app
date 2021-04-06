@@ -20,21 +20,24 @@ TeacherService.getTeacherProfile = async (publicId) => {
 };
 
 TeacherService.getTeacherInfo = async (params) => {
-	const { teacherId, teacherPublicId, includeId = true } = params;
+	const {
+		teacherId,
+		teacherPublicId,
+		includeId = true,
+		includeAvatarRef = false,
+	} = params;
+	const queryParams =
+		'firstname lastname publicId' +
+		(!includeId ? ' -_id' : '') +
+		(includeAvatarRef ? ' profilePictureRef' : '');
 	if (teacherId) {
-		return await TeacherModel.findById(
-			teacherId,
-			'_id firstname lastname publicId'
-		)
+		return await TeacherModel.findById(teacherId, queryParams)
 			.exec()
 			.then((result) => {
 				if (!result) {
 					throw Error('User not found');
 				}
 				result = result.toObject();
-				if (!includeId) {
-					delete result._id;
-				}
 				return {
 					...result,
 					name: result.firstname + ' ' + result.lastname,
@@ -43,7 +46,7 @@ TeacherService.getTeacherInfo = async (params) => {
 	} else {
 		return await TeacherModel.findOne(
 			{ publicId: teacherPublicId },
-			'_id firstname lastname publicId'
+			queryParams
 		)
 			.exec()
 			.then((result) => {
@@ -51,9 +54,6 @@ TeacherService.getTeacherInfo = async (params) => {
 					throw Error('User not found');
 				}
 				result = result.toObject();
-				if (!includeId) {
-					delete result._id;
-				}
 				return {
 					...result,
 					name: result.firstname + ' ' + result.lastname,
