@@ -164,14 +164,13 @@ HomeworkService.getPreviewsByTeacher = async function (
 			if (teacherDocument.homeworks.length == 0) {
 				throw Error("You don't have any homeworks");
 			}
-			const creatorId = teacherDocument._id;
 			return await Promise.all(
 				teacherDocument.homeworks.map(async (homeworkId) => {
 					const homeworkInfo = await HomeworkService.getHomeworkInfo(
 						homeworkId
 					);
 					const creatorInfo = await TeacherService.getTeacherInfo({
-						teacherId: creatorId,
+						teacherId: homeworkInfo.creatorId,
 					});
 					return {
 						title: homeworkInfo.title,

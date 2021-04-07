@@ -82,7 +82,7 @@ let ReceivedTeachersTable = (props) => {
 											<Link
 												to={
 													'/dashboard/teacher/' +
-													teacher.teacherPublicId
+													teacher.publicId
 												}
 											>
 												{teacher.firstname +
