@@ -9,6 +9,7 @@ import receivedStudentsReducer from './receivedStudentsReducer';
 import addHomeworkReducer from './addHomeworkReducer';
 import studentProfileReducer from './studentProfileReducer';
 import profileReducer from './profileReducer';
+import receivedTeachersReducer from './receivedTeachersReducer';
 
 const rootReducer = (history) =>
 	combineReducers({
@@ -22,5 +23,6 @@ const rootReducer = (history) =>
 		addHomeworkReducer,
 		studentProfileReducer,
 		profileReducer,
+		receivedTeachersReducer,
 	});
 export default rootReducer;

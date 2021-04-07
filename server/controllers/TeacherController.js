@@ -30,4 +30,14 @@ teacherController.changePassword = async function (req, res, next) {
 	}
 };
 
+teacherController.getTeachersByName = async function (req, res, next) {
+	try {
+		const name = req.query.name;
+		const teacherDocuments = await TeacherService.getTeachersByName(name);
+		return res.status(200).json(teacherDocuments);
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
 module.exports = teacherController;

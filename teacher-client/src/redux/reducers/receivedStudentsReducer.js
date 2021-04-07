@@ -51,6 +51,15 @@ export default function receivedStudentsReducer(
 				searchingStudents: false,
 				error: action.error,
 			};
+
+			case receivedStudentsConstants.CLEAR_STUDENT_SEARCH:
+				return {
+					...state,
+					searchedStudents: false,
+					searchingStudents: false,
+					searchedStudentsList: [],
+				};
+
 		case receivedStudentsConstants.ADD_STUDENT_TO_HOMEWORK_FAILURE:
 			return {
 				...state,

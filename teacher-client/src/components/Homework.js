@@ -24,6 +24,7 @@ import BackLink from './BackLink';
 import { homeworkListActions } from '../redux/actions/homeworkListActions';
 import { receivedStudentsActions } from '../redux/actions/receivedStudentsActions';
 import TaskCarousel from './HomeworkComponents/TaskCarousel';
+import ReceivedTeachersTable from './HomeworkComponents/ReceivedTeachersTable';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -40,7 +41,8 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(2, 0, 6),
 	},
 	heroButtons: {
-		marginTop: theme.spacing(4),
+		//marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(2),
 	},
 	cardGrid: {
 		paddingTop: theme.spacing(8),
@@ -75,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
 		'padding-left': 6,
 	},
 	textField: {
-		margin: theme.spacing(2),
+		marginBottom: theme.spacing(2),
 		minWidth: 125,
 		maxWidth: 400,
 		display: 'flex',
@@ -88,8 +90,8 @@ const useStyles = makeStyles((theme) => ({
 		'margin-bottom': theme.spacing(2),
 	},
 	addTaskForm: {
-		'margin-top': theme.spacing(2),
-		'margin-bottom': theme.spacing(4),
+		//'margin-top': theme.spacing(2),
+		'margin-bottom': theme.spacing(2),
 	},
 	centerCircle: {
 		position: 'fixed',
@@ -296,60 +298,82 @@ var Homework = (props) => {
 							>
 								{homework.description}
 							</Typography>
-							<div className={classes.heroButtons}>
-								{attachments}
-							</div>
+							{attachments ? (
+								<div className={classes.heroButtons}>
+									{attachments}
+								</div>
+							) : (
+								''
+							)}
 							<div className={classes.tasks}>
-								<Typography
-									variant='h4'
-									align='center'
-									paragraph
-								>
-									Tasks
-								</Typography>
-								{homework.tasks.length ? (
-									<TaskCarousel
-										tasks={homework.tasks}
-										homeworkPublicId={publicId}
-									/>
-								) : (
+								<div className={classes.heroButtons}>
 									<Typography
-										variant='body1'
+										variant='h4'
 										align='center'
 										paragraph
 									>
-										No tasks
+										Tasks
 									</Typography>
-								)}
-								<Typography
-									variant='h4'
-									align='center'
-									paragraph
-								>
-									Add Task
-								</Typography>
-								<div className={classes.addTaskForm}>
-									<IconButton
-										onClick={() => {
-											setOpenAddTaskForm(
-												!openAddTaskForm
-											);
-										}}
-									>
-										<AddIcon fontSize='large' />
-									</IconButton>
-									{openAddTaskForm ? addTaskForm : ''}
+									{homework.tasks.length ? (
+										<TaskCarousel
+											tasks={homework.tasks}
+											homeworkPublicId={publicId}
+										/>
+									) : (
+										<Typography
+											variant='body1'
+											align='center'
+											paragraph
+										>
+											No tasks
+										</Typography>
+									)}
 								</div>
-								<Typography
-									variant='h4'
-									align='center'
-									paragraph
-								>
-									Received Students
-								</Typography>
-								<ReceivedStudentsTable
-									homeworkPublicId={publicId}
-								/>
+								<div className={classes.heroButtons}>
+									<Typography
+										variant='h4'
+										align='center'
+										paragraph
+									>
+										Add Task
+									</Typography>
+									<div className={classes.addTaskForm}>
+										<IconButton
+											onClick={() => {
+												setOpenAddTaskForm(
+													!openAddTaskForm
+												);
+											}}
+										>
+											<AddIcon fontSize='large' />
+										</IconButton>
+										{openAddTaskForm ? addTaskForm : ''}
+									</div>
+								</div>
+								<div className={classes.heroButtons}>
+									<Typography
+										variant='h4'
+										align='center'
+										paragraph
+									>
+										Received Students
+									</Typography>
+									<ReceivedStudentsTable
+										homeworkPublicId={publicId}
+									/>
+								</div>
+								<div className={classes.heroButtons}>
+									<Typography
+										variant='h4'
+										align='center'
+										paragraph
+									>
+										Received Teachers
+									</Typography>
+									<ReceivedTeachersTable
+										homeworkPublicId={publicId}
+									/>
+								</div>
 								<Button
 									variant='outlined'
 									color='secondary'

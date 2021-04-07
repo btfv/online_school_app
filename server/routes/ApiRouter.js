@@ -5,6 +5,7 @@ const HomeworkController = require('../controllers/HomeworkController');
 const StudentController = require('../controllers/StudentController');
 const FilesController = require('../controllers/FilesController');
 const UserController = require('../controllers/UserController');
+const teacherController = require('../controllers/TeacherController');
 
 //protected routes
 
@@ -102,5 +103,20 @@ ApiRouter.get(
 	'/getProfile',
 	AuthController.isStudent,
 	UserController.getProfile
-)
+);
+ApiRouter.post(
+	'/sendHomeworkToTeacher',
+	AuthController.isTeacher,
+	HomeworkController.sendHomeworkToTeacher
+);
+ApiRouter.get(
+	'/getTeachersWithAccess',
+	AuthController.isTeacher,
+	HomeworkController.getTeachersWithAccess
+);
+ApiRouter.get(
+	'/getTeacherList',
+	AuthController.isTeacher,
+	teacherController.getTeachersByName
+);
 module.exports = ApiRouter;

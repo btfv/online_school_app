@@ -35,6 +35,14 @@ export const initialState = {
 		searchedStudents: false,
 		searchedStudentsList: [],
 	},
+	receivedTeachersReducer: {
+		loadingTeachers: false,
+		loadedTeachers: false,
+		receivedTeachers: [],
+		searchingTeachers: false,
+		searchedTeachers: false,
+		searchedTeachersList: [],
+	},
 	addHomeworkReducer: {
 		addedHomework: false,
 		addHomework: false,

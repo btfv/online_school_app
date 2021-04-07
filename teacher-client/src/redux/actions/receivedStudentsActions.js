@@ -6,7 +6,14 @@ export const receivedStudentsActions = {
 	addStudentToHomework,
 	clearStudentList,
 	getReceivedStudents,
+	clearStudentSearch,
 };
+
+function clearStudentSearch() {
+	return (dispatch) => {
+		dispatch({ type: receivedStudentsConstants.CLEAR_STUDENT_SEARCH });
+	};
+}
 
 function clearError() {
 	return (dispatch) => {

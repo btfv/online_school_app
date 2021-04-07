@@ -29,6 +29,12 @@ const homeworkSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	teachersWithAccess: [
+		{
+			type: mongoose.Types.ObjectId,
+			required: true,
+		},
+	],
 	attachments: [
 		{
 			type: mongoose.Types.ObjectId,

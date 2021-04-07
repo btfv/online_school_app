@@ -32,17 +32,16 @@ const TaskCarousel = (props) => {
 					);
 				})}
 			</ButtonGroup>
-			<div>
-				{taskIndex != null ? (
-					<Task
-						homeworkPublicId={homeworkPublicId}
-						taskIndex={taskIndex}
-						task={tasks[taskIndex]}
-					/>
-				) : (
-					''
-				)}
-			</div>
+
+			{taskIndex != null ? (
+				<Task
+					homeworkPublicId={homeworkPublicId}
+					taskIndex={taskIndex}
+					task={tasks[taskIndex]}
+				/>
+			) : (
+				''
+			)}
 		</div>
 	);
 };

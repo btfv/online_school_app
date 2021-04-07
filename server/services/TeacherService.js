@@ -1,20 +1,20 @@
 const bcrypt = require('bcrypt');
-const { unlink } = require('fs');
 const { nanoid } = require('nanoid');
 const path = require('path');
 const fs = require('fs');
 
 const TeacherModel = require('../models/TeacherModel');
-const FilesService = require('./FilesService');
 const passwordHashCost = parseInt(process.env.PASSWORD_HASH_COST, 10);
 
 const TeacherService = {};
 
-const COUNT_OF_USERS_IN_QUERY = process.env.COUNT_OF_USERS_IN_QUERY;
+const COUNT_OF_USERS_IN_QUERY = Number.parseInt(
+	process.env.COUNT_OF_USERS_IN_QUERY
+);
 
 TeacherService.getTeacherProfile = async (publicId) => {
 	return await TeacherModel.findOne(
-		{ publicId },
+		{ publicId, hasAccess: true },
 		'-_id firstname lastname profilePictureRef'
 	).then((result) => result.toObject());
 };
@@ -120,6 +120,24 @@ TeacherService.uploadProfilePicture = async (teacherPublicId, pictureFile) => {
 		{ publicId: teacherPublicId },
 		{ profilePictureRef: fileName }
 	);
+};
+
+TeacherService.getTeachersByName = async function (name) {
+	if (name.length < 3) {
+		throw Error('Too short name');
+	}
+	const userDocuments = await TeacherModel.find(
+		{
+			$or: [
+				{ firstname: new RegExp(name, 'i') },
+				{ lastname: new RegExp(name, 'i') },
+			],
+		},
+		'-_id firstname lastname publicId'
+	)
+		.limit(COUNT_OF_USERS_IN_QUERY)
+		.exec();
+	return userDocuments;
 };
 
 module.exports = TeacherService;

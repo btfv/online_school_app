@@ -922,6 +922,96 @@ HomeworkService.getReceivedStudents = async (homeworkPublicId, offset) => {
 	});
 };
 
+HomeworkService.addTeacherToHomework = async (
+	homeworkPublicId,
+	teacherPublicId,
+	userPublicId
+) => {
+	if (userPublicId == teacherPublicId) {
+		throw Error("You can't send homework to yourself");
+	}
+
+	const teacherInfo = await TeacherService.getTeacherInfo({
+		teacherPublicId,
+		includeId: true,
+		includeAvatarRef: false,
+	});
+
+	await HomeworkModel.findOne(
+		{ publicId: homeworkPublicId },
+		{
+			teachersWithAccess: {
+				$elemMatch: teacherInfo._id,
+			},
+		}
+	)
+		.select('creatorPublicId teachersWithAccess')
+		.then((result) => {
+			if (!result) {
+				throw Error('Homework not found');
+			}
+			if (result.creatorPublicId != userPublicId) {
+				throw Error("You don't have permission to send this homework");
+			}
+			if (result.teachersWithAccess.length) {
+				throw Error('This teacher already has this homework');
+			}
+		});
+	await TeacherModel.findById(teacherInfo._id, 'hasAccess').then((result) => {
+		if (!result.hasAccess) {
+			throw Error("This teacher hasn't access");
+		}
+	});
+	const homeworkId = await HomeworkModel.findOneAndUpdate(
+		{ publicId: homeworkPublicId },
+		{
+			$push: {
+				teachersWithAccess: teacherInfo._id,
+			},
+		}
+	).then((result) => {
+		return result._id;
+	});
+	await TeacherModel.findByIdAndUpdate(teacherInfo._id, {
+		$push: { homeworks: homeworkId },
+	});
+};
+
+HomeworkService.getTeachersWithAccess = async (homeworkPublicId, offset) => {
+	return await HomeworkModel.findOne(
+		{ publicId: homeworkPublicId },
+		{
+			teachersWithAccess: {
+				$slice: [offset, offset + STUDENTS_PER_REQUEST],
+			},
+		}
+	)
+		.select('-_id creatorId teachersWithAccess')
+		.then(async (result) => {
+			if (!result) {
+				throw Error('Homework not found');
+			}
+			const teachers = result.teachersWithAccess;
+			teachers.push(result.creatorId);
+			return await Promise.all(
+				teachers.map(async (teacherId) => {
+					const teacherInfo = await TeacherService.getTeacherInfo({
+						includeId: false,
+						includeAvatarRef: false,
+						teacherId,
+					});
+					return {
+						...teacherInfo,
+						status:
+							teacherId == result.creatorId
+								? 'Creator'
+								: 'Revisor',
+					};
+				})
+			);
+		});
+};
+
 HomeworkService.getHomeworkInfo = async (homeworkId) => {
 	return await HomeworkModel.findById(
 		homeworkId,

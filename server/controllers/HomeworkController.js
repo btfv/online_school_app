@@ -266,4 +266,31 @@ HomeworkController.getReceivedStudents = async function (req, res, next) {
 	}
 };
 
+HomeworkController.sendHomeworkToTeacher = async (req, res, next) => {
+	try {
+		const { homeworkPublicId, teacherPublicId } = req.body;
+		await HomeworkService.addTeacherToHomework(
+			homeworkPublicId,
+			teacherPublicId,
+			req.user.publicId
+		);
+		return res.status(200).send();
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
+HomeworkController.getTeachersWithAccess = async (req, res, next) => {
+	try {
+		const { homeworkPublicId, offset } = req.query;
+		const teachers = await HomeworkService.getTeachersWithAccess(
+			homeworkPublicId,
+			offset
+		);
+		return res.status(200).json(teachers);
+	} catch (error) {
+		return res.status(400).json({ error: error.message });
+	}
+};
+
 module.exports = HomeworkController;

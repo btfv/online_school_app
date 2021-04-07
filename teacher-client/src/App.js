@@ -17,6 +17,7 @@ import { addHomeworkActions } from './redux/actions/addHomeworkActions';
 import { studentProfileActions } from './redux/actions/studentProfileActions';
 import SignUp from './components/SignUp';
 import { profileActions } from './redux/actions/profileActions';
+import { receivedTeachersActions } from './redux/actions/receivedTeachersActions';
 let App = (props) => {
 	const {
 		enqueueSnackbar,
@@ -36,6 +37,8 @@ let App = (props) => {
 		clearStudentProfileError,
 		profileError,
 		clearProfileError,
+		receivedTeachersError,
+		clearReceivedTeachersError,
 	} = props;
 	if (authError) {
 		enqueueSnackbar(authError, {
@@ -93,6 +96,13 @@ let App = (props) => {
 		});
 		clearProfileError();
 	}
+	if (receivedTeachersError) {
+		enqueueSnackbar(receivedTeachersError, {
+			variant: 'error',
+			autoHideDuration: 3000,
+		});
+		clearReceivedTeachersError();
+	}
 	return (
 		<div className='App'>
 			<Router history={history}>
@@ -116,6 +126,7 @@ const mapStateToProps = (state) => {
 		addHomeworkError: state.addHomeworkReducer.error,
 		studentProfileError: state.studentProfileReducer.error,
 		profileError: state.profileReducer.error,
+		receivedTeachersError: state.receivedTeachersReducer.error,
 	};
 };
 const actionCreators = {
@@ -127,6 +138,7 @@ const actionCreators = {
 	clearAddHomeworkError: addHomeworkActions.clearError,
 	clearStudentProfileError: studentProfileActions.clearError,
 	clearProfileError: profileActions.clearError,
+	clearReceivedTeachersError: receivedTeachersActions.clearError,
 };
 App = withSnackbar(App);
 App = connect(mapStateToProps, actionCreators)(App);

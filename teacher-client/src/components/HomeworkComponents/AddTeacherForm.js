@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { receivedStudentsActions } from '../../redux/actions/receivedStudentsActions';
+import { receivedTeachersActions } from '../../redux/actions/receivedTeachersActions';
 import { MenuItem, TextField, List, CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
 	table: {
 		minWidth: 300,
 	},
-	addStudentFields: {
+	addTeacherFields: {
 		minWidth: 250,
 	},
 	invisibleField: {
@@ -22,52 +22,52 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const AddStudentForm = (props) => {
+const AddTeacherForm = (props) => {
 	const classes = useStyles();
 	const {
         homeworkPublicId,
-		searchedStudents,
-		searchingStudents,
-		getStudentsByName,
-		clearStudentSearch,
-		addStudentToHomework,
-		searchedStudentsList,
+		searchedTeachers,
+		searchingTeachers,
+		getTeachersByName,
+		clearTeacherSearch,
+		addTeacherToHomework,
+		searchedTeachersList,
 	} = props;
 	return (
 		<form className={classes.form}>
 			<div>
 				<TextField
 					variant='outlined'
-					label='Student Name'
+					label='Teacher Name'
 					onChange={(event) => {
 						let inputValue = event.target.value;
 						if (inputValue.length > 2) {
-							getStudentsByName(inputValue);
+							getTeachersByName(inputValue);
 						} else {
-							clearStudentSearch();
+							clearTeacherSearch();
 						}
 					}}
-					className={classes.addStudentFields}
+					className={classes.addTeacherFields}
 				/>
 			</div>
 			<div>
-				{searchingStudents ? (
+				{searchingTeachers ? (
 					<CircularProgress />
 				) : (
 					<List>
-						{searchedStudents
-							? searchedStudentsList.map((student) => (
+						{searchedTeachers
+							? searchedTeachersList.map((teacher) => (
 									<MenuItem
 										onClick={() => {
-											addStudentToHomework(
+											addTeacherToHomework(
 												homeworkPublicId,
-												student.publicId
+												teacher.publicId
 											);
 										}}
 									>
-										{student.firstname +
+										{teacher.firstname +
 											' ' +
-											student.lastname}
+											teacher.lastname}
 									</MenuItem>
 							  ))
 							: ''}
@@ -80,21 +80,21 @@ const AddStudentForm = (props) => {
 
 const mapStateToProps = (state) => {
 	const {
-		searchingStudents,
-		searchedStudents,
-		searchedStudentsList,
-	} = state.receivedStudentsReducer;
+		searchingTeachers,
+		searchedTeachers,
+		searchedTeachersList,
+	} = state.receivedTeachersReducer;
 	return {
-		searchingStudents,
-		searchedStudents,
-		searchedStudentsList,
+		searchingTeachers,
+		searchedTeachers,
+		searchedTeachersList,
 	};
 };
 
 const actionCreators = {
-	getStudentsByName: receivedStudentsActions.getStudentsByName,
-	addStudentToHomework: receivedStudentsActions.addStudentToHomework,
-	clearStudentSearch: receivedStudentsActions.clearStudentSearch,
+	getTeachersByName: receivedTeachersActions.getTeachersByName,
+	addTeacherToHomework: receivedTeachersActions.addTeacherToHomework,
+	clearTeacherSearch: receivedTeachersActions.clearTeacherSearch,
 };
 
-export default connect(mapStateToProps, actionCreators)(AddStudentForm);
+export default connect(mapStateToProps, actionCreators)(AddTeacherForm);

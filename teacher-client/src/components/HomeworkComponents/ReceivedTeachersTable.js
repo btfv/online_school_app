@@ -11,17 +11,9 @@ import { Link } from 'react-router-dom';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import { connect } from 'react-redux';
-import { receivedStudentsActions } from '../../redux/actions/receivedStudentsActions';
-import {
-	MenuItem,
-	TextField,
-	ListItemText,
-	ListItem,
-	List,
-	CircularProgress,
-} from '@material-ui/core';
-import ReactSelectMaterialUi from 'react-select-material-ui';
-import AddStudentForm from './AddStudentForm';
+import { receivedTeachersActions } from '../../redux/actions/receivedTeachersActions';
+import { CircularProgress } from '@material-ui/core';
+import AddTeacherForm from './AddTeacherForm';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -30,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 	table: {
 		minWidth: 300,
 	},
-	addStudentFields: {
+	addTeacherFields: {
 		minWidth: 250,
 	},
 	invisibleField: {
@@ -41,20 +33,19 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-let ReceivedStudentsTable = (props) => {
+let ReceivedTeachersTable = (props) => {
 	const classes = useStyles();
-	const [addStudentFormState, openAddStudentForm] = useState(false);
+	const [addTeacherFormState, openAddTeacherForm] = useState(false);
 	const {
 		homeworkPublicId,
-		receivedStudents,
-		loadingStudents,
-		loadedStudents,
-		getReceivedStudents,
+		receivedTeachers,
+		loadingTeachers,
+		loadedTeachers,
+		getReceivedTeachers,
 	} = props;
-
-	if (!loadingStudents && !loadedStudents) {
-		const offset = receivedStudents.length;
-		getReceivedStudents(homeworkPublicId, offset);
+	if (!loadingTeachers && !loadedTeachers) {
+		const offset = receivedTeachers.length;
+		getReceivedTeachers(homeworkPublicId, offset);
 		return (
 			<div className={classes.root}>
 				<div className={classes.centerCircle}>
@@ -63,7 +54,7 @@ let ReceivedStudentsTable = (props) => {
 			</div>
 		);
 	}
-	if (loadingStudents) {
+	if (loadingTeachers) {
 		return (
 			<div className={classes.root}>
 				<div className={classes.centerCircle}>
@@ -72,52 +63,35 @@ let ReceivedStudentsTable = (props) => {
 			</div>
 		);
 	}
-	if (receivedStudents)
+	if (receivedTeachers)
 		return (
 			<TableContainer component={Paper} className={classes.root}>
 				<Table className={classes.table} aria-label='simple table'>
 					<TableHead>
 						<TableRow>
-							<TableCell>Student Name</TableCell>
-							<TableCell align='right'>Has Solution</TableCell>
-							<TableCell align='right'>Solution</TableCell>
+							<TableCell>Teacher Name</TableCell>
+							<TableCell align='right'>Status</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
 						{(() => {
-							return receivedStudents.map((student, index) => {
+							return receivedTeachers.map((teacher, index) => {
 								return (
-									<TableRow key={'student.' + index}>
+									<TableRow key={'teacher.' + index}>
 										<TableCell component='th' scope='row'>
 											<Link
 												to={
-													'/dashboard/student/' +
-													student.studentPublicId
+													'/dashboard/teacher/' +
+													teacher.teacherPublicId
 												}
 											>
-												{student.firstname +
+												{teacher.firstname +
 													' ' +
-													student.lastname}
+													teacher.lastname}
 											</Link>
 										</TableCell>
 										<TableCell align='right'>
-											{student.hasSolution ? '+' : '-'}
-										</TableCell>
-										<TableCell align='right'>
-											{student.hasSolution ? (
-												<Link
-													to={
-														'/dashboard/homework/' +
-														homeworkPublicId +
-														'/solution/' +
-														student.solutionPublicId
-													}
-												>
-													Solution
-												</Link>
-											) : (
-												''
-											)}
+											{teacher.status}
 										</TableCell>
 									</TableRow>
 								);
@@ -127,16 +101,16 @@ let ReceivedStudentsTable = (props) => {
 							<TableCell colspan='3' align='center'>
 								<IconButton
 									onClick={() => {
-										openAddStudentForm(
-											!addStudentFormState
+										openAddTeacherForm(
+											!addTeacherFormState
 										);
 									}}
 								>
 									<AddIcon fontSize='large' />
 								</IconButton>
 								<div className={classes.addTaskForm}>
-									{addStudentFormState ? (
-										<AddStudentForm
+									{addTeacherFormState ? (
+										<AddTeacherForm
 											homeworkPublicId={homeworkPublicId}
 										/>
 									) : (
@@ -154,19 +128,19 @@ let ReceivedStudentsTable = (props) => {
 
 const mapStateToProps = (state) => {
 	const {
-		receivedStudents,
-		loadingStudents,
-		loadedStudents,
-	} = state.receivedStudentsReducer;
+		receivedTeachers,
+		loadingTeachers,
+		loadedTeachers,
+	} = state.receivedTeachersReducer;
 	return {
-		receivedStudents,
-		loadingStudents,
-		loadedStudents,
+		receivedTeachers,
+		loadingTeachers,
+		loadedTeachers,
 	};
 };
 
 const actionCreators = {
-	getReceivedStudents: receivedStudentsActions.getReceivedStudents,
+	getReceivedTeachers: receivedTeachersActions.getReceivedTeachers,
 };
 
-export default connect(mapStateToProps, actionCreators)(ReceivedStudentsTable);
+export default connect(mapStateToProps, actionCreators)(ReceivedTeachersTable);
