@@ -12,6 +12,7 @@ import TaskWithAnswer from './TaskWithAnswer';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Link } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
+import TeacherInfoBox from './TeacherInfoBox';
 
 const useStyles = makeStyles((theme) => ({
 	icon: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(6, 0, 6),
 	},
 	heroButtons: {
-		marginTop: theme.spacing(4),
+		marginBottom: theme.spacing(2),
 	},
 	footer: {
 		backgroundColor: theme.palette.background.paper,
@@ -67,31 +68,49 @@ let Solution = (props) => {
 							</IconButton>
 						</div>
 						<Container maxWidth='sm'>
-							<Typography
-								variant='h6'
-								align='center'
-								color='textSecondary'
-								paragraph
-							>
-								{homework.subject}
-							</Typography>
-							<Typography
-								component='h2'
-								variant='h3'
-								align='center'
-								color='textPrimary'
-								gutterBottom
-							>
-								{homework.title}
-							</Typography>
-							<Typography
-								variant='h5'
-								align='center'
-								color='textSecondary'
-								paragraph
-							>
-								{homework.description}
-							</Typography>
+							<div className={classes.heroButtons}>
+								<Typography
+									variant='h6'
+									align='center'
+									color='textSecondary'
+									paragraph
+								>
+									{homework.subject}
+								</Typography>
+							</div>
+							<div className={classes.heroButtons}>
+								<Typography
+									component='h2'
+									variant='h3'
+									align='center'
+									color='textPrimary'
+									gutterBottom
+								>
+									{homework.title}
+								</Typography>
+							</div>
+							<div className={classes.heroButtons}>
+								<Typography
+									variant='h5'
+									align='center'
+									color='textSecondary'
+									paragraph
+								>
+									{homework.description}
+								</Typography>
+							</div>
+							<div className={classes.heroButtons}>
+								<TeacherInfoBox
+									profile={homework.creatorInfo}
+									text='Homework created by'
+								/>
+							</div>
+							<div className={classes.heroButtons}>
+								<TeacherInfoBox
+									profile={solution.checkedByInfo}
+									text='Solution reviewed by'
+								/>
+							</div>
 							<div className={classes.heroButtons}>
 								{homework.attachments.map((attachment) => {
 									return (
@@ -130,7 +149,8 @@ let Solution = (props) => {
 							</div>
 							<Typography variant='h6' align='center' paragraph>
 								Totally you get {solution.totalPoints}/
-								{homework.homeworkMaxPoints} points for this homework
+								{homework.homeworkMaxPoints} points for this
+								homework
 							</Typography>
 						</Container>
 					</div>

@@ -16,6 +16,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/Check';
 import { homeworkListActions } from '../redux/actions/homeworkListActions';
+import TeacherInfoBox from './TeacherInfoBox';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -144,14 +145,7 @@ var Homework = (props) => {
 							>
 								{homework.description}
 							</Typography>
-							<Typography
-								variant='body1'
-								align='center'
-								color='textSecondary'
-								paragraph
-							>
-								Created by {homework.creatorName}
-							</Typography>
+							<TeacherInfoBox profile={homework.creatorInfo} text="Homework created by" />
 							<div className={classes.heroButtons}>
 								{homework.attachments.map((attachment) => {
 									return (

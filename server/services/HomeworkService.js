@@ -107,6 +107,7 @@ HomeworkService.getByStudent = async function (
 			'title subject creatorId publicId description attachments tasks deadline'
 		)
 		.then(async (result) => {
+			result = result.toObject();
 			await StudentModel.findOne(
 				{
 					publicId: studentPublicId,
@@ -134,25 +135,25 @@ HomeworkService.getByStudent = async function (
 			);
 			const creatorInfo = await TeacherService.getTeacherInfo({
 				teacherId: result.creatorId,
+				includeId: false,
+				includeAvatarRef: true,
 			});
-			const tasks = result.tasks
-				.toObject()
-				.map(
-					({
-						_id,
-						optionAnswers,
-						detailedAnswer,
-						stringAnswer,
-						number,
-						...task
-					}) => task
-				);
+			const tasks = result.tasks.map(
+				({
+					_id,
+					optionAnswers,
+					detailedAnswer,
+					stringAnswer,
+					number,
+					...task
+				}) => task
+			);
+			const { creatorId, _id, ...homework } = result;
 			return {
-				...result.toObject(),
+				...homework,
 				attachments,
 				tasks,
-				creatorName: creatorInfo.name,
-				creatorPublicId: creatorInfo.publicId,
+				creatorInfo,
 			};
 		});
 };
@@ -793,14 +794,26 @@ HomeworkService.getSolutionByStudent = async function (
 				throw Error("Can't find homework");
 			}
 			var solution = result.solutions[0];
-			const teacherInfo = await TeacherService.getTeacherInfo({
-				teacherId: result.creatorId,
-			});
 			if (!solution) {
 				throw Error("Can't find solution");
 			}
-			delete solution._id;
-			delete solution.studentId;
+			const creatorInfo = await TeacherService.getTeacherInfo({
+				teacherId: result.creatorId,
+				includeId: false,
+				includeAvatarRef: true,
+			});
+
+			const checkedByInfo = await TeacherService.getTeacherInfo({
+				teacherId: solution.checkedById,
+				includeId: false,
+				includeAvatarRef: true,
+			});
+			solution = {
+				...solution,
+				_id: undefined,
+				studentId: undefined,
+				checkedById: undefined,
+			};
 			delete result.solutions;
 			solution.answers = solution.answers.map((answer) => {
 				delete answer._id;
@@ -816,7 +829,7 @@ HomeworkService.getSolutionByStudent = async function (
 				delete task._id;
 				return task;
 			});
-			let attachments = await Promise.all(
+			const attachments = await Promise.all(
 				result.attachments.map(async (attachment) => {
 					return await FilesService.getFileInfo(attachment);
 				})
@@ -825,14 +838,16 @@ HomeworkService.getSolutionByStudent = async function (
 				homework: {
 					title: result.title,
 					subject: result.subject,
-					creatorName: teacherInfo.name,
-					creatorPublicId: teacherInfo.publicId,
+					creatorInfo,
 					description: result.description,
 					attachments,
 					tasks: result.tasks,
 					homeworkMaxPoints: result.homeworkMaxPoints,
 				},
-				solution,
+				solution: {
+					...solution,
+					checkedByInfo,
+				},
 			};
 		});
 	if (!solutionDocument) {
