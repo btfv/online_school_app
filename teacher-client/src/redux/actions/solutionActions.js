@@ -5,6 +5,7 @@ export const solutionActions = {
 	getSolution,
 	clearError,
 	clearSolution,
+	checkSolution,
 };
 
 function clearSolution() {
@@ -41,4 +42,29 @@ function clearError() {
 	return (dispatch) => {
 		dispatch({ type: solutionConstants.CLEAR_ERROR });
 	};
+}
+
+function checkSolution(values, dispatch, props) {
+	const { homeworkPublicId, solutionPublicId } = props.match.params;
+	return (dispatch) => {
+		dispatch(request());
+		solutionService
+			.checkSolution(homeworkPublicId, solutionPublicId, values)
+			.then(() => {
+				dispatch(success());
+				dispatch({ type: solutionConstants.CLEAR_SOLUTION });
+			})
+			.catch((error) => {
+				dispatch(failure(error));
+			});
+	};
+	function request() {
+		return { type: solutionConstants.CHECK_SOLUTION_REQUEST };
+	}
+	function success() {
+		return { type: solutionConstants.CHECK_SOLUTION_SUCCESS };
+	}
+	function failure(error) {
+		return { type: solutionConstants.CHECK_SOLUTION_FAILURE, error };
+	}
 }

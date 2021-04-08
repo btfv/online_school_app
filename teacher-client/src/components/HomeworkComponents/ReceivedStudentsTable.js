@@ -80,6 +80,7 @@ let ReceivedStudentsTable = (props) => {
 						<TableRow>
 							<TableCell>Student Name</TableCell>
 							<TableCell align='right'>Has Solution</TableCell>
+							<TableCell align='right'>Is Checked</TableCell>
 							<TableCell align='right'>Solution</TableCell>
 						</TableRow>
 					</TableHead>
@@ -102,6 +103,9 @@ let ReceivedStudentsTable = (props) => {
 										</TableCell>
 										<TableCell align='right'>
 											{student.hasSolution ? '+' : '-'}
+										</TableCell>
+										<TableCell align='right'>
+											{student.isChecked ? '+' : '-'}
 										</TableCell>
 										<TableCell align='right'>
 											{student.hasSolution ? (

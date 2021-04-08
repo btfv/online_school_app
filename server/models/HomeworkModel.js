@@ -67,6 +67,10 @@ const homeworkSchema = new mongoose.Schema({
 				required: false,
 				default: 0,
 			},
+			isChecked: {
+				type: Boolean,
+				default: false,
+			},
 		},
 	],
 	//publicids of users who received that homework

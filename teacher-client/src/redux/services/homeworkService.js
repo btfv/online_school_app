@@ -67,7 +67,7 @@ function removeTask(homeworkPublicId, taskPublicId) {
 		credentials: 'include',
 		body: JSON.stringify(requestBody),
 	};
-	let reqUrl = '/api/homeworks/removeTask';
+	let reqUrl = '/api/removeTask';
 	return fetch(config.API_URL + reqUrl, requestOptions).then(handleResponse);
 }
 

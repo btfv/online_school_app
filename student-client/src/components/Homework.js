@@ -212,6 +212,7 @@ var Homework = (props) => {
 				{/* End footer */}
 			</React.Fragment>
 		);
+	return '';
 };
 Homework = reduxForm({ form: 'homeworkForm' })(Homework);
 

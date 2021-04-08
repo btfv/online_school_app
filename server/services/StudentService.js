@@ -17,13 +17,16 @@ StudentService.getStudentInfo = async (params) => {
 		studentPublicId,
 		includeId = true,
 		includeHomeworks = false,
+		includeAge = false,
 	} = params;
+
+	const queryParams =
+		'_id firstname lastname publicId' +
+		(includeHomeworks ? ' homeworks' : '') +
+		(includeAge ? ' age' : '');
+
 	if (studentId) {
-		return await StudentModel.findById(
-			studentId,
-			'_id firstname lastname publicId age' +
-				(includeHomeworks ? ' homeworks' : '')
-		)
+		return await StudentModel.findById(studentId, queryParams)
 			.exec()
 			.then(async (result) => {
 				if (!result) {
@@ -56,8 +59,7 @@ StudentService.getStudentInfo = async (params) => {
 	} else {
 		return await StudentModel.findOne(
 			{ publicId: studentPublicId },
-			'-_id firstname lastname publicId age' +
-				(includeHomeworks ? ' homeworks' : '')
+			queryParams
 		)
 			.exec()
 			.then(async (result) => {

@@ -245,7 +245,8 @@ HomeworkController.checkSolution = async function (req, res, next) {
 		await HomeworkService.checkSolution(
 			homeworkPublicId,
 			solutionPublicId,
-			comments
+			comments,
+			req.user.publicId
 		);
 		return res.status(200).send();
 	} catch (error) {

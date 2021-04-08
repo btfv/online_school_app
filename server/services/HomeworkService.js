@@ -442,11 +442,22 @@ HomeworkService.removeTask = async function (homeworkPublicId, taskPublicId) {
 
 	await HomeworkModel.findOneAndUpdate(
 		{ publicId: homeworkPublicId },
-		{ $pull: { tasks: { publicId: taskPublicId } } }
+		{
+			$pull: { tasks: { publicId: taskPublicId } },
+		}
 	)
 		.select('tasks')
-		.then((document) => {
+		.then(async (document) => {
 			if (!document.tasks) throw Error('Task not found');
+			const task = document.tasks[0];
+			await HomeworkModel.findOneAndUpdate(
+				{ publicId: homeworkPublicId },
+				{
+					$inc: {
+						homeworkMaxPoints: -task.maxPoints,
+					},
+				}
+			);
 		});
 };
 
@@ -539,12 +550,24 @@ HomeworkService.removeHomework = async function (homeworkPublicId) {
 HomeworkService.checkSolution = async function (
 	homeworkPublicId,
 	solutionPublicId,
-	comments,
+	values,
 	checkedByPublicId
 ) {
 	const teacherInfo = await TeacherService.getTeacherInfo({
 		teacherPublicId: checkedByPublicId,
 		includeId: true,
+	});
+	await HomeworkModel.findOne(
+		{
+			publicId: homeworkPublicId,
+		},
+		{
+			'solutions.publicId': solutionPublicId,
+		}
+	).then((result) => {
+		if (result.solutions[0].isChecked) {
+			throw Error('Solution already checked');
+		}
 	});
 	await HomeworkModel.findOneAndUpdate(
 		{
@@ -568,8 +591,24 @@ HomeworkService.checkSolution = async function (
 			if (!solution) {
 				throw Error("Can't find solution");
 			}
+			await HomeworkModel.findOneAndUpdate(
+				{
+					publicId: homeworkPublicId,
+					receivedStudents: {
+						$elemMatch: {
+							studentId: solution.studentId,
+						},
+					},
+				},
+				{
+					$set: {
+						'receivedStudents.$.isChecked': true,
+					},
+				}
+			);
+
 			await Promise.all(
-				comments.map(async (comment) => {
+				Object.entries(values).map(async ([taskPublicId, value]) => {
 					await HomeworkModel.updateOne(
 						{
 							publicId: homeworkPublicId,
@@ -577,20 +616,20 @@ HomeworkService.checkSolution = async function (
 						{
 							$set: {
 								'solutions.$[i].answers.$[j].comment':
-									comment.comment,
+									value.comment,
 								'solutions.$[i].answers.$[j].points':
-									comment.points,
+									value.points,
 							},
 							$inc: {
 								'solutions.$[i].totalPoints': parseInt(
-									comment.points
+									value.points
 								),
 							},
 						},
 						{
 							arrayFilters: [
 								{ 'i.publicId': solutionPublicId },
-								{ 'j.publicId': comment.answerPublicId },
+								{ 'j.taskPublicId': taskPublicId },
 							],
 						}
 					);
@@ -662,14 +701,18 @@ HomeworkService.addSolutionByStudent = async function (
 				throw Error('Count of answers does not match count of tasks');
 			}
 
-			await StudentModel.findOne({
-				_id: studentInfo._id,
-				homeworks: {
-					$elemMatch: {
-						homeworkId: result._id,
-					},
+			await StudentModel.findOne(
+				{
+					_id: studentInfo._id,
 				},
-			}).then((document) => {
+				{
+					homeworks: {
+						$elemMatch: {
+							homeworkId: result._id,
+						},
+					},
+				}
+			).then((document) => {
 				if (document.homeworks[0].hasSolution) {
 					throw Error('You already have solution!');
 				}
@@ -873,11 +916,13 @@ HomeworkService.getSolutionByTeacher = async function (
 		.then(async (result) => {
 			result = result.toObject();
 			var solution = result.solutions[0];
-			const teacherInfo = await TeacherService.getTeacherInfo({
-				includeId: false,
-				teacherId: solution.checkedById,
-				includeAvatarRef: true,
-			});
+			const teacherInfo = solution.checkedById
+				? await TeacherService.getTeacherInfo({
+						includeId: false,
+						teacherId: solution.checkedById,
+						includeAvatarRef: true,
+				  })
+				: null;
 			if (!result || !solution) {
 				throw Error('Homework / solution not found');
 			}
@@ -907,7 +952,7 @@ HomeworkService.getSolutionByTeacher = async function (
 			result = {
 				...result,
 				...solution,
-				checkedByInfo: { ...teacherInfo },
+				checkedByInfo: teacherInfo ? { ...teacherInfo } : undefined,
 			};
 			return { ...result, attachments };
 		});
@@ -935,6 +980,7 @@ HomeworkService.getReceivedStudents = async (homeworkPublicId, offset) => {
 				const studentInfo = await StudentService.getStudentInfo({
 					includeId: false,
 					studentId: student.studentId,
+					includeAge: false,
 				});
 				return {
 					...studentInfo,

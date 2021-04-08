@@ -26,6 +26,7 @@ export const initialState = {
 	solutionReducer: {
 		loadingSolution: false,
 		loadedSolution: false,
+		checkingSolution: false,
 	},
 	receivedStudentsReducer: {
 		loadingStudents: false,
