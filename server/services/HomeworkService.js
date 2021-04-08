@@ -107,12 +107,23 @@ HomeworkService.getByStudent = async function (
 			'title subject creatorId publicId description attachments tasks deadline'
 		)
 		.then(async (result) => {
-			await StudentModel.findOne({
-				publicId: studentPublicId,
-				'homeworks.homeworkId': result._id,
-				'homeworks.hasSolution': true,
-			}).then((result) => {
-				if (result) {
+			await StudentModel.findOne(
+				{
+					publicId: studentPublicId,
+				},
+				{
+					homeworks: {
+						$elemMatch: {
+							homeworkId: result._id,
+							hasSolution: true,
+						},
+					},
+				}
+			).then((result) => {
+				if (!result) {
+					throw Error('Student not found');
+				}
+				if (result.homeworks.length) {
 					throw Error('You have solution, please, wait for check');
 				}
 			});
