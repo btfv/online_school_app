@@ -145,7 +145,7 @@ export default function DashboardComponent(props) {
 						<MenuItem
 							onClick={handleMenuClose}
 							onClick={() => {
-								history.push('./profile');
+								history.push('/dashboard/profile');
 							}}
 						>
 							Profile
