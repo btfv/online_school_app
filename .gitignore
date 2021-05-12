@@ -107,3 +107,4 @@ onlineschool.code-workspace
 .VSCodeCounter 
 
 Procfile
+.vscode/settings.json
