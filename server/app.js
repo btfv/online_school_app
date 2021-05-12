@@ -19,17 +19,17 @@ const secret = process.env.SECRET_KEY;
 var mongoDBaddress = process.env.DATABASE_ADDRESS;
 console.log('Connecting to the database');
 mongoose
-	.connect(mongoDBaddress, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-	})
-	.then(() => {
-		console.log('Connected to the database');
-	})
-	.catch((error) => {
-		console.log('Connection ' + error);
-		process.exit();
-	})
+  .connect(mongoDBaddress, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('Connected to the database');
+  })
+  .catch((error) => {
+    console.log('Connection ' + error);
+    process.exit();
+  });
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -38,14 +38,25 @@ var app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
-	fileUpload({
-		createParentPath: true,
-	})
+  fileUpload({
+    createParentPath: true,
+  })
 );
 app.use(cookieParser(secret));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(session({ secret: secret, resave: true, saveUninitialized: false }));
+app.use(
+  session({
+    secret: secret,
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      httpOnly: true,
+    },
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -53,8 +64,8 @@ const studentFrontendAddress = process.env.STUDENT_FRONTEND_ADDRESS;
 const teacherFrontendAddress = process.env.TEACHER_FRONTEND_ADDRESS;
 var allowlist = [studentFrontendAddress, teacherFrontendAddress];
 var corsOptions = {
-	origin: allowlist,
-	credentials: true,
+  origin: allowlist,
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -64,17 +75,17 @@ require('./config/passport');
 app.use('/api', ApiRouter);
 app.use('/auth', AuthRouter);
 app.use(function (req, res, next) {
-	next(createError(404));
+  next(createError(404));
 });
 
 // error handler
 app.use(function (err, req, res, next) {
-	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
 
-	// render the error page
-	res.status(err.status || 500).send(err.message);
+  // render the error page
+  res.status(err.status || 500).send(err.message);
 });
 
 module.exports = app;
