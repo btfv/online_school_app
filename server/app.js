@@ -45,6 +45,8 @@ app.use(
 app.use(cookieParser(secret));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 app.use(
   session({
     secret: secret,

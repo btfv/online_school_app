@@ -91,8 +91,9 @@ AuthController.student.login = async (req, res, next) => {
 				});
 
 				res.cookie('Authorization', 'Bearer ' + token, {
-					//httpOnly: true,
-					//secure: true,
+					httpOnly: true,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
 				})
 					.status(200)
 					.json({
@@ -178,8 +179,9 @@ AuthController.teacher.login = async (req, res, next) => {
 					expiresIn: '48h',
 				});
 				res.cookie('Authorization', 'Bearer ' + token, {
-					//httpOnly: true,
-					//secure: true,
+					httpOnly: true,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
 				})
 					.status(200)
 					.json({
