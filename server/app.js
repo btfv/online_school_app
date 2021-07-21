@@ -46,19 +46,19 @@ app.use(cookieParser(secret));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
-app.use(
-  session({
-    secret: secret,
-    resave: true,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      httpOnly: true,
-    },
-  })
-);
+// if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
+// app.use(
+//   session({
+//     secret: secret,
+//     resave: true,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+//       httpOnly: true,
+//     },
+//   })
+// );
 app.use(passport.initialize());
 app.use(passport.session());
 

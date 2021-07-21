@@ -75,7 +75,7 @@ AuthController.student.login = async (req, res, next) => {
 		{ session: false },
 		(error, studentDocument) => {
 			if (error || !studentDocument) {
-				return res.status(400).json({ error });
+				return res.status(400).json({ error : error.message });
 			}
 			const payload = {
 				publicId: studentDocument.publicId,
@@ -83,7 +83,7 @@ AuthController.student.login = async (req, res, next) => {
 			};
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
-					res.status(400).json({ error });
+					res.status(400).json({ error : error.message });
 				}
 
 				const token = jwt.sign(payload, secret, {
@@ -152,7 +152,7 @@ AuthController.student.register = async (req, res, next) => {
 
 		res.status(200).send();
 	} catch (error) {
-		res.status(400).json({ error });
+		res.status(400).json({ error : error.message });
 	}
 };
 
@@ -162,7 +162,7 @@ AuthController.teacher.login = async (req, res, next) => {
 		{ session: false },
 		(error, teacherDocument) => {
 			if (error || !teacherDocument) {
-				return res.status(400).json({ error });
+				return res.status(400).json({error : error.message});
 			}
 			const payload = {
 				publicId: teacherDocument.publicId,
@@ -172,7 +172,7 @@ AuthController.teacher.login = async (req, res, next) => {
 
 			req.login(payload, { session: false }, (error) => {
 				if (error) {
-					return res.status(400).json({ error });
+					return res.status(400).json({ error : error.message });
 				}
 
 				const token = jwt.sign(payload, secret, {
@@ -180,8 +180,8 @@ AuthController.teacher.login = async (req, res, next) => {
 				});
 				res.cookie('Authorization', 'Bearer ' + token, {
 					httpOnly: true,
-					secure: process.env.NODE_ENV === 'production',
-					sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+					secure: process.env.NODE_ENV === 'production' ? false : true,
+					sameSite: 'none',
 				})
 					.status(200)
 					.json({
@@ -242,7 +242,7 @@ AuthController.teacher.register = async (req, res, next) => {
 
 		res.status(200).send();
 	} catch (error) {
-		res.status(400).json({ error });
+		res.status(400).json({ error : error.message });
 	}
 };
 AuthController.logout = async (req, res, next) => {

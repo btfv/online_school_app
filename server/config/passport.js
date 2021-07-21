@@ -24,7 +24,7 @@ passport.use(
 					.select('_id publicId username name firstname lastname passwordHash')
 					.exec();
 				if (!studentDocument) {
-					throw Error("Can't find user with this username");
+					return done(Error('Incorrect Username / Password'), null);
 				}
 				const passwordsMatch = await bcrypt.compare(
 					password,
@@ -55,6 +55,9 @@ passport.use(
 				})
 					.select('_id publicId username firstname lastname passwordHash hasAccess')
 					.exec();
+				if (!teacherDocument) {
+					return done(Error('Incorrect Username / Password'), null);
+				}
 				const passwordsMatch = await bcrypt.compare(
 					password,
 					teacherDocument.passwordHash

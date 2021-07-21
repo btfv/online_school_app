@@ -26,7 +26,7 @@ function login(value) {
 		.then((user) => {
 			localStorage.setItem('user', JSON.stringify(user));
 			return user;
-		});
+		})
 }
 
 function changePassword(value) {
