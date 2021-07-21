@@ -100,11 +100,6 @@ let SignIn = (props) => {
 						</Button>
 						<Grid container>
 							<Grid item xs>
-								<Link href='#' variant='body2'>
-									Forgot password?
-								</Link>
-							</Grid>
-							<Grid item>
 								<Link
 									variant='body2'
 									component={RouterLink}
@@ -112,6 +107,18 @@ let SignIn = (props) => {
 								>
 									{"Don't have an account? Sign Up"}
 								</Link>
+							</Grid>
+						</Grid>
+						<Grid container>
+							<Grid item xs>
+								<Typography variant='body2'>
+									Login: admin
+								</Typography>
+							</Grid>
+							<Grid item xs>
+								<Typography variant='body2'>
+									Password: 12345
+								</Typography>
 							</Grid>
 						</Grid>
 					</form>
